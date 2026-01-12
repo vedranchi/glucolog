@@ -1,0 +1,102 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — GlucoLog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="summary-box">
+    <h2>Today's Summary</h2>
+    <p>Average Glucose: <strong>{{ avg_glucose|default:"No data" }}</strong> {{ unit_label }}</p>
+    <p>Total Insulin: <strong>{{ total_insulin|default:"No data" }}</strong> units</p>
+    <p>Carbs Consumed: <strong>{{ carbs_consumed|default:"No data" }}</strong> g</p>
+</div>
+
+<div class="summary-box">
+    <h2>Glucose Chart (Today)</h2>
+    <canvas id="glucoseChart" width="400" height="200"></canvas>
+</div>
+
+<div class="summary-box">
+    <h2>Recent Activity</h2>
+    <ul>
+        {% for activity in recent_activity %}
+        <li>{{ activity.label }} - {{ activity.when|date:"H:i" }}</li>
+        {% empty %}
+        <li>No activity today</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="summary-box">
+    <h3>Quick Actions</h3>
+    <a href="{% url 'log-insulin' %}">Log Insulin</a> |
+    <a href="{% url 'log-glucose' %}">Log Glucose</a> |
+    <a href="{% url 'log-meal' %}">Log Meal</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN + chart init -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('glucoseChart').getContext('2d');
+const glucoseChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ glucose_labels|safe }},
+        datasets: [{
+            label: 'Glucose ({{ unit_label }})',
+            data: {{ glucose_values|safe }},
+            borderColor: 'rgb(90, 103, 216)',
+            backgroundColor: 'rgba(90, 103, 216, 0.1)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 4,
+            pointBackgroundColor: 'rgb(90, 103, 216)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                labels: {
+                    color: '#4a5568',
+                    font: {
+                        size: 14
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                ticks: {
+                    color: '#718096'
+                },
+                grid: {
+                    color: '#e2e8f0'
+                }
+            },
+            x: {
+                ticks: {
+                    color: '#718096'
+                },
+                grid: {
+                    color: '#e2e8f0'
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

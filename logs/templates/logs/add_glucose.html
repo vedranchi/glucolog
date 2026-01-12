@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if request.resolver_match.url_name == 'edit-insulin' %}
+        Edit Glucose — GlucoLog
+    {% else %}
+        Add Glucose — GlucoLog
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'logs/css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    {% if request.resolver_match.url_name == 'edit-glucose' %}
+        <h1>Edit Glucose Reading</h1>
+    {% else %}
+        <h1>Add Glucose Reading</h1>
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label for="value">Glucose Value ({{ unit_label }})</label>
+        <input
+            type="number"
+            name="value"
+            id="value"
+            step="0.1"
+            min="0"
+            required
+        >
+        {% if error %}
+        <p class="error-message">{{ error }}</p>
+        {% endif %}
+        
+        <label for="context">Context</label>
+        <select name="context" id="context">
+            <option value="">Select context</option>
+            <option value="Fasting">Fasting</option>
+            <option value="Before Meal">Before Meal</option>
+            <option value="After Meal">After Meal</option>
+            <option value="Bedtime">Bedtime</option>
+            <option value="Random">Random</option>
+        </select>
+        
+        <label for="note">Note</label>
+        <input type="text" name="note" id="note" placeholder="Optional note">
+        
+        <div class="button-group">
+            <button type="submit">Log Reading</button>
+            <a href="{% url 'log-glucose' %}">
+                <button type="button" style="background-color: #ede7f6; color: #5e35b1; border: 1px solid #b39ddb; border-radius: 6px; margin-left: 16px; padding: 8px 20px;">
+                    Cancel
+                </button>
+            </a>
+        </div>
+    </form>
+    {% if request.resolver_match.url_name == 'edit-glucose' %}
+    <!-- Delete button form -->
+    <form method="post" action="{% url 'delete-glucose' pk=glucose.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this glucose reading?');">
+        {% csrf_token %}
+        <button type="submit" style="background-color: #ffebee; color: #c62828; border: 1px solid #ef5350; border-radius: 6px; margin-top: 16px; padding: 8px 20px; cursor: pointer; font-size: 14px;">
+            Delete
+        </button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

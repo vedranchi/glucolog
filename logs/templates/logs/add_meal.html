@@ -1,0 +1,89 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if request.resolver_match.url_name == 'edit-meal' %}
+        Edit Meal — GlucoLog
+    {% else %}
+        Add Meal - Glucolog
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'logs/css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+
+    {% if request.resolver_match.url_name == 'edit-meal'%}
+        <h1>Edit Meal</h1>
+    {% else %}
+        <h1>Add Meal</h1>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label for="note">Meal Description</label>
+        <input type="text" name="note" id="note" placeholder="e.g., Wrap, Sandwich, Steak" required>
+        
+        <label for="carbs">Carbohydrates (g)</label>
+        <input type="number" step="0.1" name="carbs" id="carbs" value="0" min="0">
+        
+        <label for="protein">Protein (g)</label>
+        <input type="number" step="0.1" name="protein" id="protein" value="0" min="0">
+        
+        <label for="fats">Fats (g)</label>
+        <input type="number" step="0.1" name="fats" id="fats" value="0" min="0">
+        
+        <label for="calories">Calories (kcal) <small>*estimated</small></label>
+        <input type="number" name="calories" id="calories" value="0" readonly>
+        
+        <label for="context">Context</label>
+        <select name="context" id="context">
+            <option value="">Select meal type</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+        </select>
+        
+        <div class="button-group">
+            <button type="submit">Log Meal</button>
+            <a href="{% url 'log-meal' %}">
+                <button type="button" style="background-color: #ede7f6; color: #5e35b1; border: 1px solid #b39ddb; border-radius: 6px; margin-left: 16px; padding: 8px 20px;">
+                    Cancel
+                </button>
+            </a>
+        </div>
+    </form>
+
+    {% if request.resolver_match.url_name == 'edit-meal' %}
+    <form method="post" action="{% url 'delete-meal' pk=meal.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this meal log?');">
+        {% csrf_token %}
+        <button type="submit" style="background-color: #ffebee; color: #c62828; border: 1px solid #ef5350; border-radius: 6px; margin-top: 16px; padding: 8px 20px; cursor: pointer; font-size: 14px;">
+            Delete
+        </button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function calculateCalories() {
+    const carbs = parseFloat(document.getElementById('carbs').value) || 0;
+    const protein = parseFloat(document.getElementById('protein').value) || 0;
+    const fats = parseFloat(document.getElementById('fats').value) || 0;
+    const calories = (carbs * 4) + (protein * 4) + (fats * 9);
+    document.getElementById('calories').value = Math.round(calories);
+}
+// Add event listeners to all macro inputs
+document.getElementById('carbs').addEventListener('input', calculateCalories);
+document.getElementById('protein').addEventListener('input', calculateCalories);
+document.getElementById('fats').addEventListener('input', calculateCalories);
+// Calculate on page load
+calculateCalories();
+</script>
+{% endblock %}

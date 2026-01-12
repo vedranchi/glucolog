@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GlucoLog - Diabetes Management{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".message").forEach(message => {
+        message.addEventListener("click", () => message.remove());
+    });
+});
+</script>
+
+<body>
+    <nav>
+        {% if user.is_authenticated %}
+            <a href="{% url 'glucolog-dashboard' %}">Dashboard</a>
+            <a href="{% url 'log-insulin' %}">Insulin</a>
+            <a href="{% url 'log-glucose' %}">Glucose</a>
+            <a href="{% url 'log-meal' %}">Meals</a>
+            <a href="{% url 'user-preferences' %}">Preferences</a>
+            <a href="{% url 'glucolog-logout' %}">Logout</a>
+        {% else %}
+            <a href="https://www.diabetes.org/">Learn about Diabetes</a>
+            <a href="https://www.nhs.uk/conditions/diabetes/">Diabetes Resources</a>
+        {% endif %}
+    </nav>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}
+        {% if not user.is_authenticated %}
+        <div class="welcome-container">
+            <h1>Welcome to GlucoLog</h1>
+            <p>
+                Yout personal diabates tracking app, designed to reduce mental load and make logging effortless.
+            </p>
+            <ul>
+                <li>
+                    Understand your trends
+                </li>
+                <li>
+                    Act with confidence
+                </li>
+                <li>
+                    Feel better
+                </li>
+            </ul>
+            <a href="{% url 'glucolog-login' %}" class="btn-primary">
+                Get Started
+            </a>
+            <div class="footer-note">
+                Track, manage, and improve your health with GlucoLog!
+            </div>
+        </div>
+        {% endif %}
+        {% endblock %}
+    </main>
+    {% block extra_js %} {% endblock %}
+</body>
+</html>

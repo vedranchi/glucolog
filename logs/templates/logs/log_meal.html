@@ -1,0 +1,60 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Log Meals — GlucoLog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'logs/css/logs.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Meal Log</h1>
+
+<div class="summary-box">
+    <h2>Today's Summary</h2>
+    <p><strong>Carbs:</strong> {{ carbs_today|floatformat:1 }}g</p>
+    <p><strong>Protein:</strong> {{ protein_today|floatformat:1 }}g</p>
+    <p><strong>Fats:</strong> {{ fats_today|floatformat:1 }}g</p>
+    <p><strong>Calories:</strong> {{ calories_today|floatformat:0 }} kcal</p>
+</div>
+
+<a href="{% url 'add-meal' %}">
+    <button style="background-color: #e6e6fa; color: #4b306f; border: 1px solid #c3b1e1; border-radius: 5px; padding: 8px 18px; font-weight: 600; cursor: pointer;">
+        + Add Meal
+    </button>
+</a>
+
+<h2>Recent Meals (Last 5)</h2>
+{% if recent_meals %}
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Carbs (g)</th>
+            <th>Protein (g)</th>
+            <th>Fats (g)</th>
+            <th>Calories</th>
+            <th>Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for meal in recent_meals %}
+        <tr class="clickable-row">
+            <td data-label="Time">
+                <a href="{% url 'edit-meal' pk=meal.id %}">
+                    {{ meal.eaten_at|date:"H:i" }}
+                </a>        
+            </td>
+            <td data-label="Carbs">{{ meal.carbs|default:"0" }}</td>
+            <td data-label="Protein">{{ meal.protein|default:"0" }}</td>
+            <td data-label="Fats">{{ meal.fats|default:"0" }}</td>
+            <td data-label="Calories">{{ meal.calories|default:"0" }}</td>
+            <td data-label="Note">{{ meal.note|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No meals logged yet.</p>
+{% endif %}
+{% endblock %}

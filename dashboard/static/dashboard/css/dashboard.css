@@ -1,0 +1,162 @@
+/* Dashboard Specific Styles */
+
+/* Page Header */
+h1 {
+    color: #2d3748;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+h3 {
+    color: #2d3748;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 1.5rem;
+}
+
+.message-success {
+    background-color: #c6f6d5;
+    border-left: 4px solid #48bb78;
+    color: #2f855a;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Summary Boxes */
+.summary-box {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.summary-box h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.summary-box h3 {
+    color: #2d3748;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.summary-box p {
+    font-size: 1.125rem;
+    color: #4a5568;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.summary-box p:last-child {
+    margin-bottom: 0;
+}
+
+/* Chart Container */
+.summary-box canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Recent Activity List */
+.summary-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.summary-box ul li {
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.75rem;
+    background-color: #f7fafc;
+    border-radius: 6px;
+    border-left: 4px solid #a3bffa;
+    color: #4a5568;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.summary-box ul li:hover {
+    background-color: #edf2f7;
+}
+
+.summary-box ul li:last-child {
+    margin-bottom: 0;
+}
+
+/* Quick Actions */
+.summary-box a {
+    color: #5a67d8;
+    text-decoration: none;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.summary-box a:hover {
+    color: #4c51bf;
+    text-decoration: underline;
+}
+
+.summary-box a:first-of-type {
+    margin-left: 0;
+}
+
+/* Grid Layout for Summary Boxes (Optional Enhancement) */
+@media (min-width: 992px) {
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .summary-box.full-width {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .summary-box {
+        padding: 1.5rem;
+    }
+
+    .summary-box h2 {
+        font-size: 1.25rem;
+    }
+
+    .summary-box h3 {
+        font-size: 1.125rem;
+    }
+
+    .summary-box p {
+        font-size: 1rem;
+    }
+
+    .summary-box a {
+        display: block;
+        margin: 0.5rem 0;
+        font-size: 1rem;
+    }
+}

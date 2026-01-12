@@ -1,0 +1,122 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Log Insulin — GlucoLog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'logs/css/logs.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Insulin Log</h1>
+
+<!-- Today's summary -->
+<div class="summary-box">
+    <h2>Today's Summary</h2>
+    <p><strong>Total Insulin:</strong> {{ total_units_today|default:"0" }} units</p>
+    <p><strong>Basal:</strong> {{ basal_today|default:"0" }} units</p>
+    <p><strong>Bolus:</strong> {{ bolus_today|default:"0" }} units</p>
+</div>
+
+<!-- Add insulin -->
+<a href="{% url 'add-insulin' %}" class="primary-action">
+    <button>
+        + Add Insulin Dose
+    </button>
+</a>
+
+<!-- Recent activity -->
+<h2>Recent Activity (Last 5)</h2>
+
+{% if recent_insulin %}
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Units</th>
+            <th>Type</th>
+            <th>Brand</th>
+            <th>Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for insulin in recent_insulin %}
+        <tr class="clickable-row">
+            <td data-label="Time">
+                <a href="{% url 'edit-insulin' pk=insulin.id %}">
+                    {{ insulin.when|date:"H:i" }}
+                </a>
+            </td>
+            <td data-label="Units">{{ insulin.units }}</td>
+            <td data-label="Type">{{ insulin.type }}</td>
+            <td data-label="Brand">{{ insulin.brand|default:"-" }}</td>
+            <td data-label="Note">{{ insulin.note|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No insulin logged today.</p>
+{% endif %}
+
+<!-- Weekly summary -->
+<h2>Last 7 Days</h2>
+
+{% if weekly_insulin %}
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Basal Units</th>
+            <th>Bolus Units</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in weekly_insulin %}
+        <tr>
+            <td data-label="Date">{{ day.date|date:"M d, Y" }}</td>
+            <td data-label="Basal Units">{{ day.basal_units|default:"0" }}</td>
+            <td data-label="Bolus Units">{{ day.bolus_units|default:"0" }}</td>
+            <td data-label="Total">
+                {{ day.basal_units|add:day.bolus_units|default:"0" }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No data for the last 7 days.</p>
+{% endif %}
+
+<!-- Correction doses -->
+<h2>Correction Doses (Last 7 Days)</h2>
+
+{% if weekly_corrections %}
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Units</th>
+            <th>Type</th>
+            <th>Brand</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for correction in weekly_corrections %}
+        <tr>
+            <td data-label="Time">
+                {{ correction.taken_at|date:"M d, H:i" }}
+            </td>
+            <td data-label="Units">{{ correction.units }}</td>
+            <td data-label="Type">{{ correction.insulin_type }}</td>
+            <td data-label="Brand">{{ correction.brand|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No correction doses in the last 7 days.</p>
+{% endif %}
+
+{% endblock %}

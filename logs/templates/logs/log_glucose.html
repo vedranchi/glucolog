@@ -1,0 +1,124 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Log Glucose — GlucoLog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'logs/css/logs.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Glucose Log</h1>
+
+<!-- Current reading -->
+<div class="summary-box">
+    <h2>Current Reading</h2>
+    {% if current_glucose_value %}
+        <p>
+            <strong>{{ current_glucose_value }} {{ unit_label }}</strong>
+        </p>
+        <p>
+            <small>
+                Measured at: {{ current_glucose_time|date:"M d, Y H:i" }}
+            </small>
+        </p>
+    {% else %}
+        <p>No readings yet</p>
+    {% endif %}
+</div>
+
+<!-- Today's summary -->
+<div class="summary-box">
+    <h2>Today's Summary</h2>
+    <p>
+        <strong>Average:</strong>
+        {{ avg_glucose|floatformat:1|default:"No data" }} {{ unit_label }}
+    </p>
+    <p>
+        <strong>Total readings:</strong>
+        {{ reading_count|default:"0" }}
+    </p>
+</div>
+
+<!-- Add glucose -->
+<a href="{% url 'add-glucose' %}" class="primary-action">
+    <button>
+        + Add Glucose Reading
+    </button>
+</a>
+
+<!-- Recent activity -->
+<h2>Recent Activity (Last 10 readings)</h2>
+
+{% if recent_activity %}
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Value ({{ unit_label }})</th>
+            <th>Context</th>
+            <th>Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reading in recent_activity %}
+        <tr class="clickable-row">
+            <td data-label="Time">
+                <a href="{% url 'edit-glucose' pk=reading.id %}">
+                    {{ reading.when|date:"H:i" }}
+                </a>
+            </td>
+            <td data-label="Value">
+                {{ reading.value }}
+            </td>
+            <td data-label="Context">
+                {{ reading.context|default:"-" }}
+            </td>
+            <td data-label="Note">
+                {{ reading.note|default:"-" }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No glucose readings today.</p>
+{% endif %}
+
+<!-- Last 7 days -->
+<h2>Recent Activity (Last 7 Days)</h2>
+
+{% if recent_seven_days %}
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Value ({{ unit_label }})</th>
+            <th>Context</th>
+            <th>Note</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reading in recent_seven_days %}
+        <tr>
+            <td data-label="Time">
+                {{ reading.measured_at|date:"M d H:i" }}
+            </td>
+            <td data-label="Value">
+                {{ reading.value }}
+            </td>
+            <td data-label="Context">
+                {{ reading.context|default:"-" }}
+            </td>
+            <td data-label="Note">
+                {{ reading.note|default:"-" }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No readings in the last 7 days.</p>
+{% endif %}
+
+{% endblock %}
