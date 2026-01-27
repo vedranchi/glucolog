@@ -1,0 +1,10 @@
+{% extends "main/base.html" %}
+
+{% block title %}Profile — GlucoLog{% endblock %}
+
+
+{% block content %}
+  {% if user.is_authenticated %}
+    <p>Logged in as, {{ user.username }}</p>
+  {% endif %}
+{% endblock %}

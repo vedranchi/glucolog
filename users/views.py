@@ -33,6 +33,10 @@ def login_view(request):
   else:
     form = AuthenticationForm()
   return render(request, 'users/login.html', {"form": form})
+
+def user_profile_view(request):
+    return render(request, 'users/profile.html')
+  
     
 
 def logout_view(request):

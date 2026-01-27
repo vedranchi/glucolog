@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register_view, login_view, logout_view
+from .views import register_view, login_view, logout_view, user_profile_view
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -12,6 +12,7 @@ urlpatterns = [
     path('register/', register_view, name="glucolog-register"),
     path('login/', login_view, name='glucolog-login'),
     path('logout/', logout_view, name="glucolog-logout"),
+    path('profile/', user_profile_view, name="user-profile"),
     
     
     # password reset views
