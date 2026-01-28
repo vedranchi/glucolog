@@ -4,7 +4,7 @@ from django.db.models.functions import TruncDate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from logs.models import InsulinLog, GlucoseLog, MealLog
-from dashboard.models import UserPreferences
+from users.models import UserPreferences
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
