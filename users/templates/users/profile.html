@@ -1,10 +1,53 @@
-{% extends "main/base.html" %}
+{% extends 'main/base.html' %}
+{% load static %}
 
-{% block title %}Profile — GlucoLog{% endblock %}
+{% block title %}
+Profile — GlucoLog
+{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/css/preferences.css' %}">
+{% endblock %}
 
 {% block content %}
-  {% if user.is_authenticated %}
-    <p>Logged in as, {{ user.username }}</p>
-  {% endif %}
+{% if user.is_authenticated %}
+<p>Logged in as {{ user.username }}</p>
+{% endif %}
+
+<div class="preferences-container">
+  <h2>Preferences</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div>
+      <label for="{{ preferences_form.glucose_unit.id_for_label }}">
+        {{ preferences_form.glucose_unit.label }}
+      </label>
+
+      {{ preferences_form.glucose_unit }}
+
+      {% if preferences_form.glucose_unit.help_text %}
+      <span class="helptext">
+        {{ preferences_form.glucose_unit.help_text }}
+      </span>
+      {% endif %}
+
+      {% if preferences_form.glucose_unit.errors %}
+      <ul class="errorlist">
+        {% for error in preferences_form.glucose_unit.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <div class="button-group">
+      <button type="submit">Save Preferences</button>
+      <a href="{% url 'glucolog-dashboard' %}">
+        <button type="button">Cancel</button>
+      </a>
+    </div>
+  </form>
+</div>
 {% endblock %}
