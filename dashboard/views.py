@@ -1,18 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from logs.models import GlucoseLog, InsulinLog, MealLog
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 import json
 
-from .models import UserPreferences
-from .forms import PreferencesForm
-
+from users.services import get_user_preferences
 
 @login_required
 def dashboard(request):
     # get user unit preference
-    profile, _ = UserPreferences.objects.get_or_create(user=request.user)
+    profile = get_user_preferences(request.user)
     unit = profile.glucose_unit
     unit_label = "mg/dL" if unit == "mg/dL" else "mmol/L"
 
@@ -84,17 +81,3 @@ def dashboard(request):
 
     return render(request, "dashboard/dashboard.html", context)
 
-
-@login_required
-def preferences(request):
-    profile, _ = UserPreferences.objects.get_or_create(user=request.user)
-
-    if request.method == "POST":
-        form = PreferencesForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Preferences Updated")
-            return redirect("glucolog-dashboard")
-    else:
-        form = PreferencesForm(instance=profile)
-    return render(request, "dashboard/preferences.html", {"form": form})
