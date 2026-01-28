@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(DEBUG=(bool, False))
 
 # take environment variables from .env file
-environ.Env.read_env(BASE_DIR / ".env.dev")
+environ.Env.read_env(BASE_DIR / ".env")
 
 
 # check debugging status from .env
