@@ -20,12 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
 <body>
     <nav>
         {% if user.is_authenticated %}
+        <div class="nav-left">
             <a href="{% url 'glucolog-dashboard' %}">Dashboard</a>
             <a href="{% url 'log-insulin' %}">Insulin</a>
             <a href="{% url 'log-glucose' %}">Glucose</a>
             <a href="{% url 'log-meal' %}">Meals</a>
             <a href="{% url 'glucolog-logout' %}">Logout</a>
+        </div>
+        <div class="nav-right">
             <a href="{% url 'user-profile' %}">Profile</a>
+        </div>
+            
         {% else %}
             <a href="https://www.diabetes.org/">Learn about Diabetes</a>
             <a href="https://www.nhs.uk/conditions/diabetes/">Diabetes Resources</a>
