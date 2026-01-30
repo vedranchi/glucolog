@@ -34,5 +34,23 @@ class UserPreferences(models.Model):
         max_length=10, choices=GLUCOSE_UNIT_CHOICES, default=GLUCOSE_UNIT_MMOL
     )
 
+
+class HealthProfile(models.Model):
+    DIABETES_TYPE_1 = "type1"
+    DIABETES_TYPE_2 = "type2"
+    
+    DIABETES_TYPE_CHOICES = [
+        (DIABETES_TYPE_1, "Type 1"),
+        (DIABETES_TYPE_2, "Type 2")
+    ]
+    
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="health_profile"
+    )
+    diabetes_type = models.CharField(
+        max_length=10, choices=DIABETES_TYPE_CHOICES, default=DIABETES_TYPE_1
+    )
+    
+    
     def __str__(self):
         return f"{self.user.username} profile"

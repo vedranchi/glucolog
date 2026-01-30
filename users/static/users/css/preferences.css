@@ -4,17 +4,86 @@
 .preferences-container {
     background-color: #ffffff;
     border-radius: 8px;
-    padding: 2.5rem;
+    padding: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     max-width: 600px;
 }
 
+/* Health Profile Container */
+.health-profile-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin-top: 1.5rem;
+}
+
+/* Logged In User Info */
+/* .logged-in-as,
+.user-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logged-in-as strong,
+.user-info strong {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.0625rem;
+} */
+
+
+/* Alternative simpler style (comment out the above and use this if preferred) */
+
+.logged-in-as,
+.user-info {
+    background-color: #f7fafc;
+    border-left: 4px solid #5a67d8;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+    font-size: 0.9375rem;
+    color: #4a5568;
+}
+
+.logged-in-as strong,
+.user-info strong {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+
+
 /* Page Header */
 h1 {
     color: #2d3748;
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
     font-weight: 600;
+}
+
+/* Section Headers */
+h2 {
+    color: #2d3748;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+h2:first-of-type {
+    margin-top: 0;
 }
 
 /* Form Styles */
@@ -23,23 +92,23 @@ form {
 }
 
 form > div {
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
 }
 
 form label {
     display: block;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     color: #4a5568;
     font-weight: 500;
-    font-size: 1.125rem;
+    font-size: 1rem;
 }
 
 form select {
     width: 100%;
-    padding: 0.875rem;
+    padding: 0.625rem;
     border: 1px solid #cbd5e0;
     border-radius: 6px;
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: #4a5568;
     background-color: #ffffff;
     transition: border-color 0.3s ease;
@@ -55,18 +124,18 @@ form select:focus {
 /* Button Container */
 .button-group {
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
 }
 
 /* Submit Button */
 button[type="submit"] {
     background-color: #5a67d8;
     color: #ffffff;
-    padding: 0.875rem 2rem;
+    padding: 0.625rem 1.5rem;
     border: none;
     border-radius: 6px;
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
@@ -85,10 +154,10 @@ button[type="submit"]:active {
 button[type="button"] {
     background-color: #e2e8f0;
     color: #4a5568;
-    padding: 0.875rem 2rem;
+    padding: 0.625rem 1.5rem;
     border: none;
     border-radius: 6px;
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -141,12 +210,18 @@ a button[type="button"] {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .preferences-container {
-        padding: 1.5rem;
+    .preferences-container,
+    .health-profile-container {
+        padding: 1rem;
     }
 
     h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        font-size: 1.125rem;
     }
 
     .button-group {
@@ -156,6 +231,6 @@ a button[type="button"] {
     button[type="submit"],
     button[type="button"] {
         width: 100%;
-        padding: 1rem;
+        padding: 0.75rem;
     }
 }

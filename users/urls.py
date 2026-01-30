@@ -1,5 +1,5 @@
 from django.urls import path, reverse_lazy
-from .views import register_view, login_view, logout_view
+from .views import register_view, login_view, logout_view, user_profile_view
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,

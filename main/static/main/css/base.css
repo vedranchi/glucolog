@@ -13,21 +13,41 @@ body {
     font-size: 16px;
 }
 
-/* Navigation */
+/* =======================
+Navigation
+======================= */
 nav {
     background-color: #ffffff;
     padding: 1rem 2rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid #e2e8f0;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.nav-left,
+.nav-right {
+    display: flex;
+    align-items: center;
 }
 
 nav a {
     color: #5a67d8;
     text-decoration: none;
-    margin-right: 2rem;
     font-size: 1rem;
     font-weight: 500;
     transition: color 0.3s ease;
+}
+
+.nav-left a {
+    margin-right: 2rem;
+}
+
+.nav-right a {
+    margin-left: 1rem;
 }
 
 nav a:hover {
@@ -35,18 +55,16 @@ nav a:hover {
     text-decoration: underline;
 }
 
-nav a:last-child {
-    margin-right: 0;
-}
-
-/* Main Content */
+/* =======================
+Main Content
+======================= */
 main {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 2rem;
 }
 
-/* Welcome Section (Unauthenticated) */
+/* Welcome Section */
 .welcome-container {
     background-color: #ffffff;
     border-radius: 8px;
@@ -88,7 +106,7 @@ main {
     border-left: 4px solid #a3bffa;
 }
 
-.welcome-container ul li:before {
+.welcome-container ul li::before {
     content: "✓ ";
     color: #5a67d8;
     font-weight: bold;
@@ -106,7 +124,6 @@ main {
     font-size: 1.125rem;
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-bottom: 1.5rem;
 }
 
 .btn-primary:hover {
@@ -124,16 +141,16 @@ main {
     font-size: 1rem;
 }
 
-/* Responsive Design */
+/* =======================
+Responsive Design
+======================= */
 @media (max-width: 768px) {
     nav {
         padding: 1rem;
-        text-align: center;
     }
 
-    nav a {
-        display: inline-block;
-        margin: 0.5rem 1rem;
+    .nav-left a {
+        margin-right: 1rem;
     }
 
     main {
@@ -158,13 +175,10 @@ main {
     }
 }
 
-/* Form Elements (for future use) */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="date"],
-input[type="time"],
+/* =======================
+Forms
+======================= */
+input,
 textarea,
 select {
     width: 100%;
@@ -173,16 +187,9 @@ select {
     border-radius: 4px;
     font-size: 1rem;
     color: #4a5568;
-    background-color: #ffffff;
-    transition: border-color 0.3s ease;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus,
-input[type="date"]:focus,
-input[type="time"]:focus,
+input:focus,
 textarea:focus,
 select:focus {
     outline: none;
@@ -192,7 +199,6 @@ select:focus {
 label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #4a5568;
     font-weight: 500;
 }
 
@@ -200,7 +206,7 @@ label {
     margin-bottom: 1.5rem;
 }
 
-button[type="submit"],
+button,
 .btn-submit {
     background-color: #5a67d8;
     color: #ffffff;
@@ -208,17 +214,17 @@ button[type="submit"],
     border: none;
     border-radius: 4px;
     font-size: 1rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
-button[type="submit"]:hover,
+button:hover,
 .btn-submit:hover {
     background-color: #4c51bf;
 }
 
-/* Alerts and Messages */
+/* =======================
+Messages
+======================= */
 .messages {
     margin: 1rem 0;
     display: flex;
@@ -226,51 +232,42 @@ button[type="submit"]:hover,
     gap: 0.75rem;
 }
 
-/* Base message style */
 .message {
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.95rem;
-    line-height: 1.4;
     border-left: 4px solid;
-    background: #f8fafc;
-    color: #0f172a;
-    cursor: pointer;
-}
-
-.message {
     animation: fadeOut 6s ease forwards;
 }
 
 @keyframes fadeOut {
-    0%, 80% { opacity: 1; }
-    100% { opacity: 0; display: none; }
+
+    0%,
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
-/* Success */
 .message.success {
     border-color: #22c55e;
     background: #ecfdf5;
-    color: #14532d;
 }
 
-/* Error */
 .message.error {
     border-color: #ef4444;
     background: #fef2f2;
-    color: #7f1d1d;
 }
 
-/* Warning */
 .message.warning {
     border-color: #f59e0b;
     background: #fffbeb;
-    color: #78350f;
 }
 
-/* Info */
 .message.info {
     border-color: #3b82f6;
     background: #eff6ff;
-    color: #1e3a8a;
 }
