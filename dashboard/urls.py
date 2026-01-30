@@ -4,5 +4,4 @@ from . import views
 
 urlpatterns = [
   path('', views.dashboard, name='glucolog-dashboard'),
-  path('preferences', views.preferences, name='user-preferences'),
 ]

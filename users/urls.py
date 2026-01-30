@@ -12,7 +12,7 @@ urlpatterns = [
     path('register/', register_view, name="glucolog-register"),
     path('login/', login_view, name='glucolog-login'),
     path('logout/', logout_view, name="glucolog-logout"),
-    
+    path('profile/', user_profile_view, name="user-profile"),
     
     # password reset views
     path('password_reset/', auth_views.PasswordResetView.as_view(
