@@ -17,12 +17,11 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 env = environ.Env(DEBUG=(bool, False))
-
-# take environment variables from .env file
 environ.Env.read_env(BASE_DIR / ".env")
 
+sendgrid_env = environ.Env()
+environ.Env.read_env(BASE_DIR / "sendgrid.env")
 
 # check debugging status from .env
 DEBUG = env("DEBUG")
@@ -54,13 +53,14 @@ INSTALLED_APPS = [
 ]
 
 # email service
-EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend'
 
 ANYMAIL = {
-    "SENDGRID_API_KEY": env("EMAIL_API_KEY"),
+    "SENDGRID_API_KEY": sendgrid_env("SENDGRID_API_KEY"),
 }
 
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+DEFAULT_FROM_EMAIL = sendgrid_env("DEFAULT_FROM_EMAIL", default='vchichovv@gmail.com')
+SERVER_EMAIL = sendgrid_env("SERVER_EMAIL", default='vchichovv@gmail.com')
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
