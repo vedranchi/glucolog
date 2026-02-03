@@ -5,11 +5,9 @@ from django.conf import settings
 
 class User(AbstractUser):
     """Extend Django AbstractUser"""
-
     email = models.EmailField(unique=True)
-
-    # extend later
-
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics') 
+    
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
