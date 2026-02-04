@@ -1,4 +1,9 @@
-/* Base Styles */
+/* ===================================
+   GlucoLog Base Styles
+   Health-focused design with pale green theme
+   =================================== */
+
+/* Base Reset */
 * {
     margin: 0;
     padding: 0;
@@ -7,82 +12,83 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f7fa;
-    color: #4a5568;
-    line-height: 1.6;
-    font-size: 16px;
+    background-color: #f0f7f4;
+    color: #2d5f4f;
+    line-height: 1.7;
+    font-size: 17px;
+    min-height: 100vh;
 }
 
-/* =======================
-Navigation
-======================= */
+/* ===================================
+   Navigation
+   =================================== */
 nav {
     background-color: #ffffff;
-    padding: 1rem 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid #e2e8f0;
-
+    padding: 1.25rem 2rem;
+    border-bottom: 2px solid #d1e7dd;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .nav-left,
 .nav-right {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 nav a {
-    color: #5a67d8;
+    color: #5fa884;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 1.0625rem;
     font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-.nav-left a {
-    margin-right: 2rem;
-}
-
-.nav-right a {
-    margin-left: 1rem;
+    padding: 0.5rem 0.75rem;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 3px;
 }
 
 nav a:hover {
-    color: #4c51bf;
-    text-decoration: underline;
+    color: #2d5f4f;
+    background-color: #f0f7f4;
 }
 
-/* =======================
-Main Content
-======================= */
+nav a:active {
+    background-color: #e1f0ea;
+}
+
+/* ===================================
+   Main Content
+   =================================== */
 main {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 2rem;
 }
 
-/* Welcome Section */
+/* ===================================
+   Welcome Section (Landing Page)
+   =================================== */
 .welcome-container {
     background-color: #ffffff;
-    border-radius: 8px;
+    border: 1px solid #d1e7dd;
     padding: 3rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
 .welcome-container h1 {
-    color: #2d3748;
-    font-size: 2.5rem;
+    color: #2d5f4f;
+    font-size: 2.25rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
 }
 
 .welcome-container p {
-    color: #718096;
-    font-size: 1.125rem;
+    color: #5a7a6d;
+    font-size: 1.1875rem;
     margin-bottom: 2rem;
     line-height: 1.8;
 }
@@ -91,66 +97,237 @@ main {
     list-style: none;
     margin-bottom: 2.5rem;
     text-align: left;
-    max-width: 600px;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .welcome-container ul li {
-    padding: 1rem;
+    padding: 1.125rem 1.25rem;
     margin-bottom: 1rem;
-    background-color: #edf2f7;
-    border-radius: 6px;
-    color: #4a5568;
-    font-size: 1rem;
-    border-left: 4px solid #a3bffa;
+    background-color: #f0f7f4;
+    border-radius: 3px;
+    color: #2d5f4f;
+    font-size: 1.0625rem;
+    border-left: 3px solid #5fa884;
 }
 
 .welcome-container ul li::before {
     content: "✓ ";
-    color: #5a67d8;
+    color: #5fa884;
     font-weight: bold;
-    margin-right: 0.5rem;
+    margin-right: 0.75rem;
+    font-size: 1.125rem;
 }
 
-/* Buttons */
+/* ===================================
+   Buttons
+   =================================== */
 .btn-primary {
     display: inline-block;
-    background-color: #5a67d8;
+    background-color: #5fa884;
     color: #ffffff;
-    padding: 0.875rem 2rem;
-    border-radius: 6px;
+    padding: 0.875rem 2.25rem;
+    border-radius: 3px;
     text-decoration: none;
     font-size: 1.125rem;
     font-weight: 500;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
+    border: 1px solid #4a8a6a;
+    cursor: pointer;
 }
 
 .btn-primary:hover {
-    background-color: #4c51bf;
-    transform: translateY(-2px);
+    background-color: #4a8a6a;
+    text-decoration: none;
+    color: #ffffff;
 }
 
-/* Footer Note */
+.btn-primary:active {
+    background-color: #3d7158;
+}
+
+/* Secondary Button Style */
+.btn-secondary {
+    background-color: #ffffff;
+    color: #5a7a6d;
+    border: 1px solid #b8dac6;
+}
+
+.btn-secondary:hover {
+    background-color: #f0f7f4;
+}
+
+/* ===================================
+   Footer Note
+   =================================== */
 .footer-note {
     margin-top: 2rem;
     padding: 1.5rem;
-    background-color: #f7fafc;
-    border-radius: 6px;
-    color: #718096;
+    background-color: #f0f7f4;
+    border-radius: 3px;
+    border: 1px solid #d1e7dd;
+    color: #5a7a6d;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+}
+
+/* ===================================
+   Forms (Global)
+   =================================== */
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #b8dac6;
+    border-radius: 3px;
+    font-size: 1.0625rem;
+    color: #2d5f4f;
+    background-color: #ffffff;
+    font-family: inherit;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+    border-color: #8fc5a5;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #5fa884;
+    box-shadow: 0 0 0 2px rgba(95, 168, 132, 0.15);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #a3cfbb;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #2d5f4f;
     font-size: 1rem;
 }
 
-/* =======================
-Responsive Design
-======================= */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+button,
+.btn-submit {
+    background-color: #5fa884;
+    color: #ffffff;
+    padding: 0.75rem 1.75rem;
+    border: 1px solid #4a8a6a;
+    border-radius: 3px;
+    font-size: 1.0625rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    font-family: inherit;
+}
+
+button:hover,
+.btn-submit:hover {
+    background-color: #4a8a6a;
+}
+
+button:active,
+.btn-submit:active {
+    background-color: #3d7158;
+}
+
+/* ===================================
+   Messages/Alerts
+   =================================== */
+.messages {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.message {
+    padding: 1rem 1.25rem;
+    border-radius: 3px;
+    font-size: 1.0625rem;
+    border-left: 3px solid;
+    animation: fadeOut 8s ease forwards;
+    cursor: pointer;
+}
+
+.message:hover {
+    opacity: 0.9;
+}
+
+@keyframes fadeOut {
+    0%,
+    85% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}
+
+.message.success {
+    border-color: #5fa884;
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.message.error {
+    border-color: #e57373;
+    background: #ffebee;
+    color: #c62828;
+}
+
+.message.warning {
+    border-color: #ffb74d;
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.message.info {
+    border-color: #64b5f6;
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+/* ===================================
+   Links
+   =================================== */
+a {
+    color: #5fa884;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #4a8a6a;
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
 @media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+
     nav {
         padding: 1rem;
     }
 
-    .nav-left a {
-        margin-right: 1rem;
+    nav a {
+        font-size: 1rem;
+        padding: 0.5rem;
     }
 
     main {
@@ -163,111 +340,33 @@ Responsive Design
     }
 
     .welcome-container h1 {
-        font-size: 2rem;
+        font-size: 1.875rem;
     }
 
     .welcome-container p {
-        font-size: 1rem;
+        font-size: 1.0625rem;
     }
 
     .welcome-container ul li {
-        font-size: 0.9375rem;
+        font-size: 1rem;
+        padding: 1rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        text-align: center;
     }
 }
 
-/* =======================
-Forms
-======================= */
-input,
-textarea,
-select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 4px;
-    font-size: 1rem;
-    color: #4a5568;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-    outline: none;
-    border-color: #5a67d8;
-}
-
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-button,
-.btn-submit {
-    background-color: #5a67d8;
-    color: #ffffff;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-button:hover,
-.btn-submit:hover {
-    background-color: #4c51bf;
-}
-
-/* =======================
-Messages
-======================= */
-.messages {
-    margin: 1rem 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.message {
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.95rem;
-    border-left: 4px solid;
-    animation: fadeOut 6s ease forwards;
-}
-
-@keyframes fadeOut {
-
-    0%,
-    80% {
-        opacity: 1;
+@media (max-width: 480px) {
+    nav {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    100% {
-        opacity: 0;
+    .nav-left,
+    .nav-right {
+        width: 100%;
+        justify-content: center;
     }
-}
-
-.message.success {
-    border-color: #22c55e;
-    background: #ecfdf5;
-}
-
-.message.error {
-    border-color: #ef4444;
-    background: #fef2f2;
-}
-
-.message.warning {
-    border-color: #f59e0b;
-    background: #fffbeb;
-}
-
-.message.info {
-    border-color: #3b82f6;
-    background: #eff6ff;
 }

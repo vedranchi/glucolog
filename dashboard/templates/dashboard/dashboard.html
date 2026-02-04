@@ -35,14 +35,13 @@
 
 <div class="summary-box">
     <h3>Quick Actions</h3>
-    <a href="{% url 'log-insulin' %}">Log Insulin</a> |
-    <a href="{% url 'log-glucose' %}">Log Glucose</a> |
+    <a href="{% url 'log-insulin' %}">Log Insulin</a>
+    <a href="{% url 'log-glucose' %}">Log Glucose</a>
     <a href="{% url 'log-meal' %}">Log Meal</a>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Chart.js CDN + chart init -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('glucoseChart').getContext('2d');
@@ -53,14 +52,18 @@ const glucoseChart = new Chart(ctx, {
         datasets: [{
             label: 'Glucose ({{ unit_label }})',
             data: {{ glucose_values|safe }},
-            borderColor: 'rgb(90, 103, 216)',
-            backgroundColor: 'rgba(90, 103, 216, 0.1)',
+            borderColor: '#5fa884',
+            backgroundColor: 'rgba(95, 168, 132, 0.1)',
             tension: 0.3,
             fill: true,
-            pointRadius: 4,
-            pointBackgroundColor: 'rgb(90, 103, 216)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2
+            pointRadius: 5,
+            pointBackgroundColor: '#5fa884',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+            pointHoverBackgroundColor: '#4a8a6a',
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 2
         }]
     },
     options: {
@@ -70,10 +73,26 @@ const glucoseChart = new Chart(ctx, {
             legend: {
                 display: true,
                 labels: {
-                    color: '#4a5568',
+                    color: '#2d5f4f',
                     font: {
-                        size: 14
-                    }
+                        size: 14,
+                        family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                    },
+                    padding: 15
+                }
+            },
+            tooltip: {
+                backgroundColor: '#2d5f4f',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                padding: 12,
+                cornerRadius: 3,
+                titleFont: {
+                    size: 14,
+                    weight: 'bold'
+                },
+                bodyFont: {
+                    size: 13
                 }
             }
         },
@@ -81,18 +100,28 @@ const glucoseChart = new Chart(ctx, {
             y: {
                 beginAtZero: false,
                 ticks: {
-                    color: '#718096'
+                    color: '#5a7a6d',
+                    font: {
+                        size: 12
+                    }
                 },
                 grid: {
-                    color: '#e2e8f0'
+                    color: '#e8f0ed',
+                    borderColor: '#d1e7dd',
+                    borderWidth: 1
                 }
             },
             x: {
                 ticks: {
-                    color: '#718096'
+                    color: '#5a7a6d',
+                    font: {
+                        size: 12
+                    }
                 },
                 grid: {
-                    color: '#e2e8f0'
+                    color: '#e8f0ed',
+                    borderColor: '#d1e7dd',
+                    borderWidth: 1
                 }
             }
         }

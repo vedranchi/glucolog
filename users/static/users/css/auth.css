@@ -1,4 +1,7 @@
-/* Authentication Pages CSS - Login & Register */
+/* ===================================
+   Authentication Pages CSS
+   Login & Register
+   =================================== */
 
 /* Page Container */
 .auth-container {
@@ -10,21 +13,49 @@
 /* Auth Card */
 .auth-card {
     background-color: #ffffff;
-    border-radius: 8px;
+    border: 2px solid #d1e7dd;
     padding: 3rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative top accent */
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #5fa884 0%, #4a8a6a 100%);
 }
 
 /* Page Header */
 .auth-card h2 {
-    color: #2d3748;
+    color: #2d5f4f;
     font-size: 2rem;
     margin-bottom: 2rem;
     font-weight: 600;
     text-align: center;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #d1e7dd;
+    position: relative;
 }
 
-/* Form Styles */
+.auth-card h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #5fa884;
+}
+
+/* ===================================
+   Form Styles
+   =================================== */
 .auth-card form {
     width: 100%;
 }
@@ -32,14 +63,21 @@
 /* Crispy Forms Override */
 .auth-card form .form-group {
     margin-bottom: 1.5rem;
+    position: relative;
+}
+
+/* Add visual indicator for focused/filled inputs */
+.auth-card form .form-group:focus-within label {
+    color: #5fa884;
 }
 
 .auth-card form label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #4a5568;
-    font-weight: 500;
-    font-size: 1rem;
+    color: #2d5f4f;
+    font-weight: 600;
+    font-size: 1.0625rem;
+    letter-spacing: 0.3px;
 }
 
 .auth-card form input[type="text"],
@@ -47,120 +85,193 @@
 .auth-card form input[type="password"] {
     width: 100%;
     padding: 0.875rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
-    font-size: 1rem;
-    color: #4a5568;
+    border: 2px solid #d1e7dd;
+    border-radius: 3px;
+    font-size: 1.0625rem;
+    color: #2d5f4f;
+    background-color: #f9fcfb;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    font-family: inherit;
+}
+
+.auth-card form input[type="text"]:hover,
+.auth-card form input[type="email"]:hover,
+.auth-card form input[type="password"]:hover {
+    border-color: #5fa884;
     background-color: #ffffff;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .auth-card form input[type="text"]:focus,
 .auth-card form input[type="email"]:focus,
 .auth-card form input[type="password"]:focus {
     outline: none;
-    border-color: #5a67d8;
-    box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.1);
+    border-color: #5fa884;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(95, 168, 132, 0.1);
 }
 
-/* Help Text */
+.auth-card form input::placeholder {
+    color: #a3cfbb;
+}
+
+/* ===================================
+   Help Text
+   =================================== */
 .auth-card form .form-text,
-.auth-card form small {
+.auth-card form small,
+.auth-card form .helptext {
     display: block;
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: #718096;
-}
-
-/* Error Messages */
-.auth-card form .invalid-feedback,
-.auth-card form .error {
-    display: block;
-    color: #c53030;
-    background-color: #fed7d7;
-    border-left: 4px solid #f56565;
-    padding: 0.75rem;
-    border-radius: 4px;
     margin-top: 0.5rem;
     font-size: 0.9375rem;
+    color: #5a7a6d;
+    line-height: 1.5;
+}
+
+/* ===================================
+   Error Messages
+   =================================== */
+.auth-card form .invalid-feedback,
+.auth-card form .error,
+.auth-card form .errorlist {
+    display: block;
+    color: #c62828;
+    background: linear-gradient(135deg, #ffebee 0%, #fff5f5 100%);
+    border-left: 4px solid #e57373;
+    padding: 0.875rem 1rem;
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    box-shadow: 0 1px 3px rgba(229, 115, 115, 0.1);
+}
+
+.auth-card form .errorlist {
+    list-style: none;
+    padding: 0.875rem 1rem;
+    margin: 0.5rem 0 0 0;
+}
+
+.auth-card form .errorlist li {
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.auth-card form .errorlist li::before {
+    content: '⚠';
+    position: absolute;
+    left: 0;
+    font-size: 1rem;
+}
+
+.auth-card form .errorlist li:last-child {
+    margin-bottom: 0;
 }
 
 .auth-card form .is-invalid {
-    border-color: #f56565;
+    border-color: #e57373;
+    background-color: #fff5f5;
 }
 
 .auth-card form .is-invalid:focus {
-    border-color: #f56565;
-    box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+    border-color: #e57373;
+    box-shadow: 0 0 0 3px rgba(229, 115, 115, 0.15);
 }
 
 /* Non-field errors */
 .auth-card form .alert {
-    padding: 1rem;
-    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    border-radius: 3px;
     margin-bottom: 1.5rem;
+    font-weight: 500;
 }
 
 .auth-card form .alert-danger {
-    background-color: #fed7d7;
-    border-left: 4px solid #f56565;
-    color: #c53030;
+    background: linear-gradient(135deg, #ffebee 0%, #fff5f5 100%);
+    border-left: 4px solid #e57373;
+    color: #c62828;
+    box-shadow: 0 1px 3px rgba(229, 115, 115, 0.1);
 }
 
-/* Submit Button */
+.auth-card form .alert-success {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+    border-left: 4px solid #5fa884;
+    color: #2e7d32;
+    box-shadow: 0 1px 3px rgba(95, 168, 132, 0.1);
+}
+
+/* ===================================
+   Submit Button
+   =================================== */
 .auth-card form button[type="submit"] {
     width: 100%;
-    background-color: #5a67d8;
+    background: linear-gradient(135deg, #5fa884 0%, #4a8a6a 100%);
     color: #ffffff;
-    padding: 0.875rem;
+    padding: 1rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 3px;
     font-size: 1.125rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     margin-top: 1rem;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(95, 168, 132, 0.2);
 }
 
 .auth-card form button[type="submit"]:hover {
-    background-color: #4c51bf;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(95, 168, 132, 0.3);
 }
 
 .auth-card form button[type="submit"]:active {
     transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(95, 168, 132, 0.2);
 }
 
-/* Back Link */
+/* ===================================
+   Back Link
+   =================================== */
 .back-link {
     margin-top: 1.5rem;
     text-align: center;
 }
 
 .back-link a {
-    color: #718096;
+    color: #5a7a6d;
     text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.3s ease;
+    font-size: 1.0625rem;
+    transition: color 0.2s ease;
 }
 
 .back-link a:hover {
-    color: #4a5568;
+    color: #2d5f4f;
     text-decoration: underline;
 }
 
-/* Bottom Links */
+/* ===================================
+   Bottom Auth Links
+   =================================== */
 .auth-links {
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 2px solid #e8f0ed;
     text-align: center;
+    background-color: #f9fcfb;
+    margin-left: -3rem;
+    margin-right: -3rem;
+    margin-bottom: -3rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    padding-bottom: 2rem;
 }
 
 .auth-links p {
-    color: #4a5568;
-    font-size: 1rem;
+    color: #2d5f4f;
+    font-size: 1.0625rem;
     margin-bottom: 0.75rem;
+    line-height: 1.6;
 }
 
 .auth-links p:last-child {
@@ -168,22 +279,26 @@
 }
 
 .auth-links a {
-    color: #5a67d8;
+    color: #5fa884;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    border-bottom: 2px solid transparent;
 }
 
 .auth-links a:hover {
-    color: #4c51bf;
-    text-decoration: underline;
+    color: #4a8a6a;
+    border-bottom-color: #4a8a6a;
 }
 
-/* Checkbox styling (for "Remember me" etc) */
+/* ===================================
+   Checkbox Styling
+   =================================== */
 .auth-card form input[type="checkbox"] {
     width: auto;
     margin-right: 0.5rem;
     cursor: pointer;
+    accent-color: #5fa884;
 }
 
 .auth-card form .form-check {
@@ -195,12 +310,15 @@
 .auth-card form .form-check label {
     margin-bottom: 0;
     cursor: pointer;
+    font-size: 1rem;
 }
 
-/* Password strength indicator (if you add one) */
+/* ===================================
+   Password Strength Indicator
+   =================================== */
 .password-strength {
     height: 4px;
-    background-color: #e2e8f0;
+    background-color: #e8f0ed;
     border-radius: 2px;
     margin-top: 0.5rem;
     overflow: hidden;
@@ -213,20 +331,22 @@
 
 .password-strength-weak {
     width: 33%;
-    background-color: #f56565;
+    background-color: #e57373;
 }
 
 .password-strength-medium {
     width: 66%;
-    background-color: #ed8936;
+    background-color: #ffb74d;
 }
 
 .password-strength-strong {
     width: 100%;
-    background-color: #48bb78;
+    background-color: #5fa884;
 }
 
-/* Responsive Design */
+/* ===================================
+   Responsive Design
+   =================================== */
 @media (max-width: 768px) {
     .auth-container {
         margin: 2rem auto;
@@ -239,6 +359,16 @@
     .auth-card h2 {
         font-size: 1.75rem;
     }
+
+    .auth-card form label {
+        font-size: 1rem;
+    }
+
+    .auth-card form input[type="text"],
+    .auth-card form input[type="email"],
+    .auth-card form input[type="password"] {
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -248,11 +378,14 @@
 
     .auth-card {
         padding: 1.5rem 1rem;
-        box-shadow: none;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #d1e7dd;
     }
 
     .auth-card h2 {
         font-size: 1.5rem;
+    }
+
+    .auth-links p {
+        font-size: 1rem;
     }
 }

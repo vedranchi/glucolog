@@ -52,7 +52,7 @@ def user_profile_view(request):
     if update_health:
         messages.success(request, "Health profile updated")
         return redirect("user-profile")
-      
+
     context = {
         "preferences_form": preferences_form,
         "health_profile_form": health_profile_form,

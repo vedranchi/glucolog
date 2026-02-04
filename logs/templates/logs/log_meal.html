@@ -12,29 +12,28 @@
 
 <div class="summary-box">
     <h2>Today's Summary</h2>
-    <p><strong>Carbs:</strong> {{ carbs_today|floatformat:1 }}g</p>
-    <p><strong>Protein:</strong> {{ protein_today|floatformat:1 }}g</p>
-    <p><strong>Fats:</strong> {{ fats_today|floatformat:1 }}g</p>
+    <p><strong>Carbs:</strong> {{ carbs_today|floatformat:1 }} g</p>
+    <p><strong>Protein:</strong> {{ protein_today|floatformat:1 }} g</p>
+    <p><strong>Fats:</strong> {{ fats_today|floatformat:1 }} g</p>
     <p><strong>Calories:</strong> {{ calories_today|floatformat:0 }} kcal</p>
 </div>
 
-<a href="{% url 'add-meal' %}">
-    <button style="background-color: #e6e6fa; color: #4b306f; border: 1px solid #c3b1e1; border-radius: 5px; padding: 8px 18px; font-weight: 600; cursor: pointer;">
-        + Add Meal
-    </button>
+<a href="{% url 'add-meal' %}" class="primary-action">
+    <button>+ Add Meal</button>
 </a>
 
 <h2>Recent Meals (Last 5)</h2>
+
 {% if recent_meals %}
 <table>
     <thead>
         <tr>
             <th>Time</th>
+            <th>Description</th>
             <th>Carbs (g)</th>
             <th>Protein (g)</th>
             <th>Fats (g)</th>
             <th>Calories</th>
-            <th>Note</th>
         </tr>
     </thead>
     <tbody>
@@ -43,18 +42,19 @@
             <td data-label="Time">
                 <a href="{% url 'edit-meal' pk=meal.id %}">
                     {{ meal.eaten_at|date:"H:i" }}
-                </a>        
+                </a>
             </td>
-            <td data-label="Carbs">{{ meal.carbs|default:"0" }}</td>
-            <td data-label="Protein">{{ meal.protein|default:"0" }}</td>
-            <td data-label="Fats">{{ meal.fats|default:"0" }}</td>
-            <td data-label="Calories">{{ meal.calories|default:"0" }}</td>
-            <td data-label="Note">{{ meal.note|default:"-" }}</td>
+            <td data-label="Description">{{ meal.note|default:"-" }}</td>
+            <td data-label="Carbs">{{ meal.carbs|floatformat:1|default:"0" }}</td>
+            <td data-label="Protein">{{ meal.protein|floatformat:1|default:"0" }}</td>
+            <td data-label="Fats">{{ meal.fats|floatformat:1|default:"0" }}</td>
+            <td data-label="Calories">{{ meal.calories|floatformat:0|default:"0" }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<p>No meals logged yet.</p>
+<p>No meals logged yet. Start tracking your nutrition!</p>
 {% endif %}
+
 {% endblock %}

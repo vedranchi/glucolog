@@ -6,6 +6,7 @@ from .models import UserPreferences, HealthProfile
 
 
 class CustomUserCreationForm(AdminUserCreationForm):
+    usable_password = None
     # remove help text
     def __init__(self, *args, **kwargs):
         super(AdminUserCreationForm, self).__init__(*args, **kwargs)
