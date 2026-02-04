@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 import environ
 import dj_database_url
 
@@ -53,14 +54,14 @@ INSTALLED_APPS = [
 ]
 
 # email service
-EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend'
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
 ANYMAIL = {
     "SENDGRID_API_KEY": sendgrid_env("SENDGRID_API_KEY"),
 }
 
-DEFAULT_FROM_EMAIL = sendgrid_env("DEFAULT_FROM_EMAIL", default='vchichovv@gmail.com')
-SERVER_EMAIL = sendgrid_env("SERVER_EMAIL", default='vchichovv@gmail.com')
+DEFAULT_FROM_EMAIL = sendgrid_env("DEFAULT_FROM_EMAIL", default="vchichovv@gmail.com")
+SERVER_EMAIL = sendgrid_env("SERVER_EMAIL", default="vchichovv@gmail.com")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -146,7 +147,11 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STORAGES = {
     "staticfiles": {"BACKEND": STATICFILES_STORAGE},
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
 }
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

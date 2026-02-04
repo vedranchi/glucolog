@@ -1,24 +1,30 @@
-/* Forms CSS - For Add Glucose, Add Insulin, Add Meal */
+/* ===================================
+   Forms Styles
+   For Add Glucose, Add Insulin, Add Meal
+   =================================== */
 
 /* Page Container */
 .form-container {
     background-color: #ffffff;
-    border-radius: 8px;
+    border: 1px solid #d1e7dd;
     padding: 2.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
+    max-width: 650px;
     margin: 0 auto;
 }
 
 /* Page Header */
 h1 {
-    color: #2d3748;
+    color: #2d5f4f;
     font-size: 2rem;
     margin-bottom: 2rem;
     font-weight: 600;
+    border-bottom: 2px solid #d1e7dd;
+    padding-bottom: 0.75rem;
 }
 
-/* Form Styles */
+/* ===================================
+   Form Elements
+   =================================== */
 form {
     width: 100%;
 }
@@ -27,9 +33,9 @@ form label {
     display: block;
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
-    color: #4a5568;
+    color: #2d5f4f;
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 1.0625rem;
 }
 
 form label:first-of-type {
@@ -39,127 +45,228 @@ form label:first-of-type {
 /* Input Fields */
 form input[type="text"],
 form input[type="number"],
+form input[type="date"],
+form input[type="time"],
+form input[type="datetime-local"],
+form input[type="email"],
+form input[type="password"],
 form select,
 form textarea {
     width: 100%;
-    padding: 0.875rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
-    font-size: 1rem;
-    color: #4a5568;
+    padding: 0.75rem;
+    border: 1px solid #b8dac6;
+    border-radius: 3px;
+    font-size: 1.0625rem;
+    color: #2d5f4f;
     background-color: #ffffff;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+form input[type="text"]:hover,
+form input[type="number"]:hover,
+form input[type="date"]:hover,
+form input[type="time"]:hover,
+form input[type="datetime-local"]:hover,
+form input[type="email"]:hover,
+form input[type="password"]:hover,
+form select:hover,
+form textarea:hover {
+    border-color: #8fc5a5;
 }
 
 form input[type="text"]:focus,
 form input[type="number"]:focus,
+form input[type="date"]:focus,
+form input[type="time"]:focus,
+form input[type="datetime-local"]:focus,
+form input[type="email"]:focus,
+form input[type="password"]:focus,
 form select:focus,
 form textarea:focus {
     outline: none;
-    border-color: #5a67d8;
-    box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.1);
+    border-color: #5fa884;
+    box-shadow: 0 0 0 2px rgba(95, 168, 132, 0.15);
 }
 
 form input[type="text"]::placeholder,
-form input[type="number"]::placeholder {
-    color: #a0aec0;
+form input[type="number"]::placeholder,
+form input[type="email"]::placeholder,
+form input[type="password"]::placeholder,
+form textarea::placeholder {
+    color: #a3cfbb;
 }
 
 /* Readonly fields */
 form input[readonly] {
-    background-color: #f7fafc;
+    background-color: #f0f7f4;
     cursor: not-allowed;
-    color: #718096;
+    color: #5a7a6d;
+    border-color: #d1e7dd;
 }
 
 /* Select Dropdown */
 form select {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%232d5f4f' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.875rem center;
-    padding-right: 2.5rem;
+    padding-right: 2.75rem;
 }
 
-/* Error Messages */
+/* Textarea */
+form textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+/* ===================================
+   Error Messages
+   =================================== */
+.error-message,
 p[style*="color: red"],
-.error-message {
-    color: #c53030 !important;
-    background-color: #fed7d7;
-    border-left: 4px solid #f56565;
-    padding: 0.75rem;
-    border-radius: 4px;
+.errorlist {
+    color: #c62828 !important;
+    background-color: #ffebee;
+    border-left: 3px solid #e57373;
+    padding: 0.875rem 1rem;
+    border-radius: 3px;
     margin-top: 0.5rem;
-    font-size: 0.9375rem;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
-/* Required Field Indicator */
+.errorlist {
+    list-style: none;
+    padding: 0.875rem 1rem;
+    margin: 0.5rem 0 0 0;
+}
+
+.errorlist li {
+    margin-bottom: 0.5rem;
+}
+
+.errorlist li:last-child {
+    margin-bottom: 0;
+}
+
+/* ===================================
+   Required Field Indicator
+   =================================== */
 label::after {
     content: "";
 }
 
 label:has(+ input[required])::after,
-label:has(+ select[required])::after {
+label:has(+ select[required])::after,
+label:has(+ textarea[required])::after {
     content: " *";
-    color: #f56565;
+    color: #e57373;
+    font-weight: 600;
+    margin-left: 0.25rem;
 }
 
-/* Button Container */
+/* ===================================
+   Help Text
+   =================================== */
+small,
+.helptext {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    color: #5a7a6d;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+/* ===================================
+   Button Group
+   =================================== */
 .button-group {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #d1e7dd;
+    flex-wrap: wrap;
 }
 
 /* Submit Button */
 form button[type="submit"] {
-    background-color: #5a67d8;
+    background-color: #5fa884;
     color: #ffffff;
-    padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.125rem;
+    padding: 0.75rem 1.75rem;
+    border: 1px solid #4a8a6a;
+    border-radius: 3px;
+    font-size: 1.0625rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
+    font-family: inherit;
 }
 
 form button[type="submit"]:hover {
-    background-color: #4c51bf;
-    transform: translateY(-1px);
+    background-color: #4a8a6a;
 }
 
 form button[type="submit"]:active {
-    transform: translateY(0);
+    background-color: #3d7158;
 }
 
 /* Cancel Button */
-form button[type="button"] {
-    background-color: #e2e8f0;
-    color: #4a5568;
-    padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.125rem;
+form button[type="button"],
+a.cancel-button,
+.button-group a button {
+    background-color: #ffffff;
+    color: #5a7a6d;
+    padding: 0.75rem 1.75rem;
+    border: 1px solid #b8dac6;
+    border-radius: 3px;
+    font-size: 1.0625rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-family: inherit;
 }
 
-form button[type="button"]:hover {
-    background-color: #cbd5e0;
+form button[type="button"]:hover,
+a.cancel-button:hover,
+.button-group a button:hover {
+    background-color: #f0f7f4;
 }
 
-/* Help Text */
-small {
-    display: block;
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: #718096;
+/* Delete Button */
+button[type="submit"][style*="ffebee"],
+.btn-delete {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef5350;
+    margin-top: 1rem;
 }
 
-/* Responsive Design */
+button[type="submit"][style*="ffebee"]:hover,
+.btn-delete:hover {
+    background-color: #ffcdd2;
+}
+
+/* ===================================
+   Field Groups
+   =================================== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
 @media (max-width: 768px) {
     .form-container {
         padding: 1.5rem;
@@ -167,6 +274,24 @@ small {
 
     h1 {
         font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    form label {
+        font-size: 1rem;
+    }
+
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="date"],
+    form input[type="time"],
+    form input[type="datetime-local"],
+    form input[type="email"],
+    form input[type="password"],
+    form select,
+    form textarea {
+        font-size: 1rem;
+        padding: 0.875rem;
     }
 
     .button-group {
@@ -174,8 +299,22 @@ small {
     }
 
     form button[type="submit"],
-    form button[type="button"] {
+    form button[type="button"],
+    a.cancel-button,
+    .button-group a button {
         width: 100%;
-        padding: 1rem;
+        padding: 0.875rem;
+        font-size: 1rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        padding: 1.25rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
     }
 }

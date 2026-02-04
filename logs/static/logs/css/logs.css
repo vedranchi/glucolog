@@ -1,44 +1,50 @@
-/* Logs CSS - For Log Glucose, Log Insulin, Log Meal */
+/* ===================================
+   Logs Pages Styles
+   For Log Glucose, Log Insulin, Log Meal
+   =================================== */
 
-/* Page Header */
+/* Page Headers */
 h1 {
-    color: #2d3748;
+    color: #2d5f4f;
     font-size: 2rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
+    border-bottom: 2px solid #d1e7dd;
+    padding-bottom: 0.75rem;
 }
 
 h2 {
-    color: #2d3748;
+    color: #2d5f4f;
     font-size: 1.5rem;
     margin-top: 2rem;
     margin-bottom: 1rem;
     font-weight: 600;
 }
 
-/* Summary Box */
+/* ===================================
+   Summary Box
+   =================================== */
 .summary-box {
     background-color: #ffffff;
-    border-radius: 8px;
+    border: 1px solid #d1e7dd;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
 
 .summary-box h2 {
-    color: #2d3748;
+    color: #2d5f4f;
     font-size: 1.5rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 1px solid #d1e7dd;
 }
 
 .summary-box p {
     font-size: 1.125rem;
-    color: #4a5568;
+    color: #5a7a6d;
     margin-bottom: 0.75rem;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 .summary-box p:last-child {
@@ -46,43 +52,70 @@ h2 {
 }
 
 .summary-box p strong {
-    color: #2d3748;
+    color: #2d5f4f;
     font-weight: 600;
 }
 
 .summary-box small {
-    color: #718096;
-    font-size: 0.9375rem;
+    color: #5a7a6d;
+    font-size: 1rem;
 }
 
-/* Add Button */
+/* ===================================
+   Summary Grid
+   =================================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .summary-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* ===================================
+   Action Buttons
+   =================================== */
 a button,
-button.add-button {
-    background-color: #5a67d8;
+button.add-button,
+.primary-action button {
+    background-color: #5fa884;
     color: #ffffff;
     padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 6px;
+    border: 1px solid #4a8a6a;
+    border-radius: 3px;
     font-size: 1.125rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
     margin-bottom: 2rem;
     display: inline-block;
+    font-family: inherit;
 }
 
 a button:hover,
-button.add-button:hover {
-    background-color: #4c51bf;
-    transform: translateY(-1px);
+button.add-button:hover,
+.primary-action button:hover {
+    background-color: #4a8a6a;
 }
 
-/* Tables */
+a button:active,
+button.add-button:active,
+.primary-action button:active {
+    background-color: #3d7158;
+}
+
+/* ===================================
+   Tables
+   =================================== */
 table {
     width: 100%;
     background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #d1e7dd;
     border-collapse: separate;
     border-spacing: 0;
     overflow: hidden;
@@ -91,26 +124,26 @@ table {
 
 /* Table Header */
 thead {
-    background-color: #f7fafc;
+    background-color: #f0f7f4;
 }
 
 thead tr th {
-    padding: 1rem;
+    padding: 1.125rem 1rem;
     text-align: left;
-    color: #2d3748;
+    color: #2d5f4f;
     font-weight: 600;
-    font-size: 1rem;
-    border-bottom: 2px solid #e2e8f0;
+    font-size: 1.0625rem;
+    border-bottom: 2px solid #d1e7dd;
 }
 
 /* Table Body */
 tbody tr {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e8f0ed;
     transition: background-color 0.2s ease;
 }
 
 tbody tr:hover {
-    background-color: #f7fafc;
+    background-color: #f0f7f4;
 }
 
 tbody tr:last-child {
@@ -118,105 +151,132 @@ tbody tr:last-child {
 }
 
 tbody tr td {
-    padding: 1rem;
-    color: #4a5568;
-    font-size: 1rem;
+    padding: 1.125rem 1rem;
+    color: #2d5f4f;
+    font-size: 1.0625rem;
 }
 
-/* Empty State */
+/* Clickable table rows */
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row td a {
+    color: #5fa884;
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    padding: 0.25rem 0;
+}
+
+.clickable-row td a:hover {
+    color: #4a8a6a;
+    text-decoration: underline;
+}
+
+/* ===================================
+   Empty State
+   =================================== */
 p {
-    color: #718096;
-    font-size: 1rem;
-    padding: 1rem;
+    color: #5a7a6d;
+    font-size: 1.0625rem;
+    padding: 1.25rem;
     text-align: center;
-    background-color: #f7fafc;
-    border-radius: 6px;
+    background-color: #f0f7f4;
+    border: 1px solid #d1e7dd;
+    border-radius: 3px;
     margin-bottom: 2rem;
+    line-height: 1.7;
 }
 
-/* Responsive Table */
+/* ===================================
+   Responsive Table Design
+   =================================== */
 @media (max-width: 768px) {
-    table {
-        font-size: 0.875rem;
-    }
-
-    thead tr th,
-    tbody tr td {
-        padding: 0.75rem 0.5rem;
-    }
-
-    thead tr th {
-        font-size: 0.875rem;
-    }
-
-    /* Stack table on very small screens */
-    @media (max-width: 480px) {
-        table, thead, tbody, th, td, tr {
-            display: block;
-        }
-
-        thead tr {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-
-        tr {
-            margin-bottom: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-        }
-
-        tbody tr:hover {
-            background-color: #ffffff;
-        }
-
-        td {
-            border: none;
-            position: relative;
-            padding-left: 40%;
-            text-align: right;
-        }
-
-        td:before {
-            content: attr(data-label);
-            position: absolute;
-            left: 1rem;
-            font-weight: 600;
-            color: #2d3748;
-            text-align: left;
-        }
-    }
-}
-
-/* Summary Grid (for multiple summary boxes) */
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-@media (max-width: 768px) {
-    .summary-grid {
-        grid-template-columns: 1fr;
-    }
-
     h1 {
         font-size: 1.75rem;
     }
 
     h2 {
-        font-size: 1.25rem;
+        font-size: 1.375rem;
     }
 
     .summary-box {
         padding: 1.5rem;
     }
 
+    table {
+        font-size: 1rem;
+    }
+
+    thead tr th,
+    tbody tr td {
+        padding: 1rem 0.75rem;
+        font-size: 1rem;
+    }
+
     a button,
-    button.add-button {
+    button.add-button,
+    .primary-action button {
         width: 100%;
         padding: 1rem;
+        font-size: 1.0625rem;
+    }
+}
+
+/* Mobile table stacking */
+@media (max-width: 480px) {
+    .summary-box {
+        padding: 1.25rem;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        margin-bottom: 1rem;
+        border: 1px solid #d1e7dd;
+        border-radius: 3px;
+        padding: 0.5rem;
+    }
+
+    tbody tr {
+        background-color: #ffffff;
+    }
+
+    tbody tr:hover {
+        background-color: #f0f7f4;
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding: 0.75rem 0.75rem 0.75rem 45%;
+        text-align: right;
+        min-height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0.75rem;
+        font-weight: 600;
+        color: #2d5f4f;
+        text-align: left;
+    }
+
+    .clickable-row td a {
+        width: 100%;
+        text-align: right;
     }
 }

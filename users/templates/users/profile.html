@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
@@ -10,78 +11,87 @@ Profile — GlucoLog
 {% endblock %}
 
 {% block content %}
-<div class="logged-in-as">
-    Logged in as <strong>{{ user.username }}</strong>
+<div class="content-section">
+    <div class="media">
+        <img class="account-img" src="{{ user.image.url }}" alt="{{ user.username }}'s profile picture">
+        <div class="media-body">
+            <h2 class="account-heading">{{ user.username }}</h2>
+            <p class="text-secondary">{{ user.email }}</p>
+        </div>
+    </div>
 </div>
 
 <div class="preferences-container">
-  <h2>Preferences</h2>
+    <h2>Preferences</h2>
 
-  <form method="POST">
-    {% csrf_token %}
+    <form method="POST" action="{% url 'user-profile' %}">
+        {% csrf_token %}
 
-    <div>
-      <label for="{{ preferences_form.glucose_unit.id_for_label }}">
-        {{ preferences_form.glucose_unit.label }}
-      </label>
+        <div>
+            <label for="{{ preferences_form.glucose_unit.id_for_label }}">
+                {{ preferences_form.glucose_unit.label }}
+            </label>
 
-      {{ preferences_form.glucose_unit }}
+            {{ preferences_form.glucose_unit }}
 
-      {% if preferences_form.glucose_unit.help_text %}
-      <span class="helptext">
-        {{ preferences_form.glucose_unit.help_text }}
-      </span>
-      {% endif %}
+            {% if preferences_form.glucose_unit.help_text %}
+            <span class="helptext">
+                {{ preferences_form.glucose_unit.help_text }}
+            </span>
+            {% endif %}
 
-      {% if preferences_form.glucose_unit.errors %}
-      <ul class="errorlist">
-        {% for error in preferences_form.glucose_unit.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-    </div>
+            {% if preferences_form.glucose_unit.errors %}
+            <ul class="errorlist">
+                {% for error in preferences_form.glucose_unit.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
 
-    <div class="button-group">
-      <button type="submit">Save Preferences</button>
-      <a href="{% url 'glucolog-dashboard' %}">
-        <button type="button">Cancel</button>
-      </a>
-    </div>
-  </form>
+        <div class="button-group">
+            <button type="submit">Save Preferences</button>
+            <a href="{% url 'glucolog-dashboard' %}">
+                <button type="button">Cancel</button>
+            </a>
+        </div>
+    </form>
 </div>
+
 <div class="health-profile-container">
-  <h2>Health profile</h2>
-  <form method="POST">
-    {% csrf_token %}
+    <h2>Health Profile</h2>
+    
+    <form method="POST" action="{% url 'user-profile' %}">
+        {% csrf_token %}
 
-    <div>
-      <label for="{{ health_profile_form.diabetes_type.id_for_label }}">
-        {{ health_profile_form.diabetes_type.label}}
-      </label>
+        <div>
+            <label for="{{ health_profile_form.diabetes_type.id_for_label }}">
+                {{ health_profile_form.diabetes_type.label }}
+            </label>
 
-      {{ health_profile_form.diabetes_type }}
+            {{ health_profile_form.diabetes_type }}
 
-      {% if health_profile_form.help_text %}
-      <span class="helptext">
-        {{ health_profile_form.help_text }}
-      </span>
-      {% endif %}
+            {% if health_profile_form.diabetes_type.help_text %}
+            <span class="helptext">
+                {{ health_profile_form.diabetes_type.help_text }}
+            </span>
+            {% endif %}
 
-      {% if health_profile_form.errors %}
-      <ul class="errorlist">
-        {% for error in health_profile_form.diabetes_type.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-    </div>
-    <div class="button-group">
-      <button type="submit">Save Type</button>
-      <a href="{% url 'glucolog-dashboard' %}">
-        <button type="button">Cancel</button>
-      </a>
-    </div>
-  </form>
+            {% if health_profile_form.diabetes_type.errors %}
+            <ul class="errorlist">
+                {% for error in health_profile_form.diabetes_type.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        
+        <div class="button-group">
+            <button type="submit">Save Health Profile</button>
+            <a href="{% url 'glucolog-dashboard' %}">
+                <button type="button">Cancel</button>
+            </a>
+        </div>
+    </form>
 </div>
 {% endblock %}

@@ -29,16 +29,16 @@ def handle_preferences_form(request):
 
 
 def handle_health_profile_form(request):
-  prefs, _ = HealthProfile.objects.get_or_create(user=request.user)
-  
-  if request.method == "POST":
-    form = HealthProfileForm(request.POST, instance=prefs)
-    if form.is_valid():
-      form.save()
-      return form, True
+    prefs, _ = HealthProfile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        form = HealthProfileForm(request.POST, instance=prefs)
+        if form.is_valid():
+            form.save()
+            return form, True
+        else:
+            return form, False
+
     else:
-      return form, False
-    
-  else:
-    form = HealthProfileForm(instance=prefs)
-    return form, False
+        form = HealthProfileForm(instance=prefs)
+        return form, False
