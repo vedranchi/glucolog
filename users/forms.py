@@ -25,6 +25,11 @@ class CustomUserChangeForm(UserChangeForm):
         fields = ("username", "email")
 
 
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'image']
+
 class PreferencesForm(forms.ModelForm):
     class Meta:
         model = UserPreferences

@@ -4,7 +4,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 
-from .services import handle_preferences_form, handle_health_profile_form
+from .services import (
+    handle_preferences_form,
+    handle_health_profile_form,
+    handle_profile_form,
+)
 from .forms import CustomUserCreationForm
 
 
@@ -42,8 +46,13 @@ def login_view(request):
 
 @login_required
 def user_profile_view(request):
+    profile_form, update_prof = handle_profile_form(request)
     preferences_form, update_pref = handle_preferences_form(request)
     health_profile_form, update_health = handle_health_profile_form(request)
+
+    if update_prof:
+        messages.success(request, "Profile updated")
+        return redirect("user-profile")
 
     if update_pref:
         messages.success(request, "Preferences updated")
@@ -56,8 +65,7 @@ def user_profile_view(request):
     context = {
         "preferences_form": preferences_form,
         "health_profile_form": health_profile_form,
-        "update_pref": update_pref,
-        "updae_health": update_health,
+        "update_profile_form": profile_form
     }
     return render(request, "users/profile.html", context)
 

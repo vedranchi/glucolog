@@ -1,18 +1,29 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from PIL import Image
 
 
 class User(AbstractUser):
     """Extend Django AbstractUser"""
+
     email = models.EmailField(unique=True)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics') 
-    
+    image = models.ImageField(default="default.jpg", upload_to="profile_pics")
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
         return self.username or self.email
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs )
+
+        img = Image.open(self.image)
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
 
 
 # manage user settings
@@ -36,19 +47,17 @@ class UserPreferences(models.Model):
 class HealthProfile(models.Model):
     DIABETES_TYPE_1 = "type1"
     DIABETES_TYPE_2 = "type2"
-    
-    DIABETES_TYPE_CHOICES = [
-        (DIABETES_TYPE_1, "Type 1"),
-        (DIABETES_TYPE_2, "Type 2")
-    ]
-    
+
+    DIABETES_TYPE_CHOICES = [(DIABETES_TYPE_1, "Type 1"), (DIABETES_TYPE_2, "Type 2")]
+
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="health_profile"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="health_profile",
     )
     diabetes_type = models.CharField(
         max_length=10, choices=DIABETES_TYPE_CHOICES, default=DIABETES_TYPE_1
     )
-    
-    
+
     def __str__(self):
         return f"{self.user.username} profile"

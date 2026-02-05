@@ -3,95 +3,68 @@
 {% load static %}
 
 {% block title %}
-Profile — GlucoLog
+Account Settings — GlucoLog
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'users/css/preferences.css' %}">
+<link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="content-section">
-    <div class="media">
-        <img class="account-img" src="{{ user.image.url }}" alt="{{ user.username }}'s profile picture">
-        <div class="media-body">
-            <h2 class="account-heading">{{ user.username }}</h2>
-            <p class="text-secondary">{{ user.email }}</p>
-        </div>
-    </div>
-</div>
-
-<div class="preferences-container">
-    <h2>Preferences</h2>
-
-    <form method="POST" action="{% url 'user-profile' %}">
-        {% csrf_token %}
-
-        <div>
-            <label for="{{ preferences_form.glucose_unit.id_for_label }}">
-                {{ preferences_form.glucose_unit.label }}
-            </label>
-
-            {{ preferences_form.glucose_unit }}
-
-            {% if preferences_form.glucose_unit.help_text %}
-            <span class="helptext">
-                {{ preferences_form.glucose_unit.help_text }}
-            </span>
-            {% endif %}
-
-            {% if preferences_form.glucose_unit.errors %}
-            <ul class="errorlist">
-                {% for error in preferences_form.glucose_unit.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-
-        <div class="button-group">
-            <button type="submit">Save Preferences</button>
-            <a href="{% url 'glucolog-dashboard' %}">
-                <button type="button">Cancel</button>
-            </a>
-        </div>
-    </form>
-</div>
-
-<div class="health-profile-container">
-    <h2>Health Profile</h2>
+<div class="profile-container">
+    <h1 class="page-title">Account Settings</h1>
     
-    <form method="POST" action="{% url 'user-profile' %}">
+    <form method="POST" action="{% url 'user-profile' %}" enctype="multipart/form-data" id="profileForm">
         {% csrf_token %}
-
-        <div>
-            <label for="{{ health_profile_form.diabetes_type.id_for_label }}">
-                {{ health_profile_form.diabetes_type.label }}
-            </label>
-
-            {{ health_profile_form.diabetes_type }}
-
-            {% if health_profile_form.diabetes_type.help_text %}
-            <span class="helptext">
-                {{ health_profile_form.diabetes_type.help_text }}
-            </span>
-            {% endif %}
-
-            {% if health_profile_form.diabetes_type.errors %}
-            <ul class="errorlist">
-                {% for error in health_profile_form.diabetes_type.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
         
-        <div class="button-group">
-            <button type="submit">Save Health Profile</button>
-            <a href="{% url 'glucolog-dashboard' %}">
-                <button type="button">Cancel</button>
-            </a>
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-image-wrapper">
+                <img class="profile-image" src="{{ user.image.url }}" alt="{{ user.username }}" id="profileImagePreview">
+                {% comment %} <button type="button" class="change-photo-btn" onclick="document.getElementById('id_image').click()">
+                    +
+                </button> {% endcomment %}
+                {{ update_profile_form.image }}
+            </div>
+            
+            <div class="profile-info">
+                <div class="username-container">
+                    <input type="text" class="username-input" name="username" value="{{ user.username }}" placeholder="Username" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="email" name="email" value="{{ user.email }}" placeholder="Email address" required id="id_email">
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="form-section">
+            <h3>Preferences</h3>
+            <div class="form-group">
+                <label for="{{ preferences_form.glucose_unit.id_for_label }}">
+                    {{ preferences_form.glucose_unit.label }}
+                </label>
+                {{ preferences_form.glucose_unit }}
+            </div>
+        </div>
+
+        <!-- Health Profile Section -->
+        <div class="form-section">
+            <h3>Health Profile</h3>
+            <div class="form-group">
+                <label for="{{ health_profile_form.diabetes_type.id_for_label }}">
+                    {{ health_profile_form.diabetes_type.label }}
+                </label>
+                {{ health_profile_form.diabetes_type }}
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a href="{% url 'glucolog-dashboard' %}" class="btn-secondary">Cancel</a>
         </div>
     </form>
 </div>
+
 {% endblock %}
