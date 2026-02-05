@@ -1,4 +1,4 @@
-/* ===================================
+/* /* /* ===================================
    Profile & Preferences Page Styles
    =================================== */
 
@@ -334,4 +334,4 @@ form input[type="file"]::file-selector-button:hover {
     .account-heading {
         font-size: 1.125rem;
     }
-}
+} 
