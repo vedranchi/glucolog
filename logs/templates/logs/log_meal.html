@@ -2,14 +2,13 @@
 {% load static %}
 
 {% block title %}Log Meals — GlucoLog{% endblock %}
+{% block nav_title %}Track Meals{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'logs/css/logs.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>Meal Log</h1>
-
 <div class="summary-box">
     <h2>Today's Summary</h2>
     <p><strong>Carbs:</strong> {{ carbs_today|floatformat:1 }} g</p>

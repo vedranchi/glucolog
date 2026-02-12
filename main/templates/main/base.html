@@ -26,23 +26,34 @@
   </script>
 
   <body>
-    <nav>
-      {% if user.is_authenticated %}
-        <div class="nav-left">
-          <a href="{% url 'glucolog-dashboard' %}">Dashboard</a>
-          <a href="{% url 'log-insulin' %}">Insulin</a>
-          <a href="{% url 'log-glucose' %}">Glucose</a>
-          <a href="{% url 'log-meal' %}">Meals</a>
-          <a href="{% url 'glucolog-logout' %}">Logout</a>
-        </div>
-        <div class="nav-right">
-          <a href="{% url 'user-profile' %}">Profile</a>
-        </div>
-      {% else %}
+    {% if user.is_authenticated %}
+      <div class="app-layout">
+        <nav class="sidebar-nav">
+          <div class="nav-left">
+            <a href="{% url 'glucolog-dashboard' %}">Dashboard</a>
+            <a href="{% url 'log-insulin' %}">Insulin</a>
+            <a href="{% url 'log-glucose' %}">Glucose</a>
+            <a href="{% url 'log-meal' %}">Meals</a>
+            <a href="{% url 'glucolog-logout' %}">Logout</a>
+          </div>
+        </nav>
+
+        <div class="page-layout">
+          <header class="top-profile">
+            <div class="top-title">
+              {% block nav_title %}GlucoLog{% endblock %}
+            </div>
+            <a href="{% url 'user-profile' %}" class="profile-link">
+              <img class="profile-avatar" src="{{ user.image.url }}" alt="{{ user.username }}" />
+              <span>{{ user.username }}</span>
+            </a>
+          </header>
+    {% else %}
+      <nav class="public-nav">
         <a href="https://www.diabetes.org/">Learn about Diabetes</a>
         <a href="https://www.nhs.uk/conditions/diabetes/">Diabetes Resources</a>
-      {% endif %}
-    </nav>
+      </nav>
+    {% endif %}
 
     {% if messages %}
       <div class="messages">
@@ -69,6 +80,10 @@
         {% endif %}
       {% endblock %}
     </main>
+    {% if user.is_authenticated %}
+        </div>
+      </div>
+    {% endif %}
     {% block extra_js %}
 
     {% endblock %}

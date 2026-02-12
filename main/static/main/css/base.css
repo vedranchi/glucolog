@@ -22,7 +22,7 @@ body {
 /* ===================================
    Navigation
    =================================== */
-nav {
+.public-nav {
     background-color: #ffffff;
     padding: 1.25rem 2rem;
     border-bottom: 2px solid #d1e7dd;
@@ -33,15 +33,74 @@ nav {
     gap: 1rem;
 }
 
-.nav-left,
-.nav-right {
+.app-layout {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
+    min-height: 100vh;
 }
 
-nav a {
+.sidebar-nav {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 2px solid #d1e7dd;
+    padding: 1.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.page-layout {
+    flex: 1;
+    min-width: 0;
+}
+
+.top-profile {
+    min-height: 70px;
+    padding: 1rem 2rem;
+    border-bottom: 2px solid #d1e7dd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    background-color: #ffffff;
+}
+
+.top-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2d5f4f;
+}
+
+.profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #2d5f4f;
+    text-decoration: none;
+}
+
+.profile-link:hover {
+    background-color: #f0f7f4;
+    color: #2d5f4f;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #d1e7dd;
+}
+
+.nav-left {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+}
+
+.public-nav a,
+.sidebar-nav a {
     color: #5fa884;
     text-decoration: none;
     font-size: 1.0625rem;
@@ -51,12 +110,14 @@ nav a {
     border-radius: 3px;
 }
 
-nav a:hover {
+.public-nav a:hover,
+.sidebar-nav a:hover {
     color: #2d5f4f;
     background-color: #f0f7f4;
 }
 
-nav a:active {
+.public-nav a:active,
+.sidebar-nav a:active {
     background-color: #e1f0ea;
 }
 
@@ -321,11 +382,12 @@ a:hover {
         font-size: 16px;
     }
 
-    nav {
+    .public-nav {
         padding: 1rem;
     }
 
-    nav a {
+    .public-nav a,
+    .sidebar-nav a {
         font-size: 1rem;
         padding: 0.5rem;
     }
@@ -356,17 +418,50 @@ a:hover {
         width: 100%;
         text-align: center;
     }
+
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar-nav {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #d1e7dd;
+        padding: 1rem;
+    }
+
+    .nav-left {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .top-profile {
+        padding: 0.75rem 1rem;
+    }
 }
 
 @media (max-width: 480px) {
-    nav {
+    .public-nav {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .nav-left,
-    .nav-right {
+    .nav-left {
         width: 100%;
         justify-content: center;
+    }
+
+    .profile-link {
+        font-size: 0.95rem;
+    }
+
+    .top-title {
+        font-size: 1.15rem;
+    }
+
+    .profile-avatar {
+        width: 32px;
+        height: 32px;
     }
 }
