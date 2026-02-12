@@ -4,17 +4,17 @@
     padding: 2rem;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 24px rgba(47, 90, 87, 0.1);
     font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #2c3e50;
+    color: #16324f;
     margin: 0 0 2rem 0;
     padding-bottom: 1rem;
-    border-bottom: 3px solid #5fa884;
+    border-bottom: 3px solid #00a896;
 }
 
 .profile-header {
@@ -22,7 +22,7 @@
     align-items: center;
     gap: 2rem;
     padding-bottom: 2rem;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid #ddf2ef;
     margin-bottom: 2rem;
 }
 
@@ -35,7 +35,7 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #f0f0f0;
+    border: 4px solid #ddf2ef;
 }
 
 .profile-image-input {
@@ -48,7 +48,7 @@
     left: 50%;
     transform: translateX(-50%);
     background: transparent;
-    color: #4a8a6a;
+    color: #028090;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -61,7 +61,7 @@
 }
 
 .change-photo-btn:hover {
-    color: #2d5f4f;
+    color: #16324f;
 }
 
 .profile-info {
@@ -77,20 +77,20 @@
     font-size: 1.5rem;
     font-weight: 600;
     padding: 0.5rem;
-    border: 1px solid #ced4da;
+    border: 1px solid #b5ddd9;
     border-radius: 6px;
     outline: none;
-    color: #2c3e50;
+    color: #16324f;
     transition: border-color 0.2s;
 }
 
 .username-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: #00a896;
+    box-shadow: 0 0 0 3px rgba(110, 169, 150, 0.12);
 }
 
 .email-display {
-    color: #6c757d;
+    color: #4f6b80;
     font-size: 1rem;
 }
 
@@ -105,10 +105,10 @@
 .form-section h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: #16324f;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid #ddf2ef;
 }
 
 .form-group {
@@ -118,7 +118,7 @@
 .form-group label {
     display: block;
     font-weight: 500;
-    color: #495057;
+    color: #4f6763;
     margin-bottom: 0.5rem;
 }
 
@@ -126,7 +126,7 @@
 .form-group input[type="email"] {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ced4da;
+    border: 1px solid #b5ddd9;
     border-radius: 6px;
     font-size: 1rem;
     transition: border-color 0.2s;
@@ -135,19 +135,19 @@
 .form-group select:focus,
 .form-group input[type="email"]:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: #00a896;
+    box-shadow: 0 0 0 3px rgba(110, 169, 150, 0.12);
 }
 
 .form-actions {
     display: flex;
     gap: 1rem;
     padding-top: 1.5rem;
-    border-top: 2px solid #f0f0f0;
+    border-top: 2px solid #ddf2ef;
 }
 
 .btn-primary {
-    background: #5fa884;
+    background: #00a896;
     color: white;
     border: none;
     padding: 0.75rem 2rem;
@@ -159,11 +159,11 @@
 }
 
 .btn-primary:hover {
-    background: #4a8a6a;
+    background: #028090;
 }
 
 .btn-secondary {
-    background: #6c757d;
+    background: #718782;
     color: white;
     border: none;
     padding: 0.75rem 2rem;
@@ -177,6 +177,6 @@
 }
 
 .btn-secondary:hover {
-    background: #545b62;
+    background: #5e726e;
     color: white;
 }

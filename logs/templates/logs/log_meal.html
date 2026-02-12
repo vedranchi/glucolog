@@ -17,9 +17,7 @@
     <p><strong>Calories:</strong> {{ calories_today|floatformat:0 }} kcal</p>
 </div>
 
-<a href="{% url 'add-meal' %}" class="primary-action">
-    <button>+ Add Meal</button>
-</a>
+<a href="{% url 'add-meal' %}" class="primary-action-link">+ Add Meal</a>
 
 <h2>Recent Meals (Last 5)</h2>
 

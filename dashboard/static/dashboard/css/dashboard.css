@@ -10,8 +10,8 @@
 }
 
 .metric-card {
-    background: #ffffff;
-    border: 1px solid #d1e7dd;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfefe 100%);
+    border: 1px solid #c5e9e6;
     border-radius: 14px;
     padding: 1.1rem 1.2rem;
     box-shadow: 0 10px 24px rgba(45, 95, 79, 0.08);
@@ -26,23 +26,23 @@
 
 .metric-label {
     font-size: 0.9rem;
-    color: #5a7a6d;
+    color: #46627a;
     font-weight: 600;
 }
 
 .metric-badge {
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
-    background: #e8f5ef;
-    color: #347257;
+    background: linear-gradient(135deg, #e8f0f5 0%, #e1f7f4 100%);
+    color: #0a9396;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.02em;
 }
 
 .metric-badge.neutral {
-    background: #eef4f1;
-    color: #5a7a6d;
+    background: #eef2f4;
+    color: #46627a;
 }
 
 .metric-value {
@@ -55,19 +55,19 @@
 
 .metric-sub {
     margin: 0 0 0.45rem 0;
-    color: #5a7a6d;
+    color: #46627a;
     font-size: 0.95rem;
 }
 
 .metric-sub strong,
 .metric-foot strong {
-    color: #2d5f4f;
+    color: #16324f;
     font-weight: 600;
 }
 
 .metric-foot {
     margin: 0;
-    color: #6f8c80;
+    color: #4f6b80;
     font-size: 0.86rem;
 }
 
@@ -79,10 +79,10 @@
 .quick-actions a {
     display: block;
     text-decoration: none;
-    color: #2d5f4f;
+    color: #16324f;
     font-weight: 600;
-    background: #f2f8f5;
-    border: 1px solid #d1e7dd;
+    background: #ebf9f7;
+    border: 1px solid #c5e9e6;
     border-radius: 10px;
     padding: 0.55rem 0.7rem;
     transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -91,7 +91,7 @@
 .quick-actions a:hover {
     background: #e7f3ed;
     border-color: #badbcd;
-    color: #2d5f4f;
+    color: #16324f;
 }
 
 .content-grid {
@@ -101,8 +101,8 @@
 }
 
 .panel-card {
-    background: #ffffff;
-    border: 1px solid #d1e7dd;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfefe 100%);
+    border: 1px solid #c5e9e6;
     border-radius: 14px;
     padding: 1.2rem;
     box-shadow: 0 10px 24px rgba(45, 95, 79, 0.08);
@@ -120,11 +120,11 @@
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #2d5f4f;
+    color: #16324f;
 }
 
 .panel-meta {
-    color: #6f8c80;
+    color: #4f6b80;
     font-size: 0.82rem;
     font-weight: 600;
 }
@@ -140,7 +140,7 @@
 .activity-list li {
     border: 1px solid #e1eee8;
     border-radius: 10px;
-    background: #f8fcfa;
+    background: #f4fcfb;
     padding: 0;
     display: flex;
     justify-content: space-between;
@@ -162,15 +162,16 @@
 
 .activity-link:hover {
     background: #eef7f2;
+    color: #16324f;
 }
 
 .activity-label {
-    color: #2d5f4f;
+    color: #16324f;
     font-size: 0.92rem;
 }
 
 .activity-time {
-    color: #5a7a6d;
+    color: #46627a;
     font-size: 0.82rem;
     font-weight: 600;
 }
@@ -186,7 +187,7 @@
 
 .chart-date {
     margin: 0.2rem 0 0 0;
-    color: #6f8c80;
+    color: #4f6b80;
     font-size: 0.86rem;
     font-weight: 500;
 }
@@ -197,11 +198,11 @@
 }
 
 .trend-btn {
-    border: 1px solid #c9dfd4;
+    border: 1px solid #b9dfda;
     border-radius: 9px;
     padding: 0.45rem 0.75rem;
-    background: #f4faf7;
-    color: #2d5f4f;
+    background: #ecfbf9;
+    color: #16324f;
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
@@ -211,10 +212,11 @@
 .trend-btn:hover {
     background: #e7f3ed;
     border-color: #b7d7c8;
+    color: #16324f;
 }
 
 .chart-wrap {
-    background: #fbfdfc;
+    background: #fbfefe;
     border: 1px solid #e3f0ea;
     border-radius: 10px;
     padding: 0.8rem;

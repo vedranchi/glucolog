@@ -1,320 +1,180 @@
-/* ===================================
-   Forms Styles
-   For Add Glucose, Add Insulin, Add Meal
-   =================================== */
-
-/* Page Container */
 .form-container {
-    background-color: #ffffff;
-    border: 1px solid #d1e7dd;
-    padding: 2.5rem;
-    max-width: 650px;
+    max-width: 760px;
     margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #c5e9e6;
+    border-radius: 16px;
+    padding: 1.35rem;
+    box-shadow: 0 12px 28px rgba(45, 95, 79, 0.08);
 }
 
-/* Page Header */
-h1 {
-    color: #2d5f4f;
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    font-weight: 600;
-    border-bottom: 2px solid #d1e7dd;
-    padding-bottom: 0.75rem;
+.form-container h1 {
+    margin: 0 0 1rem;
+    font-size: 1.32rem;
+    color: #16324f;
+    font-weight: 700;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid #d9eae2;
 }
 
-/* ===================================
-   Form Elements
-   =================================== */
-form {
-    width: 100%;
+.form-container form {
+    margin: 0;
 }
 
-form label {
+.form-container label {
     display: block;
-    margin-bottom: 0.5rem;
-    margin-top: 1.5rem;
-    color: #2d5f4f;
-    font-weight: 500;
-    font-size: 1.0625rem;
+    margin: 0.9rem 0 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #16324f;
 }
 
-form label:first-of-type {
-    margin-top: 0;
-}
-
-/* Input Fields */
-form input[type="text"],
-form input[type="number"],
-form input[type="date"],
-form input[type="time"],
-form input[type="datetime-local"],
-form input[type="email"],
-form input[type="password"],
-form select,
-form textarea {
+.form-container input[type="text"],
+.form-container input[type="number"],
+.form-container input[type="email"],
+.form-container input[type="date"],
+.form-container input[type="time"],
+.form-container input[type="datetime-local"],
+.form-container select,
+.form-container textarea {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #b8dac6;
-    border-radius: 3px;
-    font-size: 1.0625rem;
-    color: #2d5f4f;
-    background-color: #ffffff;
+    border: 1px solid #b9dfda;
+    border-radius: 10px;
+    background: #fbfefe;
+    padding: 0.62rem 0.72rem;
+    font-size: 0.93rem;
+    color: #16324f;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    font-family: inherit;
 }
 
-form input[type="text"]:hover,
-form input[type="number"]:hover,
-form input[type="date"]:hover,
-form input[type="time"]:hover,
-form input[type="datetime-local"]:hover,
-form input[type="email"]:hover,
-form input[type="password"]:hover,
-form select:hover,
-form textarea:hover {
-    border-color: #8fc5a5;
+.form-container input:hover,
+.form-container select:hover,
+.form-container textarea:hover {
+    border-color: #9fd7cd;
 }
 
-form input[type="text"]:focus,
-form input[type="number"]:focus,
-form input[type="date"]:focus,
-form input[type="time"]:focus,
-form input[type="datetime-local"]:focus,
-form input[type="email"]:focus,
-form input[type="password"]:focus,
-form select:focus,
-form textarea:focus {
+.form-container input:focus,
+.form-container select:focus,
+.form-container textarea:focus {
     outline: none;
-    border-color: #5fa884;
-    box-shadow: 0 0 0 2px rgba(95, 168, 132, 0.15);
+    border-color: #00a896;
+    box-shadow: 0 0 0 3px rgba(95, 168, 132, 0.13);
+    background: #ffffff;
 }
 
-form input[type="text"]::placeholder,
-form input[type="number"]::placeholder,
-form input[type="email"]::placeholder,
-form input[type="password"]::placeholder,
-form textarea::placeholder {
-    color: #a3cfbb;
+.form-container input[readonly] {
+    background: #ebf9f7;
+    color: #4f6b80;
 }
 
-/* Readonly fields */
-form input[readonly] {
-    background-color: #f0f7f4;
-    cursor: not-allowed;
-    color: #5a7a6d;
-    border-color: #d1e7dd;
-}
-
-/* Select Dropdown */
-form select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%232d5f4f' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.875rem center;
-    padding-right: 2.75rem;
-}
-
-/* Textarea */
-form textarea {
-    min-height: 120px;
-    resize: vertical;
-    line-height: 1.6;
-}
-
-/* ===================================
-   Error Messages
-   =================================== */
-.error-message,
-p[style*="color: red"],
-.errorlist {
-    color: #c62828 !important;
-    background-color: #ffebee;
-    border-left: 3px solid #e57373;
-    padding: 0.875rem 1rem;
-    border-radius: 3px;
-    margin-top: 0.5rem;
-    font-size: 1rem;
-    line-height: 1.6;
-}
-
-.errorlist {
-    list-style: none;
-    padding: 0.875rem 1rem;
-    margin: 0.5rem 0 0 0;
-}
-
-.errorlist li {
-    margin-bottom: 0.5rem;
-}
-
-.errorlist li:last-child {
-    margin-bottom: 0;
-}
-
-/* ===================================
-   Required Field Indicator
-   =================================== */
-label::after {
-    content: "";
-}
-
-label:has(+ input[required])::after,
-label:has(+ select[required])::after,
-label:has(+ textarea[required])::after {
-    content: " *";
-    color: #e57373;
-    font-weight: 600;
-    margin-left: 0.25rem;
-}
-
-/* ===================================
-   Help Text
-   =================================== */
-small,
-.helptext {
+.form-container small,
+.form-container .helptext {
     display: block;
-    margin-top: 0.5rem;
-    font-size: 0.9375rem;
-    color: #5a7a6d;
-    line-height: 1.5;
-    font-style: italic;
+    margin-top: 0.35rem;
+    color: #4f6b80;
+    font-size: 0.82rem;
 }
 
-/* ===================================
-   Button Group
-   =================================== */
+.form-container .error-message,
+.form-container .errorlist,
+.form-container p[style*="color: red"] {
+    margin-top: 0.45rem;
+    margin-bottom: 0.35rem;
+    color: #b3261e;
+    background: #fef3f2;
+    border: 1px solid #f3c9c6;
+    border-radius: 10px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+.form-container .errorlist {
+    list-style: none;
+    padding-left: 0.7rem;
+}
+
 .button-group {
+    margin-top: 1.2rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid #e2efea;
     display: flex;
-    gap: 0.75rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #d1e7dd;
     flex-wrap: wrap;
+    gap: 0.55rem;
 }
 
-/* Submit Button */
-form button[type="submit"] {
-    background-color: #5fa884;
-    color: #ffffff;
-    padding: 0.75rem 1.75rem;
-    border: 1px solid #4a8a6a;
-    border-radius: 3px;
-    font-size: 1.0625rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-family: inherit;
-}
-
-form button[type="submit"]:hover {
-    background-color: #4a8a6a;
-}
-
-form button[type="submit"]:active {
-    background-color: #3d7158;
-}
-
-/* Cancel Button */
-form button[type="button"],
-a.cancel-button,
-.button-group a button {
-    background-color: #ffffff;
-    color: #5a7a6d;
-    padding: 0.75rem 1.75rem;
-    border: 1px solid #b8dac6;
-    border-radius: 3px;
-    font-size: 1.0625rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+.button-group button,
+.button-group a {
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 700;
     text-decoration: none;
-    display: inline-block;
-    font-family: inherit;
+    border: 1px solid transparent;
 }
 
-form button[type="button"]:hover,
-a.cancel-button:hover,
-.button-group a button:hover {
-    background-color: #f0f7f4;
+.button-group button[type="submit"] {
+    background: #00a896;
+    color: #ffffff;
+    border-color: #028090;
+    cursor: pointer;
 }
 
-/* Delete Button */
-button[type="submit"][style*="ffebee"],
+.button-group button[type="submit"]:hover {
+    background: #028090;
+    color: #ffffff;
+}
+
+.button-group a button[type="button"] {
+    background: #effaf8;
+    color: #46685a;
+    border-color: #b9dfda;
+    cursor: pointer;
+}
+
+.button-group a button[type="button"]:hover {
+    background: #e4f7f4;
+    color: #16324f;
+}
+
+.button-group a {
+    background: #effaf8;
+    color: #46685a;
+    border-color: #b9dfda;
+}
+
+.button-group a:hover {
+    background: #e4f7f4;
+    color: #16324f;
+}
+
 .btn-delete {
-    background-color: #ffebee;
-    color: #c62828;
-    border: 1px solid #ef5350;
-    margin-top: 1rem;
+    margin-top: 0.7rem;
+    border: 1px solid #f1c6c3;
+    background: #fef3f2;
+    color: #b3261e;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 0.58rem 0.85rem;
+    cursor: pointer;
 }
 
-button[type="submit"][style*="ffebee"]:hover,
 .btn-delete:hover {
-    background-color: #ffcdd2;
+    background: #fde8e6;
 }
 
-/* ===================================
-   Field Groups
-   =================================== */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group:last-of-type {
-    margin-bottom: 0;
-}
-
-/* ===================================
-   Responsive Design
-   =================================== */
-@media (max-width: 768px) {
+@media (max-width: 640px) {
     .form-container {
-        padding: 1.5rem;
-    }
-
-    h1 {
-        font-size: 1.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    form label {
-        font-size: 1rem;
-    }
-
-    form input[type="text"],
-    form input[type="number"],
-    form input[type="date"],
-    form input[type="time"],
-    form input[type="datetime-local"],
-    form input[type="email"],
-    form input[type="password"],
-    form select,
-    form textarea {
-        font-size: 1rem;
-        padding: 0.875rem;
+        padding: 1rem;
+        border-radius: 12px;
     }
 
     .button-group {
         flex-direction: column;
     }
 
-    form button[type="submit"],
-    form button[type="button"],
-    a.cancel-button,
+    .button-group button,
+    .button-group a,
     .button-group a button {
         width: 100%;
-        padding: 0.875rem;
-        font-size: 1rem;
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .form-container {
-        padding: 1.25rem;
-    }
-
-    h1 {
-        font-size: 1.5rem;
     }
 }

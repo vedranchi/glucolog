@@ -48,11 +48,6 @@
               <span>{{ user.username }}</span>
             </a>
           </header>
-    {% else %}
-      <nav class="public-nav">
-        <a href="https://www.diabetes.org/">Learn about Diabetes</a>
-        <a href="https://www.nhs.uk/conditions/diabetes/">Diabetes Resources</a>
-      </nav>
     {% endif %}
 
     {% if messages %}
@@ -67,15 +62,52 @@
       {% block content %}
         {% if not user.is_authenticated %}
           <div class="welcome-container">
-            <h1>Welcome to GlucoLog</h1>
-            <p>Yout personal diabates tracking app, designed to reduce mental load and make logging effortless.</p>
-            <ul>
-              <li>Understand your trends</li>
-              <li>Act with confidence</li>
-              <li>Feel better</li>
-            </ul>
-            <a href="{% url 'glucolog-login' %}" class="btn-primary">Get Started</a>
-            <div class="footer-note">Track, manage, and improve your health with GlucoLog!</div>
+            <section class="landing-hero">
+              <div class="landing-copy">
+                <span class="landing-kicker">Diabetes Management Platform</span>
+                <h1>Manage glucose, insulin, and meals in one clear dashboard.</h1>
+                <p>GlucoLog helps you log faster, see patterns sooner, and make day-to-day decisions with confidence.</p>
+                <div class="landing-actions">
+                  <a href="{% url 'glucolog-login' %}" class="btn-primary">Get Started</a>
+                  <a href="{% url 'glucolog-register' %}" class="btn-secondary">Create Account</a>
+                </div>
+              </div>
+
+              <div class="landing-panel">
+                <h2>Today at a Glance</h2>
+                <div class="landing-metrics">
+                  <div class="metric-item">
+                    <span class="metric-title">Glucose Trends</span>
+                    <strong>Track changes over time</strong>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-title">Insulin Doses</span>
+                    <strong>Stay consistent with timing</strong>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-title">Meal Logs</span>
+                    <strong>Connect nutrition and readings</strong>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="landing-features">
+              <article class="feature-card">
+                <h3>Fast Logging</h3>
+                <p>Capture readings and doses in seconds with focused forms.</p>
+              </article>
+              <article class="feature-card">
+                <h3>Actionable Insights</h3>
+                <p>See activity trends and recent events in one structured view.</p>
+              </article>
+              <article class="feature-card">
+                <h3>Built for Daily Use</h3>
+                <p>Simple design that works well on desktop and mobile.</p>
+              </article>
+            </section>
+
+            <div class="footer-note">Track, manage, and improve your health with GlucoLog.</div>
           </div>
         {% endif %}
       {% endblock %}
