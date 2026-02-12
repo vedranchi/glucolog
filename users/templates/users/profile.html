@@ -5,6 +5,7 @@
 {% block title %}
 Account Settings — GlucoLog
 {% endblock %}
+{% block nav_title %}Profile{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
@@ -21,10 +22,8 @@ Account Settings — GlucoLog
         <div class="profile-header">
             <div class="profile-image-wrapper">
                 <img class="profile-image" src="{{ user.image.url }}" alt="{{ user.username }}" id="profileImagePreview">
-                {% comment %} <button type="button" class="change-photo-btn" onclick="document.getElementById('id_image').click()">
-                    +
-                </button> {% endcomment %}
-                {{ update_profile_form.image }}
+                <input type="file" name="image" id="id_image" class="profile-image-input" accept="image/*">
+                <label for="id_image" class="change-photo-btn">Update picture</label>
             </div>
             
             <div class="profile-info">
@@ -67,4 +66,8 @@ Account Settings — GlucoLog
     </form>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'users/js/profile.js' %}"></script>
 {% endblock %}

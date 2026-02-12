@@ -13,7 +13,7 @@
 /* Auth Card */
 .auth-card {
     background-color: #ffffff;
-    border: 2px solid #d1e7dd;
+    border: 2px solid #c5e9e6;
     padding: 3rem;
     position: relative;
     overflow: hidden;
@@ -27,18 +27,18 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #5fa884 0%, #4a8a6a 100%);
+    background: linear-gradient(90deg, #00a896 0%, #028090 100%);
 }
 
 /* Page Header */
 .auth-card h2 {
-    color: #2d5f4f;
+    color: #16324f;
     font-size: 2rem;
     margin-bottom: 2rem;
     font-weight: 600;
     text-align: center;
     padding-bottom: 1rem;
-    border-bottom: 2px solid #d1e7dd;
+    border-bottom: 2px solid #c5e9e6;
     position: relative;
 }
 
@@ -50,7 +50,7 @@
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background-color: #5fa884;
+    background-color: #00a896;
 }
 
 /* ===================================
@@ -58,6 +58,14 @@
    =================================== */
 .auth-card form {
     width: 100%;
+}
+
+.auth-card form p {
+    margin-bottom: 1rem;
+}
+
+.auth-card form p:last-child {
+    margin-bottom: 0;
 }
 
 /* Crispy Forms Override */
@@ -68,13 +76,13 @@
 
 /* Add visual indicator for focused/filled inputs */
 .auth-card form .form-group:focus-within label {
-    color: #5fa884;
+    color: #00a896;
 }
 
 .auth-card form label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #2d5f4f;
+    color: #16324f;
     font-weight: 600;
     font-size: 1.0625rem;
     letter-spacing: 0.3px;
@@ -85,11 +93,11 @@
 .auth-card form input[type="password"] {
     width: 100%;
     padding: 0.875rem;
-    border: 2px solid #d1e7dd;
+    border: 2px solid #c5e9e6;
     border-radius: 3px;
     font-size: 1.0625rem;
-    color: #2d5f4f;
-    background-color: #f9fcfb;
+    color: #16324f;
+    background-color: #f9fefd;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     font-family: inherit;
 }
@@ -97,7 +105,7 @@
 .auth-card form input[type="text"]:hover,
 .auth-card form input[type="email"]:hover,
 .auth-card form input[type="password"]:hover {
-    border-color: #5fa884;
+    border-color: #00a896;
     background-color: #ffffff;
 }
 
@@ -105,13 +113,20 @@
 .auth-card form input[type="email"]:focus,
 .auth-card form input[type="password"]:focus {
     outline: none;
-    border-color: #5fa884;
+    border-color: #00a896;
     background-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(95, 168, 132, 0.1);
 }
 
 .auth-card form input::placeholder {
-    color: #a3cfbb;
+    color: #9fd8cf;
+}
+
+.auth-note {
+    margin: 0 0 1rem;
+    color: #46627a;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 /* ===================================
@@ -123,7 +138,7 @@
     display: block;
     margin-top: 0.5rem;
     font-size: 0.9375rem;
-    color: #5a7a6d;
+    color: #46627a;
     line-height: 1.5;
 }
 
@@ -195,7 +210,7 @@
 
 .auth-card form .alert-success {
     background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
-    border-left: 4px solid #5fa884;
+    border-left: 4px solid #00a896;
     color: #2e7d32;
     box-shadow: 0 1px 3px rgba(95, 168, 132, 0.1);
 }
@@ -205,7 +220,7 @@
    =================================== */
 .auth-card form button[type="submit"] {
     width: 100%;
-    background: linear-gradient(135deg, #5fa884 0%, #4a8a6a 100%);
+    background: linear-gradient(135deg, #00a896 0%, #028090 100%);
     color: #ffffff;
     padding: 1rem;
     border: none;
@@ -239,14 +254,14 @@
 }
 
 .back-link a {
-    color: #5a7a6d;
+    color: #46627a;
     text-decoration: none;
     font-size: 1.0625rem;
     transition: color 0.2s ease;
 }
 
 .back-link a:hover {
-    color: #2d5f4f;
+    color: #16324f;
     text-decoration: underline;
 }
 
@@ -256,9 +271,9 @@
 .auth-links {
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 2px solid #e8f0ed;
+    border-top: 2px solid #ddf2ef;
     text-align: center;
-    background-color: #f9fcfb;
+    background-color: #f9fefd;
     margin-left: -3rem;
     margin-right: -3rem;
     margin-bottom: -3rem;
@@ -268,7 +283,7 @@
 }
 
 .auth-links p {
-    color: #2d5f4f;
+    color: #16324f;
     font-size: 1.0625rem;
     margin-bottom: 0.75rem;
     line-height: 1.6;
@@ -279,7 +294,7 @@
 }
 
 .auth-links a {
-    color: #5fa884;
+    color: #00a896;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s ease;
@@ -287,8 +302,8 @@
 }
 
 .auth-links a:hover {
-    color: #4a8a6a;
-    border-bottom-color: #4a8a6a;
+    color: #028090;
+    border-bottom-color: #028090;
 }
 
 /* ===================================
@@ -298,7 +313,7 @@
     width: auto;
     margin-right: 0.5rem;
     cursor: pointer;
-    accent-color: #5fa884;
+    accent-color: #00a896;
 }
 
 .auth-card form .form-check {
@@ -318,7 +333,7 @@
    =================================== */
 .password-strength {
     height: 4px;
-    background-color: #e8f0ed;
+    background-color: #ddf2ef;
     border-radius: 2px;
     margin-top: 0.5rem;
     overflow: hidden;
@@ -341,7 +356,7 @@
 
 .password-strength-strong {
     width: 100%;
-    background-color: #5fa884;
+    background-color: #00a896;
 }
 
 /* ===================================
@@ -378,7 +393,7 @@
 
     .auth-card {
         padding: 1.5rem 1rem;
-        border: 1px solid #d1e7dd;
+        border: 1px solid #c5e9e6;
     }
 
     .auth-card h2 {
