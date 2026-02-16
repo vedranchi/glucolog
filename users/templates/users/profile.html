@@ -64,6 +64,10 @@ Account Settings — GlucoLog
             <a href="{% url 'glucolog-dashboard' %}" class="btn-secondary">Cancel</a>
         </div>
     </form>
+
+    <div class="account-actions">
+        <a href="{% url 'glucolog-logout' %}" class="btn-logout">Log out</a>
+    </div>
 </div>
 
 {% endblock %}
