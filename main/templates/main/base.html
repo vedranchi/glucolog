@@ -17,14 +17,6 @@
     {% endblock %}
   </head>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.message').forEach((message) => {
-        message.addEventListener('click', () => message.remove())
-      })
-    })
-  </script>
-
   <body>
     {% if user.is_authenticated %}
       <div class="app-layout">
@@ -34,7 +26,6 @@
             <a href="{% url 'log-insulin' %}">Insulin</a>
             <a href="{% url 'log-glucose' %}">Glucose</a>
             <a href="{% url 'log-meal' %}">Meals</a>
-            <a href="{% url 'glucolog-logout' %}">Logout</a>
           </div>
         </nav>
 
@@ -119,5 +110,6 @@
     {% block extra_js %}
 
     {% endblock %}
+    <script src="{% static 'main/js/base.js' %}"></script>
   </body>
 </html>

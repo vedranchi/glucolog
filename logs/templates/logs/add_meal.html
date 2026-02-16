@@ -109,21 +109,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-function calculateCalories() {
-    const carbs = parseFloat(document.getElementById('carbs').value) || 0;
-    const protein = parseFloat(document.getElementById('protein').value) || 0;
-    const fats = parseFloat(document.getElementById('fats').value) || 0;
-    const calories = (carbs * 4) + (protein * 4) + (fats * 9);
-    document.getElementById('calories').value = Math.round(calories);
-}
-
-// Add event listeners to all macro inputs
-document.getElementById('carbs').addEventListener('input', calculateCalories);
-document.getElementById('protein').addEventListener('input', calculateCalories);
-document.getElementById('fats').addEventListener('input', calculateCalories);
-
-// Calculate on page load
-calculateCalories();
-</script>
+<script src="{% static 'logs/js/add_meal.js' %}"></script>
 {% endblock %}

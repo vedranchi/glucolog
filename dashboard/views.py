@@ -3,6 +3,7 @@ from logs.models import GlucoseLog, InsulinLog, MealLog
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from datetime import datetime, timedelta
 import json
 
 from users.services import get_user_preferences
@@ -83,14 +84,32 @@ def dashboard(request):
 
     recent_activity = sorted(recent_activity, key=get_time, reverse=True)[:5]
 
-    # get data for the chart
-    glucose_labels = [g.measured_at.strftime("%H:%M") for g in glucose_today]
+    # chart date navigation (defaults to today)
+    chart_date_param = request.GET.get("chart_date")
+    chart_date = today
+    if chart_date_param:
+        try:
+            chart_date = datetime.strptime(chart_date_param, "%Y-%m-%d").date()
+        except ValueError:
+            chart_date = today
+
+    glucose_chart_day = GlucoseLog.objects.filter(
+        user=request.user, measured_at__date=chart_date
+    )
+
+    # get data for the selected chart day
+    glucose_labels = [g.measured_at.strftime("%H:%M") for g in glucose_chart_day]
     glucose_values = []
-    for g in glucose_today:
+    for g in glucose_chart_day:
         value = float(g.value)
         if unit_label == 'mg/dL':
             value = value * 18 # convert to mg/dL
         glucose_values.append(round(value, 1))
+
+    previous_chart_date = chart_date - timedelta(days=1)
+    next_chart_date = chart_date + timedelta(days=1)
+    if next_chart_date > today:
+        next_chart_date = None
 
     # send data to dashboard.html
     context = {
@@ -105,6 +124,9 @@ def dashboard(request):
         "latest_glucose_value": latest_glucose_value,
         "latest_insulin": latest_insulin,
         "latest_meal": latest_meal,
+        "chart_date": chart_date,
+        "previous_chart_date": previous_chart_date,
+        "next_chart_date": next_chart_date,
         # for chart
         "glucose_labels": json.dumps(glucose_labels),
         "glucose_values": json.dumps(glucose_values),
