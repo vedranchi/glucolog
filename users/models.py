@@ -17,13 +17,16 @@ class User(AbstractUser):
         return self.username or self.email
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs )
+        super().save(*args, **kwargs)
 
-        img = Image.open(self.image)
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
-            img.thumbnail(output_size)
-            img.save(self.image.path)
+        if self.image and self.image.name != "default.jpg":
+            try:
+                img = Image.open(self.image.path)
+                if img.height > 300 or img.width > 300:
+                    img.thumbnail((300, 300))
+                    img.save(self.image.path)
+            except (FileNotFoundError, OSError):
+                pass
 
 
 # manage user settings
