@@ -11,26 +11,39 @@ Register — GlucoLog
 {% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <h2>Create Account</h2>
+<div class="auth-shell">
+    <section class="auth-side">
+        <p class="auth-kicker">New to GlucoLog</p>
+        <h1>Start simple, stay consistent.</h1>
+        <p class="auth-side-copy">Build a daily record that connects glucose, insulin, and meals.</p>
+        <ul class="auth-points">
+            <li>Choose your glucose unit</li>
+            <li>Track meals and insulin timing</li>
+            <li>See progress every day</li>
+        </ul>
+    </section>
 
-        <form method="POST">
-            {% csrf_token %}
-            {{ form|crispy }}
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Create Account</h2>
 
-            <button type="submit">Register</button>
-        </form>
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+                {{ form|crispy }}
 
-        <div class="back-link">
-            <a href="{% url 'glucolog-home' %}">← Back to Home</a>
-        </div>
+                <button type="submit">Register</button>
+            </form>
 
-        <div class="auth-links">
-            <p>
-                Already have an account?
-                <a href="{% url 'glucolog-login' %}">Log in</a>
-            </p>
+            <div class="back-link">
+                <a href="{% url 'glucolog-home' %}">← Back to Home</a>
+            </div>
+
+            <div class="auth-links">
+                <p>
+                    Already have an account?
+                    <a href="{% url 'glucolog-login' %}">Log in</a>
+                </p>
+            </div>
         </div>
     </div>
 </div>
