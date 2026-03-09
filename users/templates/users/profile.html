@@ -21,7 +21,9 @@ Account Settings — GlucoLog
         <!-- Profile Header -->
         <div class="profile-header">
             <div class="profile-image-wrapper">
-                <img class="profile-image" src="{{ user.image.url }}" alt="{{ user.username }}" id="profileImagePreview">
+                <img class="profile-image"
+                     src="{% if user.image and user.image.name != 'default.jpg' %}{{ user.image.url }}{% else %}{% static 'main/images/default.jpg' %}{% endif %}"
+                     alt="{{ user.username }}" id="profileImagePreview">
                 <input type="file" name="image" id="id_image" class="profile-image-input" accept="image/*">
                 <label for="id_image" class="change-photo-btn">Update picture</label>
             </div>
