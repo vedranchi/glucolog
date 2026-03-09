@@ -28,14 +28,15 @@
             <a href="{% url 'log-meal' %}">Meals</a>
           </div>
         </nav>
-
         <div class="page-layout">
           <header class="top-profile">
             <div class="top-title">
               {% block nav_title %}GlucoLog{% endblock %}
             </div>
             <a href="{% url 'user-profile' %}" class="profile-link">
-              <img class="profile-avatar" src="{{ user.image.url }}" alt="{{ user.username }}" />
+              <img class="profile-avatar"
+                   src="{% if user.image and user.image.name != 'default.jpg' %}{{ user.image.url }}{% else %}{% static 'main/images/default.jpg' %}{% endif %}"
+                   alt="{{ user.username }}" />
               <span>{{ user.username }}</span>
             </a>
           </header>
@@ -103,10 +104,12 @@
         {% endif %}
       {% endblock %}
     </main>
+
     {% if user.is_authenticated %}
-        </div>
-      </div>
+        </div><!-- page-layout -->
+      </div><!-- app-layout -->
     {% endif %}
+
     {% block extra_js %}
 
     {% endblock %}
