@@ -18,10 +18,10 @@ def dashboard(request):
     # filter todays logs
     today = timezone.now().date()
     glucose_today = GlucoseLog.objects.filter(
-        user=request.user, measured_at__date=today
+        user=request.user, measured_at__date=today, is_deleted=False
     )
-    insulin_today = InsulinLog.objects.filter(user=request.user, taken_at__date=today)
-    meals_today = MealLog.objects.filter(user=request.user, eaten_at__date=today)
+    insulin_today = InsulinLog.objects.filter(user=request.user, taken_at__date=today, is_deleted=False)
+    meals_today = MealLog.objects.filter(user=request.user, eaten_at__date=today, is_deleted=False)
 
     latest_glucose = glucose_today.order_by("-measured_at").first()
     latest_insulin = insulin_today.order_by("-taken_at").first()
@@ -94,7 +94,7 @@ def dashboard(request):
             chart_date = today
 
     glucose_chart_day = GlucoseLog.objects.filter(
-        user=request.user, measured_at__date=chart_date
+        user=request.user, measured_at__date=chart_date, is_deleted=False
     )
 
     # get data for the selected chart day

@@ -27,8 +27,8 @@ def meal_dashboard(request):
     """view for the meal actions in the dashboard"""
     if request.method == "POST":
         carbs = request.POST.get("carbs")
-        desc = request.POST.get("desc")
-        MealLog.objects.create(user=request.user, desc=desc, carbs=carbs)
+        note = request.POST.get("note")
+        MealLog.objects.create(user=request.user, note=note, carbs=carbs)
         return redirect("glucolog-dashboard")
 
     return render(request, "logs/log_meal.html")
