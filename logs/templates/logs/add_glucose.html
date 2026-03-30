@@ -42,11 +42,11 @@
         <label for="context">Context</label>
         <select name="context" id="context">
             <option value="">Select context</option>
-            <option value="Fasting" {% if glucose.context == 'Fasting' %}selected{% endif %}>Fasting</option>
-            <option value="Before Meal" {% if glucose.context == 'Before Meal' %}selected{% endif %}>Before Meal</option>
-            <option value="After Meal" {% if glucose.context == 'After Meal' %}selected{% endif %}>After Meal</option>
-            <option value="Bedtime" {% if glucose.context == 'Bedtime' %}selected{% endif %}>Bedtime</option>
-            <option value="Random" {% if glucose.context == 'Random' %}selected{% endif %}>Random</option>
+            <option value="fasting" {% if glucose.context == 'fasting' %}selected{% endif %}>Fasting</option>
+            <option value="before meal" {% if glucose.context == 'before meal' %}selected{% endif %}>Before Meal</option>
+            <option value="after meal" {% if glucose.context == 'after meal' %}selected{% endif %}>After Meal</option>
+            <option value="bedtime" {% if glucose.context == 'bedtime' %}selected{% endif %}>Bedtime</option>
+            <option value="other" {% if glucose.context == 'other' %}selected{% endif %}>Other</option>
         </select>
         
         <label for="note">Note</label>
