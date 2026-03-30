@@ -7,7 +7,8 @@ def insulin_dashboard(request):
     """view for the insulin actions in the dashboard"""
     if request.method == "POST":
         units = request.POST.get("units")
-        InsulinLog.objects.create(user=request.user, units=units)
+        insulin_type = request.POST.get("insulin_type")
+        InsulinLog.objects.create(user=request.user, units=units, insulin_type=insulin_type)
         return redirect("glucolog-dashboard")
 
     return render(request, "logs/log_insulin.html")
