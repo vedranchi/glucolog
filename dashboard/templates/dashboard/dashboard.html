@@ -132,11 +132,11 @@
                 </div>
             </div>
             <div class="chart-wrap">
+                {{ glucose_labels|json_script:"glucose-labels" }}
+                {{ glucose_values|json_script:"glucose-values" }}
                 <canvas
                     id="glucoseChart"
                     height="140"
-                    data-labels='{{ glucose_labels|safe }}'
-                    data-values='{{ glucose_values|safe }}'
                     data-unit-label="{{ unit_label }}"
                 ></canvas>
             </div>
