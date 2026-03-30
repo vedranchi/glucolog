@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let labels = [];
   let values = [];
   try {
-    labels = JSON.parse(canvas.dataset.labels || "[]");
-    values = JSON.parse(canvas.dataset.values || "[]");
+    labels = JSON.parse(document.getElementById("glucose-labels").textContent);
+    values = JSON.parse(document.getElementById("glucose-values").textContent);
   } catch (error) {
     labels = [];
     values = [];
