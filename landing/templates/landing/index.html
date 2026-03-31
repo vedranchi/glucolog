@@ -1,0 +1,218 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GlucoLog | Practical Diabetes Tracking</title>
+    <meta
+      name="description"
+      content="Track glucose, insulin, and meals in one practical dashboard. Built for daily diabetes management."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'landing/styles.css' %}" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="#top" aria-label="GlucoLog home">
+          <span class="brand-dot"></span>
+          <span>GlucoLog</span>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu">
+          Menu
+        </button>
+        <nav id="menu" class="menu">
+          <a href="#features">Features</a>
+          <a href="#workflow">Flow</a>
+          <a href="#gallery">Visuals</a>
+          <a href="{% url 'glucolog-register' %}" class="menu-cta">Start Free</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero container reveal">
+        <div class="hero-copy">
+          <p class="kicker">Diabetes Management Platform</p>
+          <h1>Simple tracking. Better daily decisions.</h1>
+          <p class="lead">Glucose, insulin, meals, and trends in one clear place.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create Account</a>
+            <a class="btn btn-ghost" href="{% url 'glucolog-login' %}">Sign In</a>
+            <button class="btn btn-detail" data-open-details="overview">More details</button>
+          </div>
+        </div>
+        <figure class="hero-media card">
+          <img
+            src="https://images.pexels.com/photos/6941884/pexels-photo-6941884.jpeg?auto=compress&cs=tinysrgb&w=1200"
+            alt="Person using a glucose monitor and app at a table"
+            loading="eager"
+          />
+          <figcaption>Built for real daily routines.</figcaption>
+        </figure>
+      </section>
+
+      <section class="stats container reveal">
+        <article class="stat card">
+          <h3>Dashboard</h3>
+          <p>Today at a glance.</p>
+        </article>
+        <article class="stat card">
+          <h3>Trends</h3>
+          <p>Glucose chart by day.</p>
+        </article>
+        <article class="stat card">
+          <h3>Recent Activity</h3>
+          <p>Quick edits from feed.</p>
+        </article>
+      </section>
+
+      <section id="features" class="features container reveal">
+        <div class="section-head compact-head">
+          <p class="kicker">Current Features</p>
+          <h2>Everything core is already in place</h2>
+          <button class="link-btn" data-open-details="features">Open feature window</button>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature card"><h3>Glucose Logs</h3><p>Value, context, note, time.</p></article>
+          <article class="feature card"><h3>Insulin Logs</h3><p>Basal/bolus, units, brand.</p></article>
+          <article class="feature card"><h3>Meal Logs</h3><p>Carbs, protein, fats, calories.</p></article>
+          <article class="feature card"><h3>Unit Settings</h3><p>mmol/L or mg/dL.</p></article>
+          <article class="feature card"><h3>Insights</h3><p>Today + 7-day summaries.</p></article>
+          <article class="feature card"><h3>Edit Safety</h3><p>Edit and soft delete.</p></article>
+          <article class="feature card"><h3>Account Tools</h3><p>Auth, profile, reset password.</p></article>
+          <article class="feature card"><h3>JWT Endpoints</h3><p>Token + refresh routes.</p></article>
+        </div>
+      </section>
+
+      <section id="workflow" class="workflow container reveal">
+        <div class="section-head compact-head">
+          <p class="kicker">Flow</p>
+          <h2>Log, review, adjust</h2>
+          <button class="link-btn" data-open-details="workflow">Open workflow slides</button>
+        </div>
+        <div class="steps">
+          <article class="step card"><span class="step-no">01</span><h3>Log</h3><p>Fast inputs.</p></article>
+          <article class="step card"><span class="step-no">02</span><h3>Review</h3><p>Daily snapshot.</p></article>
+          <article class="step card"><span class="step-no">03</span><h3>Adjust</h3><p>Use trend context.</p></article>
+        </div>
+      </section>
+
+      <section id="gallery" class="gallery container reveal">
+        <div class="section-head compact-head">
+          <p class="kicker">Visual Context</p>
+          <h2>Care meets routine</h2>
+          <button class="link-btn" data-open-details="technical">Technical notes</button>
+        </div>
+        <div class="gallery-grid">
+          <figure class="card pic-wide">
+            <img
+              src="https://images.pexels.com/photos/6823505/pexels-photo-6823505.jpeg?auto=compress&cs=tinysrgb&w=1400"
+              alt="Glucose meter and notes on a desk"
+              loading="lazy"
+            />
+          </figure>
+          <figure class="card">
+            <img
+              src="https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=900"
+              alt="Meal prep bowls for tracking nutrition"
+              loading="lazy"
+            />
+          </figure>
+          <figure class="card">
+            <img
+              src="https://images.pexels.com/photos/8376297/pexels-photo-8376297.jpeg?auto=compress&cs=tinysrgb&w=900"
+              alt="Healthcare professional reviewing health data"
+              loading="lazy"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section id="cta" class="cta container reveal">
+        <div class="cta-card card">
+          <h2>Start practical tracking.</h2>
+          <p>Keep daily signals connected.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create Account</a>
+            <a class="btn btn-ghost" href="{% url 'glucolog-dashboard' %}">Open Dashboard</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-wrap">
+        <p>GlucoLog</p>
+        <p>Practical diabetes tracking.</p>
+      </div>
+    </footer>
+
+    <div class="detail-modal" id="detailModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="detail-backdrop" data-close-details></div>
+      <section class="detail-window card">
+        <header class="detail-head">
+          <h3 id="detailTitle">Details</h3>
+          <button class="detail-close" data-close-details aria-label="Close">Close</button>
+        </header>
+
+        <div class="detail-body">
+          <article class="detail-slide" data-slide="overview">
+            <h4>Platform overview</h4>
+            <ul>
+              <li>Single dashboard for glucose, insulin, and meal logging.</li>
+              <li>Fast forms with notes and context fields.</li>
+              <li>Recent activity with direct edit access.</li>
+            </ul>
+          </article>
+
+          <article class="detail-slide" data-slide="features">
+            <h4>Feature detail</h4>
+            <ul>
+              <li>Glucose: context-based readings and unit conversion.</li>
+              <li>Insulin: basal/bolus tracking, totals, corrections.</li>
+              <li>Meals: macros + calories with meal context.</li>
+              <li>Accounts: registration, login, profile, password reset.</li>
+            </ul>
+          </article>
+
+          <article class="detail-slide" data-slide="workflow">
+            <h4>Workflow detail</h4>
+            <ul>
+              <li>Step 1: Log values and doses in seconds.</li>
+              <li>Step 2: Review dashboard totals and latest events.</li>
+              <li>Step 3: Check weekly summaries and trend chart.</li>
+            </ul>
+          </article>
+
+          <article class="detail-slide" data-slide="technical">
+            <h4>Technical detail</h4>
+            <ul>
+              <li>JWT token and refresh endpoints included.</li>
+              <li>Soft-delete safety for logs.</li>
+              <li>Responsive UI across desktop and mobile.</li>
+            </ul>
+          </article>
+        </div>
+
+        <footer class="detail-foot">
+          <button class="btn btn-ghost" id="detailPrev" type="button">Previous</button>
+          <p id="detailCounter">1 / 4</p>
+          <button class="btn btn-ghost" id="detailNext" type="button">Next</button>
+        </footer>
+      </section>
+    </div>
+
+    <script src="{% static 'landing/script.js' %}"></script>
+  </body>
+</html>

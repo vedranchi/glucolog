@@ -1,76 +1,118 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}GlucoLog - Diabetes Management{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
-    {% block extra_css %}{% endblock %}
-</head>
+  <head>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}
+        GlucoLog - Diabetes Management
+      {% endblock %}
+    </title>
+    <link rel="stylesheet" href="{% static 'main/css/base.css' %}" />
+    {% block extra_css %}
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".message").forEach(message => {
-        message.addEventListener("click", () => message.remove());
-    });
-});
-</script>
+    {% endblock %}
+  </head>
 
-<body>
-    <nav>
-        {% if user.is_authenticated %}
+  <body>
+    {% if user.is_authenticated %}
+      <div class="app-layout">
+        <nav class="sidebar-nav">
+          <div class="nav-left">
             <a href="{% url 'glucolog-dashboard' %}">Dashboard</a>
             <a href="{% url 'log-insulin' %}">Insulin</a>
             <a href="{% url 'log-glucose' %}">Glucose</a>
             <a href="{% url 'log-meal' %}">Meals</a>
-            <a href="{% url 'user-preferences' %}">Preferences</a>
-            <a href="{% url 'glucolog-logout' %}">Logout</a>
-        {% else %}
-            <a href="https://www.diabetes.org/">Learn about Diabetes</a>
-            <a href="https://www.nhs.uk/conditions/diabetes/">Diabetes Resources</a>
-        {% endif %}
-    </nav>
+          </div>
+        </nav>
+        <div class="page-layout">
+          <header class="top-profile">
+            <div class="top-title">
+              {% block nav_title %}GlucoLog{% endblock %}
+            </div>
+            <a href="{% url 'user-profile' %}" class="profile-link">
+              <img class="profile-avatar"
+                   src="{% if user.image and user.image.name != 'default.jpg' %}{{ user.image.url }}{% else %}{% static 'main/images/default.jpg' %}{% endif %}"
+                   alt="{{ user.username }}" />
+              <span>{{ user.username }}</span>
+            </a>
+          </header>
+    {% endif %}
 
     {% if messages %}
-    <div class="messages">
+      <div class="messages">
         {% for message in messages %}
-            <div class="message {{ message.tags }}">
-                {{ message }}
-            </div>
+          <div class="message {{ message.tags }}">{{ message }}</div>
         {% endfor %}
-    </div>
+      </div>
     {% endif %}
 
     <main>
-        {% block content %}
+      {% block content %}
         {% if not user.is_authenticated %}
-        <div class="welcome-container">
-            <h1>Welcome to GlucoLog</h1>
-            <p>
-                Yout personal diabates tracking app, designed to reduce mental load and make logging effortless.
-            </p>
-            <ul>
-                <li>
-                    Understand your trends
-                </li>
-                <li>
-                    Act with confidence
-                </li>
-                <li>
-                    Feel better
-                </li>
-            </ul>
-            <a href="{% url 'glucolog-login' %}" class="btn-primary">
-                Get Started
-            </a>
-            <div class="footer-note">
-                Track, manage, and improve your health with GlucoLog!
-            </div>
-        </div>
+          <div class="welcome-container">
+            <section class="landing-hero">
+              <div class="landing-copy">
+                <span class="landing-kicker">Diabetes Management Platform</span>
+                <h1>Manage glucose, insulin, and meals in one clear dashboard.</h1>
+                <p>GlucoLog helps you log faster, see patterns sooner, and make day-to-day decisions with confidence.</p>
+                <div class="landing-actions">
+                  <a href="{% url 'glucolog-login' %}" class="btn-primary">Get Started</a>
+                  <a href="{% url 'glucolog-register' %}" class="btn-secondary">Create Account</a>
+                </div>
+              </div>
+
+              <div class="landing-panel">
+                <h2>Today at a Glance</h2>
+                <div class="landing-metrics">
+                  <div class="metric-item">
+                    <span class="metric-title">Glucose Trends</span>
+                    <strong>Track changes over time</strong>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-title">Insulin Doses</span>
+                    <strong>Stay consistent with timing</strong>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-title">Meal Logs</span>
+                    <strong>Connect nutrition and readings</strong>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="landing-features">
+              <article class="feature-card">
+                <h3>Fast Logging</h3>
+                <p>Capture readings and doses in seconds with focused forms.</p>
+              </article>
+              <article class="feature-card">
+                <h3>Actionable Insights</h3>
+                <p>See activity trends and recent events in one structured view.</p>
+              </article>
+              <article class="feature-card">
+                <h3>Built for Daily Use</h3>
+                <p>Simple design that works well on desktop and mobile.</p>
+              </article>
+            </section>
+
+            <div class="footer-note">Track, manage, and improve your health with GlucoLog.</div>
+          </div>
         {% endif %}
-        {% endblock %}
+      {% endblock %}
     </main>
-    {% block extra_js %} {% endblock %}
-</body>
+
+    {% if user.is_authenticated %}
+        </div><!-- page-layout -->
+      </div><!-- app-layout -->
+    {% endif %}
+
+    {% block extra_js %}
+
+    {% endblock %}
+    <script src="{% static 'main/js/base.js' %}"></script>
+  </body>
 </html>

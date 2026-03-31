@@ -7,7 +7,8 @@ def insulin_dashboard(request):
     """view for the insulin actions in the dashboard"""
     if request.method == "POST":
         units = request.POST.get("units")
-        InsulinLog.objects.create(user=request.user, units=units)
+        insulin_type = request.POST.get("insulin_type")
+        InsulinLog.objects.create(user=request.user, units=units, insulin_type=insulin_type)
         return redirect("glucolog-dashboard")
 
     return render(request, "logs/log_insulin.html")
@@ -27,8 +28,8 @@ def meal_dashboard(request):
     """view for the meal actions in the dashboard"""
     if request.method == "POST":
         carbs = request.POST.get("carbs")
-        desc = request.POST.get("desc")
-        MealLog.objects.create(user=request.user, desc=desc, carbs=carbs)
+        note = request.POST.get("note")
+        MealLog.objects.create(user=request.user, note=note, carbs=carbs)
         return redirect("glucolog-dashboard")
 
     return render(request, "logs/log_meal.html")

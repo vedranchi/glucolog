@@ -2,101 +2,150 @@
 {% load static %}
 
 {% block title %}Dashboard — GlucoLog{% endblock %}
+{% block nav_title %}Dashboard{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<section class="dashboard-shell">
+    <div class="metrics-grid">
+        <article class="metric-card">
+            <div class="metric-head">
+                <span class="metric-label">Glucose Logs</span>
+                <span class="metric-badge">Today</span>
+            </div>
+            <div class="metric-value">{{ glucose_count_today }}</div>
+            <p class="metric-sub">
+                Avg:
+                <strong>
+                    {% if avg_glucose %}
+                        {{ avg_glucose }} {{ unit_label }}
+                    {% else %}
+                        No data
+                    {% endif %}
+                </strong>
+            </p>
+            <p class="metric-foot">
+                Last:
+                {% if latest_glucose %}
+                    {{ latest_glucose_value }} {{ unit_label }} at {{ latest_glucose.measured_at|date:"H:i" }}
+                {% else %}
+                    No reading logged
+                {% endif %}
+            </p>
+        </article>
 
-<div class="summary-box">
-    <h2>Today's Summary</h2>
-    <p>Average Glucose: <strong>{{ avg_glucose|default:"No data" }}</strong> {{ unit_label }}</p>
-    <p>Total Insulin: <strong>{{ total_insulin|default:"No data" }}</strong> units</p>
-    <p>Carbs Consumed: <strong>{{ carbs_consumed|default:"No data" }}</strong> g</p>
-</div>
+        <article class="metric-card">
+            <div class="metric-head">
+                <span class="metric-label">Insulin Logs</span>
+                <span class="metric-badge">Today</span>
+            </div>
+            <div class="metric-value">{{ insulin_count_today }}</div>
+            <p class="metric-sub">Total: <strong>{{ total_insulin|default:"0" }} units</strong></p>
+            <p class="metric-foot">
+                Last:
+                {% if latest_insulin %}
+                    {{ latest_insulin.units }} U at {{ latest_insulin.taken_at|date:"H:i" }}
+                {% else %}
+                    No insulin logged
+                {% endif %}
+            </p>
+        </article>
 
-<div class="summary-box">
-    <h2>Glucose Chart (Today)</h2>
-    <canvas id="glucoseChart" width="400" height="200"></canvas>
-</div>
+        <article class="metric-card">
+            <div class="metric-head">
+                <span class="metric-label">Meal Logs</span>
+                <span class="metric-badge">Today</span>
+            </div>
+            <div class="metric-value">{{ meal_count_today }}</div>
+            <p class="metric-sub">Carbs: <strong>{{ carbs_consumed|default:"0" }} g</strong></p>
+            <p class="metric-foot">
+                Last:
+                {% if latest_meal %}
+                    {{ latest_meal.note|default:"Meal entry" }} at {{ latest_meal.eaten_at|date:"H:i" }}
+                {% else %}
+                    No meals logged
+                {% endif %}
+            </p>
+        </article>
 
-<div class="summary-box">
-    <h2>Recent Activity</h2>
-    <ul>
-        {% for activity in recent_activity %}
-        <li>{{ activity.label }} - {{ activity.when|date:"H:i" }}</li>
-        {% empty %}
-        <li>No activity today</li>
-        {% endfor %}
-    </ul>
-</div>
+        <article class="metric-card quick-card">
+            <div class="metric-head">
+                <span class="metric-label">Quick Actions</span>
+                <span class="metric-badge neutral">Logs</span>
+            </div>
+            <div class="quick-actions">
+                <a href="{% url 'log-glucose' %}">Open Glucose</a>
+                <a href="{% url 'log-insulin' %}">Open Insulin</a>
+                <a href="{% url 'log-meal' %}">Open Meals</a>
+            </div>
+        </article>
+    </div>
 
-<div class="summary-box">
-    <h3>Quick Actions</h3>
-    <a href="{% url 'log-insulin' %}">Log Insulin</a> |
-    <a href="{% url 'log-glucose' %}">Log Glucose</a> |
-    <a href="{% url 'log-meal' %}">Log Meal</a>
-</div>
+    <div class="content-grid">
+        <article class="panel-card activity-card">
+            <div class="panel-head">
+                <h2>Recent Activity</h2>
+                <span class="panel-meta">{{ recent_activity|length }} items</span>
+            </div>
+            <ul class="activity-list">
+                {% for activity in recent_activity %}
+                <li>
+                    <a href="{{ activity.edit_url }}" class="activity-link">
+                        <span class="activity-label">{{ activity.label }}</span>
+                        <span class="activity-time">{{ activity.when|date:"H:i" }}</span>
+                    </a>
+                </li>
+                {% empty %}
+                <li class="empty-state">No activity today</li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="panel-card chart-card">
+            <div class="panel-head chart-head">
+                <div>
+                    <h2>Glucose Trend</h2>
+                    <p class="chart-date">{{ chart_date|date:"F j, Y" }}</p>
+                </div>
+                <div class="trend-controls">
+                    <a
+                        href="{% url 'glucolog-dashboard' %}?chart_date={{ previous_chart_date|date:'Y-m-d' }}"
+                        class="trend-btn"
+                        aria-label="Previous day"
+                    >
+                        Previous
+                    </a>
+                    {% if next_chart_date %}
+                    <a
+                        href="{% url 'glucolog-dashboard' %}?chart_date={{ next_chart_date|date:'Y-m-d' }}"
+                        class="trend-btn"
+                        aria-label="Next day"
+                    >
+                        Next
+                    </a>
+                    {% else %}
+                    <span class="trend-btn trend-btn-disabled" aria-disabled="true">Next</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="chart-wrap">
+                {{ glucose_labels|json_script:"glucose-labels" }}
+                {{ glucose_values|json_script:"glucose-values" }}
+                <canvas
+                    id="glucoseChart"
+                    height="140"
+                    data-unit-label="{{ unit_label }}"
+                ></canvas>
+            </div>
+        </article>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Chart.js CDN + chart init -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const ctx = document.getElementById('glucoseChart').getContext('2d');
-const glucoseChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{ glucose_labels|safe }},
-        datasets: [{
-            label: 'Glucose ({{ unit_label }})',
-            data: {{ glucose_values|safe }},
-            borderColor: 'rgb(90, 103, 216)',
-            backgroundColor: 'rgba(90, 103, 216, 0.1)',
-            tension: 0.3,
-            fill: true,
-            pointRadius: 4,
-            pointBackgroundColor: 'rgb(90, 103, 216)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-            legend: {
-                display: true,
-                labels: {
-                    color: '#4a5568',
-                    font: {
-                        size: 14
-                    }
-                }
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: false,
-                ticks: {
-                    color: '#718096'
-                },
-                grid: {
-                    color: '#e2e8f0'
-                }
-            },
-            x: {
-                ticks: {
-                    color: '#718096'
-                },
-                grid: {
-                    color: '#e2e8f0'
-                }
-            }
-        }
-    }
-});
-</script>
+<script src="{% static 'dashboard/js/dashboard.js' %}"></script>
 {% endblock %}

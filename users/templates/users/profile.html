@@ -1,0 +1,79 @@
+{% extends 'main/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+Account Settings — GlucoLog
+{% endblock %}
+{% block nav_title %}Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1 class="page-title">Account Settings</h1>
+    
+    <form method="POST" action="{% url 'user-profile' %}" enctype="multipart/form-data" id="profileForm">
+        {% csrf_token %}
+        
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-image-wrapper">
+                <img class="profile-image"
+                     src="{% if user.image and user.image.name != 'default.jpg' %}{{ user.image.url }}{% else %}{% static 'main/images/default.jpg' %}{% endif %}"
+                     alt="{{ user.username }}" id="profileImagePreview">
+                <input type="file" name="image" id="id_image" class="profile-image-input" accept="image/*">
+                <label for="id_image" class="change-photo-btn">Update picture</label>
+            </div>
+            
+            <div class="profile-info">
+                <div class="username-container">
+                    <input type="text" class="username-input" name="username" value="{{ user.username }}" placeholder="Username" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="email" name="email" value="{{ user.email }}" placeholder="Email address" required id="id_email">
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="form-section">
+            <h3>Preferences</h3>
+            <div class="form-group">
+                <label for="{{ preferences_form.glucose_unit.id_for_label }}">
+                    {{ preferences_form.glucose_unit.label }}
+                </label>
+                {{ preferences_form.glucose_unit }}
+            </div>
+        </div>
+
+        <!-- Health Profile Section -->
+        <div class="form-section">
+            <h3>Health Profile</h3>
+            <div class="form-group">
+                <label for="{{ health_profile_form.diabetes_type.id_for_label }}">
+                    {{ health_profile_form.diabetes_type.label }}
+                </label>
+                {{ health_profile_form.diabetes_type }}
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a href="{% url 'glucolog-dashboard' %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+
+    <div class="account-actions">
+        <a href="{% url 'glucolog-logout' %}" class="btn-logout">Log out</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'users/js/profile.js' %}"></script>
+{% endblock %}

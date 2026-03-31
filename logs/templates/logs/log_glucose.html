@@ -2,14 +2,13 @@
 {% load static %}
 
 {% block title %}Log Glucose — GlucoLog{% endblock %}
+{% block nav_title %}Track Glucose{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'logs/css/logs.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>Glucose Log</h1>
-
 <!-- Current reading -->
 <div class="summary-box">
     <h2>Current Reading</h2>
@@ -41,10 +40,8 @@
 </div>
 
 <!-- Add glucose -->
-<a href="{% url 'add-glucose' %}" class="primary-action">
-    <button>
-        + Add Glucose Reading
-    </button>
+<a href="{% url 'add-glucose' %}" class="primary-action-link">
+    + Add Glucose Reading
 </a>
 
 <!-- Recent activity -->

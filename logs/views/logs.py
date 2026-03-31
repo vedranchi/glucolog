@@ -4,7 +4,7 @@ from django.db.models.functions import TruncDate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from logs.models import InsulinLog, GlucoseLog, MealLog
-from dashboard.models import UserPreferences
+from users.models import UserPreferences
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
@@ -106,7 +106,7 @@ def log_insulin(request):
 @login_required
 def add_insulin(request, pk=None):
     # if pk exist edit, else create new record
-    insulin = get_object_or_404(InsulinLog, pk=pk) if pk else None
+    insulin = get_object_or_404(InsulinLog, user=request.user, pk=pk) if pk else None
 
     """log insulin dose"""
     if request.method == "POST":
@@ -118,7 +118,7 @@ def add_insulin(request, pk=None):
         if insulin:
             # update existing record
             insulin.units = units
-            insulin.type = insulin_type
+            insulin.insulin_type = insulin_type
             insulin.brand = brand
             insulin.note = note
             insulin.save()

@@ -11,25 +11,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 import environ
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 env = environ.Env(DEBUG=(bool, False))
-
-# take environment variables from .env file
 environ.Env.read_env(BASE_DIR / ".env")
 
+sendgrid_env = environ.Env()
+environ.Env.read_env(BASE_DIR / "sendgrid.env")
 
 # check debugging status from .env
 DEBUG = env("DEBUG")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
@@ -38,6 +36,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 INSTALLED_APPS = [
     "users",
+    "landing",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -54,13 +53,14 @@ INSTALLED_APPS = [
 ]
 
 # email service
-EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
 ANYMAIL = {
-    "SENDGRID_API_KEY": env("EMAIL_API_KEY"),
+    "SENDGRID_API_KEY": sendgrid_env("SENDGRID_API_KEY"),
 }
 
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+DEFAULT_FROM_EMAIL = sendgrid_env("DEFAULT_FROM_EMAIL", default="vchichovv@gmail.com")
+SERVER_EMAIL = sendgrid_env("SERVER_EMAIL", default="vchichovv@gmail.com")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -146,7 +146,11 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STORAGES = {
     "staticfiles": {"BACKEND": STATICFILES_STORAGE},
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
 }
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
