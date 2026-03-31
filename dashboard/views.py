@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from datetime import datetime, timedelta
+import json
 
 from users.services import get_user_preferences
 
@@ -127,8 +128,8 @@ def dashboard(request):
         "previous_chart_date": previous_chart_date,
         "next_chart_date": next_chart_date,
         # for chart
-        "glucose_labels": glucose_labels,
-        "glucose_values": glucose_values,
+        "glucose_labels": json.dumps(glucose_labels),
+        "glucose_values": json.dumps(glucose_values),
         "unit_label": unit_label,
     }
 
