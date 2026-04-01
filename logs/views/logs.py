@@ -191,7 +191,7 @@ def log_glucose(request):
         recent_activity.append(
             {
                 "id": g.id,
-                "value": g.value,
+                "value": value, # pass converted float
                 "note": g.note,
                 "context": g.context,
                 "when": g.measured_at,
@@ -229,9 +229,24 @@ def log_glucose(request):
 
     seven_days_ago = timezone.now() - timedelta(days=7)
 
-    recent_7_days = GlucoseLog.objects.filter(
+    recent_7_days_qs = GlucoseLog.objects.filter(
         user=request.user, measured_at__gte=seven_days_ago, is_deleted=False
     ).order_by("-measured_at")
+
+
+    # compute last 7 days readings
+    recent_7_days = []
+    for g in recent_7_days_qs:
+        value = float(g.value)
+        if unit_label == "mg/dL":
+            value = round(value * 18, 1)
+        recent_7_days.append({
+            "value": value,
+            "measured_at": g.measured_at,
+            "context": g.context,
+            "note": g.note,
+            "id": g.id,
+        })
 
     # Convert avg_glucose to mg/dL if needed
     for entry in weekly_glucose:

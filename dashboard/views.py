@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from datetime import datetime, timedelta
-import json
 
 from users.services import get_user_preferences
 
@@ -54,9 +53,12 @@ def dashboard(request):
     # build recent activity ( last 5 entries )
     recent_activity = []
     for g in glucose_today:
+        value = float(g.value)
+        if unit_label == "mg/dL":
+            value = round(value * 18, 1)
         recent_activity.append(
             {
-                "label": f"Glucose reading ({g.value})",
+                "label": f"Glucose reading ({value} {unit_label})",
                 "when": g.measured_at,
                 "edit_url": reverse("edit-glucose", kwargs={"pk": g.id}),
             }
@@ -128,8 +130,8 @@ def dashboard(request):
         "previous_chart_date": previous_chart_date,
         "next_chart_date": next_chart_date,
         # for chart
-        "glucose_labels": json.dumps(glucose_labels),
-        "glucose_values": json.dumps(glucose_values),
+        "glucose_labels": (glucose_labels),
+        "glucose_values": (glucose_values),
         "unit_label": unit_label,
     }
 
