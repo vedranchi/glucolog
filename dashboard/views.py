@@ -47,7 +47,7 @@ def dashboard(request):
         else None
     )
     carbs_consumed = (
-        round(sum(m.carbs for m in meals_today), 1) if meals_today.exists() else None
+        round(sum(m.carbs or 0 for m in meals_today), 1) if meals_today.exists() else None
     )
 
     # build recent activity ( last 5 entries )
