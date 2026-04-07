@@ -106,7 +106,7 @@ def log_insulin(request):
 @login_required
 def add_insulin(request, pk=None):
     # if pk exist edit, else create new record
-    insulin = get_object_or_404(InsulinLog, user=request.user, pk=pk) if pk else None
+    insulin = get_object_or_404(InsulinLog, user=request.user, is_deleted = False, pk=pk) if pk else None
 
 
     """log insulin dose"""
@@ -276,7 +276,7 @@ def log_glucose(request):
 def add_glucose(request, pk=None):
 
     # if pk exist edit, else add new dose
-    glucose = get_object_or_404(GlucoseLog, pk=pk, user=request.user) if pk else None
+    glucose = get_object_or_404(GlucoseLog, pk=pk, is_deleted=False, user=request.user) if pk else None
 
     # get user unit preference
     profile, _ = UserPreferences.objects.get_or_create(user=request.user)
@@ -384,7 +384,7 @@ def log_meal(request):
 @login_required
 def add_meal(request, pk=None):
     """add glucose reading"""
-    meal = get_object_or_404(MealLog, pk=pk, user=request.user) if pk else None
+    meal = get_object_or_404(MealLog, pk=pk, is_deleted=False, user=request.user) if pk else None
     
     if request.method == "POST":
         carbs = request.POST.get("carbs")
