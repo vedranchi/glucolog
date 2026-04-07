@@ -108,6 +108,7 @@ def add_insulin(request, pk=None):
     # if pk exist edit, else create new record
     insulin = get_object_or_404(InsulinLog, user=request.user, pk=pk) if pk else None
 
+
     """log insulin dose"""
     if request.method == "POST":
         units = request.POST.get("units")
