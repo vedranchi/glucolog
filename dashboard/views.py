@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from users.services import get_user_preferences
 
+
 @login_required
 def dashboard(request):
     # get user unit preference
@@ -19,8 +20,12 @@ def dashboard(request):
     glucose_today = GlucoseLog.objects.filter(
         user=request.user, measured_at__date=today, is_deleted=False
     )
-    insulin_today = InsulinLog.objects.filter(user=request.user, taken_at__date=today, is_deleted=False)
-    meals_today = MealLog.objects.filter(user=request.user, eaten_at__date=today, is_deleted=False)
+    insulin_today = InsulinLog.objects.filter(
+        user=request.user, taken_at__date=today, is_deleted=False
+    )
+    meals_today = MealLog.objects.filter(
+        user=request.user, eaten_at__date=today, is_deleted=False
+    )
 
     latest_glucose = glucose_today.order_by("-measured_at").first()
     latest_insulin = insulin_today.order_by("-taken_at").first()
@@ -38,16 +43,18 @@ def dashboard(request):
         if glucose_today.exists()
         else None
     )
-    if unit_label == 'mg/dL' and glucose_today.exists():
+    if unit_label == "mg/dL" and glucose_today.exists():
         avg_glucose = round(avg_glucose * 18, 1)
-        
+
     total_insulin = (
         round(sum(i.units for i in insulin_today), 1)
         if insulin_today.exists()
         else None
     )
     carbs_consumed = (
-        round(sum(m.carbs or 0 for m in meals_today), 1) if meals_today.exists() else None
+        round(sum(m.carbs or 0 for m in meals_today), 1)
+        if meals_today.exists()
+        else None
     )
 
     # build recent activity ( last 5 entries )
@@ -104,8 +111,8 @@ def dashboard(request):
     glucose_values = []
     for g in glucose_chart_day:
         value = float(g.value)
-        if unit_label == 'mg/dL':
-            value = value * 18 # convert to mg/dL
+        if unit_label == "mg/dL":
+            value = value * 18  # convert to mg/dL
         glucose_values.append(round(value, 1))
 
     previous_chart_date = chart_date - timedelta(days=1)

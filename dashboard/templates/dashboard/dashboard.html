@@ -120,6 +120,13 @@
                     </a>
                     {% if next_chart_date %}
                     <a
+                        href="{% url 'glucolog-dashboard' %}"
+                        class="trend-btn"
+                        aria-label="Jump to today"
+                    >
+                        Today
+                    </a>
+                    <a
                         href="{% url 'glucolog-dashboard' %}?chart_date={{ next_chart_date|date:'Y-m-d' }}"
                         class="trend-btn"
                         aria-label="Next day"
