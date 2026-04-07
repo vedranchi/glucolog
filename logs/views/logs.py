@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.db.models import Sum, Q, Avg, Count
 from django.db.models.functions import TruncDate
 from django.contrib.auth.decorators import login_required
@@ -106,12 +107,21 @@ def log_insulin(request):
 @login_required
 def add_insulin(request, pk=None):
     # if pk exist edit, else create new record
-    insulin = get_object_or_404(InsulinLog, user=request.user, is_deleted = False, pk=pk) if pk else None
-
+    insulin = (
+        get_object_or_404(InsulinLog, user=request.user, is_deleted=False, pk=pk)
+        if pk
+        else None
+    )
 
     """log insulin dose"""
     if request.method == "POST":
-        units = request.POST.get("units")
+        try:
+            units = Decimal(request.POST.get("units"))
+            if units <= 0 or units >= 300:
+                raise ValueError
+        except (InvalidOperation, TypeError, ValueError):
+            messages.error(request, "Invalid units value.")
+            return redirect("add-insulin")
         insulin_type = request.POST.get("insulin_type")
         brand = request.POST.get("brand")
         note = request.POST.get("note")
@@ -192,7 +202,7 @@ def log_glucose(request):
         recent_activity.append(
             {
                 "id": g.id,
-                "value": value, # pass converted float
+                "value": value,  # pass converted float
                 "note": g.note,
                 "context": g.context,
                 "when": g.measured_at,
@@ -234,20 +244,21 @@ def log_glucose(request):
         user=request.user, measured_at__gte=seven_days_ago, is_deleted=False
     ).order_by("-measured_at")
 
-
     # compute last 7 days readings
     recent_7_days = []
     for g in recent_7_days_qs:
         value = float(g.value)
         if unit_label == "mg/dL":
             value = round(value * 18, 1)
-        recent_7_days.append({
-            "value": value,
-            "measured_at": g.measured_at,
-            "context": g.context,
-            "note": g.note,
-            "id": g.id,
-        })
+        recent_7_days.append(
+            {
+                "value": value,
+                "measured_at": g.measured_at,
+                "context": g.context,
+                "note": g.note,
+                "id": g.id,
+            }
+        )
 
     # Convert avg_glucose to mg/dL if needed
     for entry in weekly_glucose:
@@ -276,7 +287,11 @@ def log_glucose(request):
 def add_glucose(request, pk=None):
 
     # if pk exist edit, else add new dose
-    glucose = get_object_or_404(GlucoseLog, pk=pk, is_deleted=False, user=request.user) if pk else None
+    glucose = (
+        get_object_or_404(GlucoseLog, pk=pk, is_deleted=False, user=request.user)
+        if pk
+        else None
+    )
 
     # get user unit preference
     profile, _ = UserPreferences.objects.get_or_create(user=request.user)
@@ -380,20 +395,33 @@ def log_meal(request):
     }
     return render(request, "logs/log_meal.html", context)
 
+# handle empty strings to return None
+def parse_decimal(value):
+    if not value:
+        return None
+    try:
+        return Decimal(value)
+    except (InvalidOperation, TypeError):
+        return None
+
 
 @login_required
 def add_meal(request, pk=None):
     """add glucose reading"""
-    meal = get_object_or_404(MealLog, pk=pk, is_deleted=False, user=request.user) if pk else None
-    
+    meal = (
+        get_object_or_404(MealLog, pk=pk, is_deleted=False, user=request.user)
+        if pk
+        else None
+    )
+
     if request.method == "POST":
-        carbs = request.POST.get("carbs")
-        protein = request.POST.get("protein")
-        fats = request.POST.get("fats")
-        calories = request.POST.get("calories")
+        carbs = parse_decimal(request.POST.get("carbs"))
+        protein = parse_decimal(request.POST.get("protein"))
+        fats = parse_decimal(request.POST.get("fats"))
+        calories = parse_decimal(request.POST.get("calories"))
         note = request.POST.get("note")
         context = request.POST.get("context")
-        
+
         if meal:
             meal.carbs = carbs
             meal.protein = protein
@@ -421,9 +449,8 @@ def add_meal(request, pk=None):
 @login_required
 @require_POST
 def delete_meal_log(request, pk):
-    meal = get_object_or_404(MealLog, user=request.user, pk=pk, is_deleted=False) 
+    meal = get_object_or_404(MealLog, user=request.user, pk=pk, is_deleted=False)
     meal.is_deleted = True
     meal.deleted_at = timezone.now()
     meal.save()
-    return redirect('log-meal')
-    
+    return redirect("log-meal")
