@@ -5,7 +5,7 @@ from PIL import Image
 
 
 class User(AbstractUser):
-    """Extend Django AbstractUser"""
+    """Custom user model — email is the login credential, not username."""
 
     email = models.EmailField(unique=True)
     image = models.ImageField(default="default.jpg", upload_to="profile_pics")
@@ -19,6 +19,7 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
+        # resize profile pictures on upload to keep storage and load times small
         if self.image and self.image.name != "default.jpg":
             try:
                 img = Image.open(self.image.path)
@@ -29,7 +30,6 @@ class User(AbstractUser):
                 pass
 
 
-# manage user settings
 class UserPreferences(models.Model):
     GLUCOSE_UNIT_MMOL = "mmol"
     GLUCOSE_UNIT_MGDL = "mg/dL"

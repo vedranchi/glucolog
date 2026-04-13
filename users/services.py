@@ -3,6 +3,7 @@ from .forms import PreferencesForm, HealthProfileForm, ProfileUpdateForm
 
 
 def get_user_preferences(user):
+    # get_or_create ensures a preferences row always exists, even for legacy accounts
     prefs, _ = UserPreferences.objects.get_or_create(user=user)
     return prefs
 
@@ -18,12 +19,9 @@ def handle_profile_form(request):
         if p_form.is_valid():
             p_form.save()
             return p_form, True
-        else:
-            return p_form, False
-    else:
-        form = ProfileUpdateForm(instance=request.user)
-        return form, False
-        
+        return p_form, False
+    return ProfileUpdateForm(instance=request.user), False
+
 
 def handle_preferences_form(request):
     prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
@@ -33,12 +31,9 @@ def handle_preferences_form(request):
         if form.is_valid():
             form.save()
             return form, True
-        else:
-            return form, False
-
-    else:
-        form = PreferencesForm(instance=prefs)
         return form, False
+
+    return PreferencesForm(instance=prefs), False
 
 
 def handle_health_profile_form(request):
@@ -49,10 +44,6 @@ def handle_health_profile_form(request):
         if form.is_valid():
             form.save()
             return form, True
-        else:
-            return form, False
-
-    else:
-        form = HealthProfileForm(instance=prefs)
         return form, False
 
+    return HealthProfileForm(instance=prefs), False

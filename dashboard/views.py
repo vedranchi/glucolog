@@ -7,16 +7,18 @@ from datetime import datetime, timedelta
 
 from users.services import get_user_preferences
 
+# standard conversion factor between mmol/L and mg/dL
+MMOL_TO_MGDL = 18
+
 
 @login_required
 def dashboard(request):
-    # get user unit preference
     profile = get_user_preferences(request.user)
     unit = profile.glucose_unit
     unit_label = "mg/dL" if unit == "mg/dL" else "mmol/L"
 
-    # filter todays logs
     today = timezone.now().date()
+
     glucose_today = GlucoseLog.objects.filter(
         user=request.user, measured_at__date=today, is_deleted=False
     )
@@ -30,39 +32,41 @@ def dashboard(request):
     latest_glucose = glucose_today.order_by("-measured_at").first()
     latest_insulin = insulin_today.order_by("-taken_at").first()
     latest_meal = meals_today.order_by("-eaten_at").first()
+
     latest_glucose_value = None
     if latest_glucose:
         latest_glucose_value = float(latest_glucose.value)
         if unit_label == "mg/dL":
-            latest_glucose_value *= 18
+            latest_glucose_value *= MMOL_TO_MGDL
         latest_glucose_value = round(latest_glucose_value, 1)
 
-    # compute summary
     avg_glucose = (
         round(sum(g.value for g in glucose_today) / glucose_today.count(), 1)
         if glucose_today.exists()
         else None
     )
-    if unit_label == "mg/dL" and glucose_today.exists():
-        avg_glucose = round(avg_glucose * 18, 1)
+    if unit_label == "mg/dL" and avg_glucose is not None:
+        avg_glucose = round(avg_glucose * MMOL_TO_MGDL, 1)
 
     total_insulin = (
         round(sum(i.units for i in insulin_today), 1)
         if insulin_today.exists()
         else None
     )
+
+    # carbs uses `or 0` because MealLog.carbs is nullable
     carbs_consumed = (
         round(sum(m.carbs or 0 for m in meals_today), 1)
         if meals_today.exists()
         else None
     )
 
-    # build recent activity ( last 5 entries )
+    # build recent activity feed from all three log types, show last 5
     recent_activity = []
     for g in glucose_today:
         value = float(g.value)
         if unit_label == "mg/dL":
-            value = round(value * 18, 1)
+            value = round(value * MMOL_TO_MGDL, 1)
         recent_activity.append(
             {
                 "label": f"Glucose reading ({value} {unit_label})",
@@ -86,14 +90,9 @@ def dashboard(request):
                 "edit_url": reverse("edit-meal", kwargs={"pk": m.id}),
             }
         )
+    recent_activity = sorted(recent_activity, key=lambda a: a["when"], reverse=True)[:5]
 
-    # sort, get last 5 entries
-    def get_time(activity):
-        return activity["when"]
-
-    recent_activity = sorted(recent_activity, key=get_time, reverse=True)[:5]
-
-    # chart date navigation (defaults to today)
+    # chart date navigation — defaults to today, clamped so next never exceeds today
     chart_date_param = request.GET.get("chart_date")
     chart_date = today
     if chart_date_param:
@@ -106,13 +105,12 @@ def dashboard(request):
         user=request.user, measured_at__date=chart_date, is_deleted=False
     )
 
-    # get data for the selected chart day
     glucose_labels = [g.measured_at.strftime("%H:%M") for g in glucose_chart_day]
     glucose_values = []
     for g in glucose_chart_day:
         value = float(g.value)
         if unit_label == "mg/dL":
-            value = value * 18  # convert to mg/dL
+            value = value * MMOL_TO_MGDL
         glucose_values.append(round(value, 1))
 
     previous_chart_date = chart_date - timedelta(days=1)
@@ -120,7 +118,6 @@ def dashboard(request):
     if next_chart_date > today:
         next_chart_date = None
 
-    # send data to dashboard.html
     context = {
         "avg_glucose": avg_glucose,
         "total_insulin": total_insulin,
@@ -136,9 +133,8 @@ def dashboard(request):
         "chart_date": chart_date,
         "previous_chart_date": previous_chart_date,
         "next_chart_date": next_chart_date,
-        # for chart
-        "glucose_labels": (glucose_labels),
-        "glucose_values": (glucose_values),
+        "glucose_labels": glucose_labels,
+        "glucose_values": glucose_values,
         "unit_label": unit_label,
     }
 
