@@ -68,7 +68,10 @@ Account Settings — GlucoLog
     </form>
 
     <div class="account-actions">
-        <a href="{% url 'glucolog-logout' %}" class="btn-logout">Log out</a>
+        <form method="POST" action="{% url 'glucolog-logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Log out</button>
+        </form>
     </div>
 </div>
 
