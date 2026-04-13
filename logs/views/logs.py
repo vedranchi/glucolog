@@ -39,7 +39,7 @@ def log_insulin(request):
         else None
     )
     basal_units = round(sum(i.units for i in basal_today), 1)
-    bolus_units = round(sum(i.units for i in bolus_today))
+    bolus_units = round(sum(i.units for i in bolus_today), 1)
 
     # recent insulin activity
     recent_activity = []
@@ -339,6 +339,14 @@ def add_glucose(request, pk=None):
                 )
             return redirect("log-glucose")
 
+    prefill_value = None
+    if glucose:
+        prefill_value = float(glucose.value)
+        if unit == "mg/dL":
+            prefill_value = round(prefill_value * 18, 1)
+        else:
+            prefill_value = round(prefill_value, 1)
+
     return render(
         request,
         "logs/add_glucose.html",
@@ -347,6 +355,7 @@ def add_glucose(request, pk=None):
             "is_edit_mode": bool(glucose),
             "unit_label": unit_label,
             "error": error,
+            "prefill_value": prefill_value,
         },
     )
 

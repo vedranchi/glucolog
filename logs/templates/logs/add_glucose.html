@@ -33,7 +33,7 @@
             step="0.1"
             min="0"
             required
-            value="{{ glucose.value|default:'' }}"
+            value="{{ prefill_value|default:'' }}"
         >
         {% if error %}
         <p class="error-message">{{ error }}</p>
