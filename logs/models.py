@@ -1,5 +1,5 @@
 from django.db import models
-from core.settings import AUTH_USER_MODEL
+from django.conf import settings
 from django.utils import timezone
 
 class InsulinLog(models.Model):
@@ -9,7 +9,7 @@ class InsulinLog(models.Model):
     ('bolus', 'Bolus')
   ]
   
-  user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   insulin_type = models.CharField(max_length=10, choices=INSULIN_TYPES)
   units = models.DecimalField(max_digits=4, decimal_places=1)
   brand = models.CharField(max_length=50, blank=True, null=True)
@@ -28,7 +28,7 @@ class GlucoseLog(models.Model):
     ('bedtime', 'Bedtime'),
     ('other', 'Other'),
   ]
-  user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   value = models.DecimalField(max_digits=4, decimal_places=1)
   note = models.CharField(max_length=255, blank=True, null=True)
   context = models.CharField(max_length=20, choices=CONTEXT, default="other")
@@ -48,7 +48,7 @@ class MealLog(models.Model):
     ('snack', 'Snack')
   ]
   note = models.CharField(max_length=255, blank=True, null=True)
-  user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   carbs = models.DecimalField(max_digits=5, decimal_places = 1, null=True, blank=True)
   protein = models.DecimalField(max_digits=5, decimal_places = 1, null=True, blank=True)
   fats = models.DecimalField(max_digits=5, decimal_places = 1, null=True, blank=True)

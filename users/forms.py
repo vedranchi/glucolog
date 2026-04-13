@@ -9,7 +9,7 @@ class CustomUserCreationForm(AdminUserCreationForm):
     usable_password = None
     # remove help text
     def __init__(self, *args, **kwargs):
-        super(AdminUserCreationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for fieldname in ["username", "password1", "password2"]:
             self.fields[fieldname].help_text = None
         self.fields["password2"].label = "Confirm Password"
