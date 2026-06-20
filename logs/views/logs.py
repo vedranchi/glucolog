@@ -118,7 +118,7 @@ def add_insulin(request, pk=None):
         if insulin:
             # update existing record
             insulin.units = units
-            insulin.type = insulin_type
+            insulin.insulin_type = insulin_type
             insulin.brand = brand
             insulin.note = note
             insulin.save()
