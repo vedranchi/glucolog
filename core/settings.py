@@ -24,12 +24,11 @@ environ.Env.read_env(BASE_DIR / ".env")
 sendgrid_env = environ.Env()
 environ.Env.read_env(BASE_DIR / "sendgrid.env")
 
-# check debugging status from .env
-DEBUG = env("DEBUG")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG comes from the environment (.env); defaults to False if unset.
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
