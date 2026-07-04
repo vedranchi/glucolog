@@ -111,9 +111,18 @@ def add_insulin(request, pk=None):
                 raise ValueError
         except (InvalidOperation, TypeError, ValueError):
             messages.error(request, "Invalid units value.")
+            # stay in edit mode when editing, otherwise back to the add form
+            if insulin:
+                return redirect("edit-insulin", pk=insulin.pk)
             return redirect("add-insulin")
 
         insulin_type = request.POST.get("insulin_type")
+        if insulin_type not in dict(InsulinLog.INSULIN_TYPES):
+            messages.error(request, "Invalid insulin type.")
+            if insulin:
+                return redirect("edit-insulin", pk=insulin.pk)
+            return redirect("add-insulin")
+
         brand = request.POST.get("brand")
         note = request.POST.get("note")
 
@@ -270,7 +279,11 @@ def add_glucose(request, pk=None):
     if request.method == "POST":
         raw_value = request.POST.get("value")
         note = request.POST.get("note") or ""
-        context = request.POST.get("context") or ""
+        # empty selection falls back to the model default; anything else must be a real choice
+        context = request.POST.get("context") or "other"
+
+        if context not in dict(GlucoseLog.CONTEXT):
+            error = "Invalid reading context."
 
         try:
             value = Decimal(raw_value)
@@ -368,14 +381,23 @@ def log_meal(request):
     return render(request, "logs/log_meal.html", context)
 
 
-def parse_decimal(value):
-    """Convert a POST string to Decimal, returning None for blank or invalid input."""
+def parse_macro(value):
+    """Convert a POST string to a Decimal nutrition amount.
+
+    Blank means "not provided" and maps to None (the fields are nullable).
+    Garbage, negative, or out-of-range input raises ValueError so the view
+    can reject the submission instead of silently dropping data.
+    """
     if not value:
         return None
     try:
-        return Decimal(value)
+        parsed = Decimal(value)
     except (InvalidOperation, TypeError):
-        return None
+        raise ValueError("not a number")
+    # nutrition can't be negative; the model fields cap out at 9999.9
+    if parsed < 0 or parsed >= Decimal("10000"):
+        raise ValueError("out of range")
+    return parsed
 
 
 @login_required
@@ -388,12 +410,25 @@ def add_meal(request, pk=None):
     )
 
     if request.method == "POST":
-        carbs = parse_decimal(request.POST.get("carbs"))
-        protein = parse_decimal(request.POST.get("protein"))
-        fats = parse_decimal(request.POST.get("fats"))
-        calories = parse_decimal(request.POST.get("calories"))
+        try:
+            carbs = parse_macro(request.POST.get("carbs"))
+            protein = parse_macro(request.POST.get("protein"))
+            fats = parse_macro(request.POST.get("fats"))
+            calories = parse_macro(request.POST.get("calories"))
+        except ValueError:
+            messages.error(request, "Nutrition values must be numbers between 0 and 9999.9.")
+            if meal:
+                return redirect("edit-meal", pk=meal.pk)
+            return redirect("add-meal")
+
         note = request.POST.get("note")
-        context = request.POST.get("context")
+        # empty selection falls back to the model default; anything else must be a real choice
+        context = request.POST.get("context") or "breakfast"
+        if context not in dict(MealLog.CONTEXT):
+            messages.error(request, "Invalid meal type.")
+            if meal:
+                return redirect("edit-meal", pk=meal.pk)
+            return redirect("add-meal")
 
         if meal:
             meal.carbs = carbs

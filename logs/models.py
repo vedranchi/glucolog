@@ -17,6 +17,9 @@ class InsulinLog(models.Model):
     is_deleted = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.user} - {self.units} U {self.insulin_type} @ {self.taken_at}"
+
 
 class GlucoseLog(models.Model):
     CONTEXT = [
@@ -63,3 +66,6 @@ class MealLog(models.Model):
 
     is_deleted = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.context} @ {self.eaten_at}"

@@ -101,9 +101,11 @@ def dashboard(request):
         except ValueError:
             chart_date = today
 
+    # explicit ordering — the chart draws points in list order, so an
+    # unordered queryset would zigzag the line
     glucose_chart_day = GlucoseLog.objects.filter(
         user=request.user, measured_at__date=chart_date, is_deleted=False
-    )
+    ).order_by("measured_at")
 
     glucose_labels = [g.measured_at.strftime("%H:%M") for g in glucose_chart_day]
     glucose_values = []
