@@ -1,11 +1,11 @@
 # Project Knowledge: Glucolog
 
-* **Tech Stack:** Python, Django 5.2, PostgreSQL, WhiteNoise, Anymail/SendGrid (email),
-  Docker. Crispy Forms + Bootstrap 5 for forms. DRF + SimpleJWT are wired but not yet used.
 * **Goal:** A modern, user-friendly web app for diabetes management — glucose and insulin
   tracking plus rough meal/macro tracking.
 * **Project aims:** learning vehicle, a genuinely deployable app (planned Oracle Always
   Free ARM host), and a portfolio piece. Favor correctness and clear, readable code.
+* **Tech stack:** Python, Django 5.2, PostgreSQL, WhiteNoise, Anymail/SendGrid (email),
+  gunicorn, Docker. Server-rendered templates — no client-side framework, no `fetch`.
 * **Virtualenv:** use `./env/bin/python` (e.g. `./env/bin/python manage.py check`).
 
 ## 1. Apps (where things live)
@@ -13,7 +13,9 @@
   (diabetes type), auth, profile editing, password reset. Form logic sits in `services.py`.
 * `logs` — the core: `GlucoseLog`, `InsulinLog`, `MealLog`, plus their log/add/edit/delete views.
 * `dashboard` — post-login summary screen + glucose chart. Hosts the signup signal.
-* `main` — public landing page.
+* `main` — shared `base.html`, the `home()` redirect, and `NoCacheMiddleware`.
+* `landing` — public marketing page rendered by `home()`. **Legacy:** superseded by a
+  separate Next.js site and slated for removal — don't invest here.
 * `core` — settings/urls/wsgi.
 
 ## 2. Domain invariants — do not break these
@@ -21,23 +23,54 @@
   driven by the user's `UserPreferences.glucose_unit`. Never persist mg/dL.
 * **Soft deletes.** `GlucoseLog`/`InsulinLog`/`MealLog` use `is_deleted` + `deleted_at`.
   Every read query MUST filter `is_deleted=False`. Never hard-delete medical records.
+  There is no soft-delete manager — the filter is applied by hand at every call site.
 * **Per-user scoping.** Always filter records by `user=request.user`; use
   `get_object_or_404(Model, pk=pk, user=request.user)` so users can't touch others' data.
 * **Profiles exist for every user.** The `post_save` signal in `dashboard/signals.py`
   creates `UserPreferences` and `HealthProfile`; service helpers use `get_or_create` as a
   safety net for legacy accounts. Keep both layers consistent.
 
-## 3. Coding style
+## 3. Commands
+```bash
+docker compose up -d db                  # Postgres on 127.0.0.1:5433 — REQUIRED for tests
+./env/bin/python manage.py check         # expect only the anymail/SendGrid W003 warning
+./env/bin/python manage.py test          # needs the db above, else "Connection refused"
+./env/bin/python manage.py runserver
+```
+
+> ⚠️ **`logs/` has no `__init__.py`, so `logs/tests.py` is silently skipped.** A bare
+> `manage.py test` finds 4 tests (dashboard + users only); `manage.py test logs` finds 4
+> more. **A green run does not mean the core domain was tested.** Run `logs` explicitly.
+> _(Delete this warning once `fix/polish-bugfix-pass` merges — it adds the missing file.)_
+
+## 4. Current state — perishable, dated 2026-08-14
+Three piles of finished work exist **outside `origin/dev`**. Check these before concluding
+something is missing or broken:
+* `core/settings.py` production hardening — **written, uncommitted**, on branch
+  `chore/prod-security-settings`.
+* The whole Oracle deploy stack — **untracked**: `deploy/`, `docker-compose.prod.yml`,
+  `docker-compose.override.yml`, `.dockerignore`.
+* `fix/polish-bugfix-pass` — **unmerged and unpushed**; fixes macro/choice validation,
+  chart ordering, and the insulin edit redirect, and adds regression tests.
+
+**Source of truth for longer context:** `HANDOFF.md` (project state, phases) and
+`deploy/README.md` (the VM runbook). Read those rather than re-deriving.
+
+## 5. Coding style
 * Follow Django best practices and PEP 8. Match the style of the file you're editing.
 * Write clean, single-purpose functions; comment the *why*, not the obvious.
 * Prefer DB-level aggregation (`annotate`/`aggregate`/`TruncDate`) over looping in Python.
-* Validate user input (reject negatives/garbage for units, macros, glucose values).
+  (`dashboard/views.py` still sums in Python — follow the rule, not that example.)
+* Validate user input (reject negatives/garbage for units, macros, glucose values). The log
+  add/edit views hand-parse `request.POST` with no ModelForms — the root cause of the known
+  validation bugs, so take extra care adding fields there.
 
-## 4. Git & workflow — strict
-* **ALWAYS `git fetch --all` first.** This local clone drifts far behind `origin`.
-  Before claiming anything is broken/missing, diff local against `origin/*`
-  (`git log --oneline LOCAL..origin/LOCAL`). `origin/dev` is the true, most up-to-date
-  integration branch (ahead of `origin/main`).
+## 6. Git & workflow — strict
+* **Verify against `origin` before claiming anything is broken or missing** — but note
+  `git fetch` may fail here with `Permission denied (publickey)`. If it does, say so
+  plainly; remote-tracking refs are then stale local copies, so don't present them as live.
+* `origin/dev` is the true integration branch (currently ~21 commits ahead of `origin/main`;
+  `main` is effectively abandoned).
 * **Branch per change.** Create a `feature/`, `fix/`, or `chore/` branch off the synced
   `dev` before working. Never commit directly to `dev` or `main`.
 * **PRs target `dev`**, not `main`. Use the `gh` CLI (`gh pr create --base dev`).
@@ -46,18 +79,36 @@
 * Commit/push only when asked. Never commit secrets — `.env`, `sendgrid.env`, and
   `.claude/` are gitignored; keep them that way.
 
-## 5. Verify before claiming done
-* Run `./env/bin/python manage.py check` after changes (a pre-existing anymail/SendGrid
-  deprecation warning is expected and unrelated).
+## 7. Verify before claiming done
+* Run `manage.py check` after changes (the anymail W003 warning is expected and unrelated).
 * Where behavior changes, exercise it (run the server / add a test) rather than asserting
   it works. Report failures honestly with output.
+* If you couldn't run something, say that — never imply a test passed when it didn't run.
 
-## 6. Config & security
+## 8. Config & security
 * `DEBUG` comes from the environment only (`env("DEBUG")`); never hard-code it. Set
   `DEBUG=False` for the Oracle deployment.
-* Production still needs `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, and `SECURE_*` headers —
-  open work, not yet done.
+* `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `SECURE_PROXY_SSL_HEADER`, and the `SECURE_*`
+  block **already exist** at `core/settings.py:34-68` — env-driven, on-in-prod/off-in-dev.
+  **Do not re-implement them.** They are uncommitted (see §4); the remaining work is to
+  commit them.
+* `SECRET_KEY` and `DATABASE_URL` intentionally fail fast with no fallback. Keep it that way.
+* Health data is PHI: keep glucose values and user identity out of logs, `__str__`, and
+  anything shipped to a third-party error reporter.
 
-## 7. Teaching mode
+## 9. Known gotchas
+* **Bootstrap mismatch:** `CRISPY_TEMPLATE_PACK = "bootstrap5"` but `main/base.html` loads
+  Bootstrap **4.6.2**. Crispy emits BS5 classes against BS4 CSS. Don't "fix" one side alone.
+* **JWT endpoints are live and public** at `/users/api/token/` — but nothing consumes them
+  (no serializers or viewsets exist, and `rest_framework` isn't in `INSTALLED_APPS`).
+  Treat them as an auth surface, not dormant config.
+* **Python 3.14 locally vs 3.13 in Docker** — local runs don't exercise the deployed
+  interpreter.
+* **Media is served only when `DEBUG`** (`core/urls.py:15-16`); Caddy serves it in prod.
+* **`NoCacheMiddleware`** (`main/middleware.py`) forces no-store on every authenticated
+  page — relevant when debugging anything cache-related.
+* Chart.js is loaded from a CDN **unpinned and without SRI** in `dashboard.html`.
+
+## 10. Teaching mode
 * Explain the *why* and trade-offs before/with changes; pace work in phases. This project
   doubles as a learning exercise.
