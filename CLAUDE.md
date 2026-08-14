@@ -38,23 +38,27 @@ docker compose up -d db                  # Postgres on 127.0.0.1:5433 — REQUIR
 ./env/bin/python manage.py runserver
 ```
 
-> ⚠️ **`logs/` has no `__init__.py`, so `logs/tests.py` is silently skipped.** A bare
-> `manage.py test` finds 4 tests (dashboard + users only); `manage.py test logs` finds 4
-> more. **A green run does not mean the core domain was tested.** Run `logs` explicitly.
-> _(Delete this warning once `fix/polish-bugfix-pass` merges — it adds the missing file.)_
+> **`manage.py test` should find 14 tests, all passing.** If the count drops, suspect test
+> discovery before assuming tests were deleted — every app needs an `__init__.py`, and
+> `logs/` silently lost its own once, which hid the whole core-domain suite from a green run.
 
 ## 4. Current state — perishable, dated 2026-08-14
-Three piles of finished work exist **outside `origin/dev`**. Check these before concluding
-something is missing or broken:
-* `core/settings.py` production hardening — **written, uncommitted**, on branch
-  `chore/prod-security-settings`.
-* The whole Oracle deploy stack — **untracked**: `deploy/`, `docker-compose.prod.yml`,
-  `docker-compose.override.yml`, `.dockerignore`.
-* `fix/polish-bugfix-pass` — **unmerged and unpushed**; fixes macro/choice validation,
-  chart ordering, and the insulin edit redirect, and adds regression tests.
+* **Merged to `dev`:** `fix/polish-bugfix-pass` (#26) — macro/choice validation, chart
+  ordering, insulin edit redirect, plus regression tests and the restored `logs/__init__.py`.
+* **Open PRs:** #24 (this file), #25 (`core/settings.py` production hardening).
+* **Still untracked:** the Oracle deploy stack — `deploy/`, `docker-compose.prod.yml`,
+  `docker-compose.override.yml`, `.dockerignore`, plus `Dockerfile`/`docker-compose.yml`
+  edits. `deploy/README.md` tells the VM to `git clone`, so **the runbook cannot be executed
+  until these land.**
+* **To discard:** the ~1,400-line `landing/*` redesign (that app is being removed anyway).
 
-**Source of truth for longer context:** `HANDOFF.md` (project state, phases) and
-`deploy/README.md` (the VM runbook). Read those rather than re-deriving.
+**Known-open, highest severity:** `Decimal("NaN")` is accepted by both the glucose and macro
+paths. It causes an uncaught 500 in `add_glucose`, and Postgres `numeric` *accepts* NaN — so
+one bad POST permanently poisons that user's `Sum()` totals. Guard with `.is_finite()` before
+any comparison.
+
+**Source of truth for longer context:** `deploy/README.md` (the VM runbook), and `HANDOFF.md`
+(project state — **local-only, gitignored, never commit it**).
 
 ## 5. Coding style
 * Follow Django best practices and PEP 8. Match the style of the file you're editing.
