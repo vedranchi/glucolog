@@ -1,14 +1,8 @@
 from django.urls import path, reverse_lazy
 from .views import register_view, login_view, logout_view, user_profile_view
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('register/', register_view, name="glucolog-register"),
     path('login/', login_view, name='glucolog-login'),
     path('logout/', logout_view, name="glucolog-logout"),

@@ -23,3 +23,18 @@ class PasswordResetEmailTest(TestCase):
     def test_password_reset_sends_email(self):
         self.client.post(reverse("password_reset"), {"email": "test@example.com"})
         self.assertEqual(len(mail.outbox), 1)
+
+
+class NoPublicTokenEndpointsTest(TestCase):
+    """The JWT endpoints were public, unthrottled and served no API.
+
+    They verified credentials for anyone who asked and issued tokens that
+    could not be revoked. Nothing consumed them. If an API is built later it
+    needs throttling and a token blacklist, so these must not come back by
+    accident.
+    """
+
+    def test_token_endpoints_are_gone(self):
+        for url in ("/users/api/token/", "/users/api/token/refresh/"):
+            with self.subTest(url=url):
+                self.assertEqual(self.client.post(url).status_code, 404)
