@@ -29,7 +29,43 @@ DEBUG = env("DEBUG")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+# In dev (DEBUG=True) fall back to localhost so no config is needed; in
+# production the real hostnames MUST be supplied via the ALLOWED_HOSTS env var.
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS", default=["localhost", "127.0.0.1"] if DEBUG else []
+)
+
+# --- Production security hardening ---
+# When DEBUG is False these lock the app down for HTTPS. They assume a
+# TLS-terminating reverse proxy (nginx/Caddy) sits in front of gunicorn, per the
+# Oracle deployment plan. Each toggle defaults to "on in prod, off in dev" but is
+# individually overridable via env, so the same settings file serves both.
+
+# Domains allowed to POST to us (Origin check on secure requests). Needed when
+# the site is reached via a custom domain/subdomain; e.g.
+# CSRF_TRUSTED_ORIGINS=https://glucolog.example.com
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# Trust the proxy's X-Forwarded-Proto header so Django knows the original request
+# was HTTPS. Only safe when a proxy you control terminates TLS and sets it —
+# without this, SECURE_SSL_REDIRECT below would cause an infinite redirect loop.
+if env.bool("USE_X_FORWARDED_PROTO", default=not DEBUG):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=not DEBUG)
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=not DEBUG)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# HSTS: start at one week in prod so a misconfiguration is recoverable; raise to a
+# year (31536000) and consider preload once HTTPS is proven stable.
+SECURE_HSTS_SECONDS = env.int(
+    "SECURE_HSTS_SECONDS", default=0 if DEBUG else 60 * 60 * 24 * 7
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=not DEBUG
+)
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=not DEBUG)
 
 
 # Application definition
