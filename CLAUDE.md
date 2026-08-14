@@ -38,24 +38,27 @@ docker compose up -d db                  # Postgres on 127.0.0.1:5433 — REQUIR
 ./env/bin/python manage.py runserver
 ```
 
-> **`manage.py test` should find 14 tests, all passing.** If the count drops, suspect test
+> **`manage.py test` should find 17 tests, all passing.** If the count drops, suspect test
 > discovery before assuming tests were deleted — every app needs an `__init__.py`, and
 > `logs/` silently lost its own once, which hid the whole core-domain suite from a green run.
 
 ## 4. Current state — perishable, dated 2026-08-14
-* **Merged to `dev`:** `fix/polish-bugfix-pass` (#26) — macro/choice validation, chart
-  ordering, insulin edit redirect, plus regression tests and the restored `logs/__init__.py`.
-* **Open PRs:** #24 (this file), #25 (`core/settings.py` production hardening).
-* **Still untracked:** the Oracle deploy stack — `deploy/`, `docker-compose.prod.yml`,
-  `docker-compose.override.yml`, `.dockerignore`, plus `Dockerfile`/`docker-compose.yml`
-  edits. `deploy/README.md` tells the VM to `git clone`, so **the runbook cannot be executed
-  until these land.**
-* **To discard:** the ~1,400-line `landing/*` redesign (that app is being removed anyway).
+**All of the previously-stranded work is merged to `dev`.** A fresh clone is now deployable:
+`deploy/README.md`'s runbook has every file it references, and the production security
+settings are in.
 
-**Known-open, highest severity:** `Decimal("NaN")` is accepted by both the glucose and macro
-paths. It causes an uncaught 500 in `add_glucose`, and Postgres `numeric` *accepts* NaN — so
-one bad POST permanently poisons that user's `Sum()` totals. Guard with `.is_finite()` before
-any comparison.
+Merged: #25 (SECURE_* from env), #26 (validation/ordering fixes + restored test discovery),
+#27 (Oracle deploy stack), #28 (NaN/Infinity rejected in glucose and macro input).
+
+* **To discard:** the ~1,400-line `landing/*` redesign sitting in the working tree — that
+  app is being removed anyway.
+* **Never deployed.** None of this has run on the VM yet.
+
+**Top open risks, in order:** the live unthrottled JWT endpoints at `/users/api/token/`
+(nothing consumes them — delete them); no rate limiting on login/register/password-reset;
+no database backups; no `LOGGING`/`ADMINS`, so production 500s are invisible; and the
+profile page silently discarding edits. Strip PHI from `GlucoseLog.__str__` before wiring
+up any error reporter.
 
 **Source of truth for longer context:** `deploy/README.md` (the VM runbook), and `HANDOFF.md`
 (project state — **local-only, gitignored, never commit it**).
