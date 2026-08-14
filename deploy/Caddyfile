@@ -1,0 +1,21 @@
+# Caddy provisions and renews a Let's Encrypt certificate for $SITE_DOMAIN
+# automatically (needs ports 80 + 443 reachable). Static and media are served
+# straight from the shared volumes to offload gunicorn; everything else is
+# reverse-proxied to the Django app. Caddy sets X-Forwarded-Proto=https, which
+# Django trusts via SECURE_PROXY_SSL_HEADER.
+
+{$SITE_DOMAIN} {
+	encode gzip zstd
+
+	handle_path /static/* {
+		root * /srv/static
+		file_server
+	}
+
+	handle_path /media/* {
+		root * /srv/media
+		file_server
+	}
+
+	reverse_proxy web:8000
+}

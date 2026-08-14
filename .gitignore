@@ -181,3 +181,7 @@ sendgrid.env
 
 # claude
 .claude
+
+# local-only working notes — must never be committed
+HANDOFF.md
+skills-lock.json

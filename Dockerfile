@@ -42,6 +42,11 @@ COPY --chown=appuser:appuser . .
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# pre-create the dirs mounted as named volumes in production, owned by appuser,
+# so the volumes inherit writable ownership (collectstatic output + media uploads)
+RUN mkdir -p /app/staticfiles /app/media && \
+  chown -R appuser:appuser /app/staticfiles /app/media
+
 
 # switch to non root user
 USER appuser
