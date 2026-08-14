@@ -14,9 +14,11 @@ class DashboardAccessTest(TestCase):
 
 class DashboardContextTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="test", password="test123")
-        self.client.login(username="test", password="test123")
-
+        # email is the USERNAME_FIELD, so login must use the email credential
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
 
     def test_dashboard_context_contains_recent_activity(self):
         response = self.client.get(reverse("glucolog-dashboard"))
