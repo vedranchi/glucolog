@@ -1,0 +1,18 @@
+# Keep secrets and local cruft out of the image build context.
+# Secrets are injected at runtime via compose `env_file`, never baked in.
+.git
+.gitignore
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+staticfiles/
+media/
+.env
+.env.*
+sendgrid.env
+.claude/
+*.sqlite3
+node_modules/
+.DS_Store

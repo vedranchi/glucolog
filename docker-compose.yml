@@ -4,8 +4,9 @@ services:
     container_name: glucolog_db_dev
     env_file: .env
 
-    ports:
-      - "5433:5432"
+    # Host port publishing for local dev lives in docker-compose.override.yml
+    # (auto-loaded by `docker compose up`). Production omits it so Postgres is
+    # never exposed on the public VM.
 
     environment:
 

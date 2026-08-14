@@ -1,0 +1,51 @@
+# Production composition for the Oracle VM. Compose it WITH the base file:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# The dev-only docker-compose.override.yml is deliberately NOT included here, so
+# Postgres is never published to the host on the public VM. Caddy is the only
+# container that binds public ports (80/443) and terminates TLS.
+
+services:
+  db:
+    container_name: glucolog_db
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: glucolog_web
+    env_file:
+      - .env
+      - sendgrid.env
+    depends_on:
+      - db
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    container_name: glucolog_caddy
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - static_data:/srv/static:ro
+      - media_data:/srv/media:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  static_data:
+  media_data:
+  caddy_data:
+  caddy_config:
