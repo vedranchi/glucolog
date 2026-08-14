@@ -290,7 +290,12 @@ def add_glucose(request, pk=None):
         except (TypeError, InvalidOperation):
             error = "Enter a valid number"
         else:
-            if unit == "mmol":
+            # NaN and Infinity construct without raising, so they reach here;
+            # the range comparisons below would then raise InvalidOperation
+            # outside the try above and surface as a 500.
+            if not value.is_finite():
+                error = "Enter a valid number"
+            elif unit == "mmol":
                 if value < Decimal("1") or value > Decimal("40"):
                     error = "Too high/low for mmol/L. Check if unit preference is correct"
                 else:
@@ -393,6 +398,12 @@ def parse_macro(value):
     try:
         parsed = Decimal(value)
     except (InvalidOperation, TypeError):
+        raise ValueError("not a number")
+    # NaN and Infinity construct without raising, but every comparison against
+    # them raises InvalidOperation — and Postgres numeric accepts NaN, so one
+    # stored value would poison this user's Sum() totals permanently. Reject
+    # them before the range check below can touch them.
+    if not parsed.is_finite():
         raise ValueError("not a number")
     # nutrition can't be negative; the model fields cap out at 9999.9
     if parsed < 0 or parsed >= Decimal("10000"):

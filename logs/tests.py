@@ -112,6 +112,49 @@ class LogViewValidationTest(TestCase):
         log = GlucoseLog.objects.get(user=self.user)
         self.assertEqual(log.context, "other")
 
+    def test_add_glucose_rejects_non_finite_values(self):
+        """NaN and Infinity parse as Decimal but must never reach the database.
+
+        Decimal("NaN") constructs without raising, so it slips past the parse
+        guard; any later comparison against it then raises InvalidOperation.
+        """
+        from django.urls import reverse
+
+        for raw in ("NaN", "sNaN", "Infinity", "-Infinity"):
+            with self.subTest(value=raw):
+                response = self.client.post(
+                    reverse("add-glucose"), {"value": raw, "context": "fasting"}
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(GlucoseLog.objects.filter(user=self.user).exists())
+
+    def test_add_meal_rejects_non_finite_macros(self):
+        """Postgres numeric accepts NaN, so one bad macro would poison Sum() forever."""
+        from logs.models import MealLog
+        from django.urls import reverse
+
+        for raw in ("NaN", "Infinity"):
+            with self.subTest(value=raw):
+                self.client.post(
+                    reverse("add-meal"), {"carbs": raw, "context": "lunch"}
+                )
+                self.assertFalse(MealLog.objects.filter(user=self.user).exists())
+
+    def test_daily_carb_total_survives_a_rejected_nan(self):
+        """The regression that matters: totals must stay arithmetically sound."""
+        from django.db.models import Sum
+        from logs.models import MealLog
+        from django.urls import reverse
+
+        self.client.post(reverse("add-meal"), {"carbs": "30", "context": "lunch"})
+        self.client.post(reverse("add-meal"), {"carbs": "NaN", "context": "dinner"})
+
+        total = MealLog.objects.filter(user=self.user, is_deleted=False).aggregate(
+            total=Sum("carbs")
+        )["total"]
+        self.assertEqual(total, 30)
+        self.assertTrue(total.is_finite())
+
 
 class DashboardChartOrderingTest(TestCase):
     def setUp(self):
