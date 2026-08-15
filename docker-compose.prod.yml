@@ -16,7 +16,7 @@ services:
     container_name: glucolog_web
     env_file:
       - .env
-      - sendgrid.env
+      - email.env
     depends_on:
       - db
     volumes:

@@ -177,6 +177,7 @@ staticfiles/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+email.env
 sendgrid.env
 
 # claude

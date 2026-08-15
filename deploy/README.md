@@ -18,7 +18,7 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 | `docker-compose.prod.yml` | **prod**: adds `web` + `caddy`, hardens `db` |
 | `deploy/Caddyfile` | reverse proxy + auto-HTTPS + static/media |
 | `deploy/env.example` | template for repo-root `.env` |
-| `deploy/sendgrid.env.example` | template for repo-root `sendgrid.env` |
+| `deploy/email.env.example` | template for repo-root `email.env` |
 | `deploy/duckdns.sh` | optional dynamic-DNS updater |
 
 > **Prerequisite:** the prod-security settings in `core/settings.py` must be committed
@@ -70,8 +70,8 @@ python3 -c "from django.core.management.utils import get_random_secret_key as g;
 #     your DuckDNS domain; set matching DB_PASSWORD + DATABASE_URL password.
 nano .env
 
-cp deploy/sendgrid.env.example sendgrid.env
-nano sendgrid.env            # real SENDGRID_API_KEY (required to boot)
+cp deploy/email.env.example email.env
+nano email.env               # SMTP host/user + Gmail App Password
 
 # 8. Build & launch (web auto-runs migrate + collectstatic; Caddy fetches the cert)
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
@@ -96,7 +96,7 @@ alias dcp='docker compose -f docker-compose.yml -f docker-compose.prod.yml'
 - Register → log in → dashboard → log a glucose reading.
 - Upload a profile picture → shows from `/media/…`, and survives `dcp restart web`.
 - `https://<domain>/admin/` loads and is styled; superuser logs in.
-- Trigger a password reset → email arrives (confirms `sendgrid.env`).
+- Trigger a password reset → email arrives (confirms `email.env`).
 - Set `NEXT_PUBLIC_APP_URL=https://<domain>` in Vercel + redeploy → landing CTAs reach the app.
 - `dcp down && dcp up -d` → DB rows and uploaded media persist (named volumes).
 
@@ -115,4 +115,6 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
   must include the exact domain (CSRF with `https://` scheme).
 - **Static 404 / unstyled admin** → check `web` logs for the collectstatic step and that
   the `static_data` volume mounted.
-- **App won't boot** → almost always a missing/blank `SENDGRID_API_KEY` in `sendgrid.env`.
+- **Password reset email never arrives** → check `email.env`. Email settings now have safe
+  defaults, so a missing value degrades to "mail does not send" rather than blocking boot.
+  For Gmail, `EMAIL_HOST_PASSWORD` must be an App Password, not the account password.

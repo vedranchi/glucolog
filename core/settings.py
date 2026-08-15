@@ -21,8 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(BASE_DIR / ".env")
 
-sendgrid_env = environ.Env()
-environ.Env.read_env(BASE_DIR / "sendgrid.env")
+# Email credentials live in their own file so they can be mounted separately
+# from the app config. Provider-neutral: the keys describe SMTP, not a vendor.
+email_env = environ.Env()
+environ.Env.read_env(BASE_DIR / "email.env")
 
 # check debugging status from .env
 DEBUG = env("DEBUG")
@@ -88,15 +90,33 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
 ]
 
-# email service
-EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+# --- Email ---
+# The backend is chosen by env so the provider can be swapped without a code
+# change. Dev prints to the console instead of sending; production defaults to
+# SMTP. Nothing here is provider-specific, so moving to a hosted API later
+# (e.g. anymail.backends.resend.EmailBackend, once a real domain exists and can
+# carry DKIM records) is an env change only.
+EMAIL_BACKEND = email_env(
+    "EMAIL_BACKEND",
+    default=(
+        "django.core.mail.backends.console.EmailBackend"
+        if DEBUG
+        else "django.core.mail.backends.smtp.EmailBackend"
+    ),
+)
 
-ANYMAIL = {
-    "SENDGRID_API_KEY": sendgrid_env("SENDGRID_API_KEY"),
-}
+EMAIL_HOST = email_env("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = email_env.int("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = email_env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = email_env("EMAIL_HOST_USER", default="")
+# For Gmail this is an App Password, not the account password (needs 2FA).
+EMAIL_HOST_PASSWORD = email_env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_TIMEOUT = email_env.int("EMAIL_TIMEOUT", default=10)
 
-DEFAULT_FROM_EMAIL = sendgrid_env("DEFAULT_FROM_EMAIL", default="vchichovv@gmail.com")
-SERVER_EMAIL = sendgrid_env("SERVER_EMAIL", default="vchichovv@gmail.com")
+# Fall back to the SMTP login rather than a hardcoded personal address, so a
+# missing value can never silently send as someone real.
+DEFAULT_FROM_EMAIL = email_env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+SERVER_EMAIL = email_env("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

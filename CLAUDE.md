@@ -83,7 +83,7 @@ up any error reporter.
 * **PRs target `dev`**, not `main`. Use the `gh` CLI (`gh pr create --base dev`).
 * **No AI attribution.** Do NOT add `Co-Authored-By` trailers or "Generated with Claude
   Code" to commits or PR bodies.
-* Commit/push only when asked. Never commit secrets — `.env`, `sendgrid.env`, and
+* Commit/push only when asked. Never commit secrets — `.env`, `email.env`, and
   `.claude/` are gitignored; keep them that way.
 
 ## 7. Verify before claiming done
