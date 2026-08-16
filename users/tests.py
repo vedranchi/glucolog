@@ -114,6 +114,22 @@ class RateLimitTest(TestCase):
         cache.set("shared-probe", "v", 30)
         self.assertEqual(cache.get("shared-probe"), "v")
 
+    def test_cache_table_name_matches_the_migration(self):
+        """The table is created by main/0001; the name is coupled in two places.
+
+        Renaming one without the other leaves every rate-limited view raising
+        ProgrammingError on a real database. The test runner creates cache
+        tables automatically, so no other test can catch that drift.
+        """
+        from importlib import import_module
+
+        from django.conf import settings
+
+        migration = import_module("main.migrations.0001_create_cache_table")
+        self.assertEqual(
+            settings.CACHES["default"]["LOCATION"], migration.CACHE_TABLE
+        )
+
 
 class NoPublicTokenEndpointsTest(TestCase):
     """The JWT endpoints were public, unthrottled and served no API.
