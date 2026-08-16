@@ -1,0 +1,20 @@
+{% extends "main/base.html" %}
+
+{% block title %}Too many attempts — GlucoLog{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+  <div class="auth-card">
+    <h1>Too many attempts</h1>
+    <p>
+      You've made too many requests in a short time, so we've paused this action
+      for a little while. This protects your account from automated guessing.
+    </p>
+    <p>
+      Please wait a few minutes and try again. If you were resetting your
+      password, check your inbox first — an earlier email may already be there.
+    </p>
+    <a class="btn-primary" href="{% url 'glucolog-login' %}">Back to sign in</a>
+  </div>
+</section>
+{% endblock %}
