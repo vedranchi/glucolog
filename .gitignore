@@ -183,6 +183,9 @@ sendgrid.env
 # claude
 .claude
 
+# database dumps — contain health data, never commit
+backups/
+
 # local-only working notes — must never be committed
 HANDOFF.md
 skills-lock.json

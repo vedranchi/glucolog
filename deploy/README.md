@@ -19,6 +19,8 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 | `deploy/Caddyfile` | reverse proxy + auto-HTTPS + static/media |
 | `deploy/env.example` | template for repo-root `.env` |
 | `deploy/email.env.example` | template for repo-root `email.env` |
+| `deploy/backup.sh` | verified `pg_dump` + rotation (cron) |
+| `deploy/restore.sh` | restore a dump; `--into` for a non-destructive drill |
 | `deploy/duckdns.sh` | optional dynamic-DNS updater |
 
 > **Prerequisite:** the prod-security settings in `core/settings.py` must be committed
@@ -99,6 +101,62 @@ alias dcp='docker compose -f docker-compose.yml -f docker-compose.prod.yml'
 - Trigger a password reset → email arrives (confirms `email.env`).
 - Set `NEXT_PUBLIC_APP_URL=https://<domain>` in Vercel + redeploy → landing CTAs reach the app.
 - `dcp down && dcp up -d` → DB rows and uploaded media persist (named volumes).
+- Run `./deploy/backup.sh`, then restore it with `--into glucolog_drill` and confirm the row
+  counts match. An untested backup is not a backup.
+
+## Backups
+
+Health records live on one volume, on one VM. `docker compose down -v` destroys
+them irreversibly, and so does losing the instance. Take backups before there is
+data worth losing.
+
+```bash
+./deploy/backup.sh          # writes backups/glucolog-<UTC stamp>.sql.gz
+```
+
+`pg_dump` runs *inside* the db container and reads the `POSTGRES_*` variables
+already present there, so no credentials are passed from the host.
+
+The dump is verified before anything is rotated — valid gzip, a completion
+marker, and the expected tables present. A dump that fails any check is deleted
+and **older backups are kept**, because rotating on the strength of a broken
+backup is how backup histories quietly disappear. Retention defaults to 14 days
+(`RETENTION_DAYS`).
+
+Schedule it (03:30 daily):
+
+```bash
+crontab -e
+30 3 * * * cd /opt/glucolog && ./deploy/backup.sh >> /var/log/glucolog-backup.log 2>&1
+```
+
+### Restore
+
+**Drill — non-destructive.** Restores into a scratch database and prints row
+counts. This is how you find out whether a backup is real:
+
+```bash
+./deploy/restore.sh backups/glucolog-<stamp>.sql.gz --into glucolog_drill
+```
+
+**Real restore — destructive.** Drops and replaces the live database, and
+requires typing the database name to confirm:
+
+```bash
+./deploy/restore.sh backups/glucolog-<stamp>.sql.gz
+```
+
+> A backup that has never been restored is not a backup. Run the drill after the
+> first deploy, and again whenever Postgres is upgraded.
+
+### Gaps to close
+
+- **Backups sit on the same VM as the database.** They protect against a bad
+  migration, an accidental `DROP`, or corruption — **not** against losing the
+  instance. Copy them off (`scp`, `rclone`) for that.
+- Dumps contain health data. `backups/` is gitignored and excluded from the
+  image; keep it that way, and treat any copy as PHI.
+- Nothing alerts on a failed backup. Until something does, check the log.
 
 ## Update / redeploy
 
