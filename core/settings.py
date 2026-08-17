@@ -161,6 +161,18 @@ DATABASES = {
     )
 }
 
+# Rate limiting counts requests in the cache, so the cache MUST be shared across
+# gunicorn workers. Django's default LocMemCache is per-process: with three
+# workers a "5 per minute" limit would silently allow fifteen. The database
+# backend uses the Postgres already in the stack and needs no extra service.
+# The table is created by `manage.py createcachetable` (idempotent, run at boot).
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "glucolog_cache",
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
