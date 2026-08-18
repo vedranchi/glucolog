@@ -158,6 +158,36 @@ requires typing the database name to confirm:
   image; keep it that way, and treat any copy as PHI.
 - Nothing alerts on a failed backup. Until something does, check the log.
 
+## Logs and error alerts
+
+Everything logs to stdout, so `docker logs` is the collection point:
+
+```bash
+dcp logs -f web            # app + gunicorn access log
+dcp logs --tail=200 web    # recent
+```
+
+gunicorn runs with `--access-logfile -` and `--error-logfile -`, so requests and
+worker errors both appear there. `--timeout 60` replaces the 30s default, which
+silently killed slow requests.
+
+`DJANGO_LOGLEVEL` in `.env` sets the level (default `INFO`). `django.db.backends`
+is pinned at `INFO` regardless — at `DEBUG` it echoes query parameters, which for
+this app means glucose readings in the logs.
+
+**Set `ADMINS` in `.env`** or unhandled 500s are logged and nothing else:
+
+```
+ADMINS=Vedran <you@example.com>
+```
+
+Mail goes out over the same SMTP as password reset, so it only works once
+`email.env` is configured.
+
+> Docker's json log driver is unbounded. Cap it before the free-tier disk fills:
+> add `--log-opt max-size=10m --log-opt max-file=3` to the daemon config, or a
+> `logging:` block per service in the compose file.
+
 ## Update / redeploy
 
 ```bash

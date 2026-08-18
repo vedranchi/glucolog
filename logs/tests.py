@@ -25,12 +25,34 @@ class GlucoseLogModelTest(TestCase):
         self.assertEqual(log.user, self.user)
         self.assertEqual(log.value, 6.0)
 
-    def test_string_representation(self):
+    def test_string_representation_contains_no_health_data(self):
+        """__str__ is captured by tracebacks, error reporters and admin logs.
+
+        This test previously asserted the opposite — that the reading appeared
+        in __str__ — which is exactly the behaviour that would have shipped a
+        patient's glucose value to any third-party error reporter.
+        """
         log = GlucoseLog.objects.create(
-            user=self.user, value=5.8, measured_at="2025-01-01T21:00:00Z"
+            user=self.user, value=Decimal("5.8"), measured_at="2025-01-01T21:00:00Z"
         )
-        # test string representation
-        self.assertIn("5.8", str(log))
+        rendered = str(log)
+        self.assertNotIn("5.8", rendered)
+        self.assertNotIn(self.user.username, rendered)
+        self.assertNotIn("2025-01-01", rendered)
+        # still identifies the row well enough to look it up on purpose
+        self.assertEqual(rendered, f"GlucoseLog #{log.pk}")
+
+    def test_all_log_models_keep_measurements_out_of_str(self):
+        insulin = InsulinLog.objects.create(
+            user=self.user, units=Decimal("8.5"), insulin_type="bolus"
+        )
+        meal = MealLog.objects.create(
+            user=self.user, carbs=Decimal("42.0"), context="lunch"
+        )
+        self.assertEqual(str(insulin), f"InsulinLog #{insulin.pk}")
+        self.assertNotIn("8.5", str(insulin))
+        self.assertEqual(str(meal), f"MealLog #{meal.pk}")
+        self.assertNotIn("lunch", str(meal))
 
 
 class GlucoseQueryTest(TestCase):
