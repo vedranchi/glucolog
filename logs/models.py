@@ -18,7 +18,11 @@ class InsulinLog(models.Model):
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user} - {self.units} U {self.insulin_type} @ {self.taken_at}"
+        # Deliberately free of measurements and identity. __str__ is what error
+        # reporters, tracebacks and admin LogEntry.object_repr capture, and none
+        # of those are places a patient's dose should end up. The pk is enough
+        # to look the record up deliberately.
+        return f"InsulinLog #{self.pk}"
 
 
 class GlucoseLog(models.Model):
@@ -41,7 +45,8 @@ class GlucoseLog(models.Model):
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user} - {self.value} mmol/L @ {self.measured_at}"
+        # No glucose value here — see the note on InsulinLog.__str__.
+        return f"GlucoseLog #{self.pk}"
 
 
 class MealLog(models.Model):
@@ -68,4 +73,5 @@ class MealLog(models.Model):
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user} - {self.context} @ {self.eaten_at}"
+        # No meal detail here — see the note on InsulinLog.__str__.
+        return f"MealLog #{self.pk}"

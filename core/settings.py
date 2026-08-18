@@ -118,6 +118,76 @@ EMAIL_TIMEOUT = email_env.int("EMAIL_TIMEOUT", default=10)
 DEFAULT_FROM_EMAIL = email_env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
 SERVER_EMAIL = email_env("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
+# --- Logging ---
+# Without this, Django's default configuration mails unhandled 500s to ADMINS
+# and does nothing else. ADMINS was unset, so production errors went nowhere at
+# all: no file, no stderr handler, no reporting service. A brute-force run
+# against the auth endpoints would have left no trace either.
+#
+# Everything goes to stdout because the app runs under gunicorn in a container,
+# where `docker logs` is the collection point. DJANGO_LOGLEVEL has been defined
+# in .env since early on but was read by nothing until now.
+DJANGO_LOGLEVEL = env("DJANGO_LOGLEVEL", default="INFO").upper()
+
+# Recipients for unhandled 500s when DEBUG is False. Accepts either a bare
+# address or "Name <addr@example.com>", comma separated. Both forms are handled
+# because silently dropping a malformed entry would leave you believing alerting
+# works when it does not.
+def _parse_admin(entry):
+    entry = entry.strip()
+    if "<" in entry and entry.endswith(">"):
+        name, _, addr = entry.partition("<")
+        return (name.strip(), addr[:-1].strip())
+    return ("", entry)
+
+
+ADMINS = [_parse_admin(e) for e in env.list("ADMINS", default=[]) if e.strip()]
+MANAGERS = ADMINS
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        # Only active when DEBUG is False and ADMINS is populated.
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+            "include_html": False,
+        },
+    },
+    "root": {"handlers": ["console"], "level": DJANGO_LOGLEVEL},
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": DJANGO_LOGLEVEL,
+            "propagate": False,
+        },
+        # 5xx responses. Mailed to ADMINS as well as logged, so a production
+        # failure is not silent.
+        "django.request": {
+            "handlers": ["console", "mail_admins"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        # Noisy at DEBUG and it echoes query parameters, so pin it higher.
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
