@@ -97,7 +97,9 @@ alias dcp='docker compose -f docker-compose.yml -f docker-compose.prod.yml'
 
 ## Verify (end-to-end)
 
-- `curl -I https://<domain>/` → `302` to `/users/login/`, valid cert (no TLS warning).
+- `curl -I https://<domain>/` → `200` and a valid cert (no TLS warning). `/` renders the
+  landing page for anonymous visitors; `home()` only redirects once you are logged in.
+  `curl -I https://<domain>/dashboard/` is the one that should `302` to `/users/login/`.
 - Open `https://<domain>/users/register/` → styled page (CSS from `/static/`).
 - Register → log in → dashboard → log a glucose reading.
 - Upload a profile picture → shows from `/media/…`, and survives `dcp restart web`.
@@ -209,7 +211,32 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
   Postgres reports healthy, so a stuck `db` means the database never came up: check
   `dcp logs db` and that `DB_*` in `.env` match `DATABASE_URL`.
 - **Static 404 / unstyled admin** → check `web` logs for the collectstatic step and that
-  the `static_data` volume mounted.
-- **Password reset email never arrives** → check `email.env`. Email settings now have safe
-  defaults, so a missing value degrades to "mail does not send" rather than blocking boot.
-  For Gmail, `EMAIL_HOST_PASSWORD` must be an App Password, not the account password.
+  the `static_data` volume mounted. Confirm with
+  `curl -I https://<domain>/static/admin/css/base.css` (expect `200`). Note the *stock
+  Django admin theme is not your Bootstrap theme* — a plain-looking admin that loads its
+  own dark header and sidebar is working correctly, not unstyled.
+- **Password reset email never arrives** → don't guess, ask the mail backend directly:
+  ```bash
+  dcp exec web python manage.py shell -c "
+  from django.conf import settings
+  from django.core.mail import send_mail
+  print(settings.EMAIL_BACKEND, settings.EMAIL_HOST, settings.EMAIL_HOST_USER)
+  print('password set:', bool(settings.EMAIL_HOST_PASSWORD))
+  send_mail('test', 'body', None, ['you@example.com'])"
+  ```
+  - `SMTPAuthenticationError (535 ... BadCredentials)` → Gmail is rejecting the password.
+    It must be an **App Password** (16 chars, no spaces, unquoted) from
+    `myaccount.google.com/apppasswords`, which requires 2FA on the account. Gmail has
+    refused plain account passwords for SMTP since 2022, and always fails with this exact
+    error. `password set: True` only means non-empty, not valid.
+  - Sends fine from the shell but the reset form still mails nothing → Django's
+    `PasswordResetForm` shows the same confirmation whether or not the address matches a
+    real account (deliberate, prevents account enumeration). Check the address is exactly
+    the one on the account.
+  - **After editing `email.env`, recreate the container** — `env_file` is read at container
+    creation, so `dcp restart web` will *not* pick up the change:
+    `dcp up -d --force-recreate web`.
+- **`WARN[0000] The "..." variable is not set` on every compose command** → a value in
+  `.env` contains a literal `$`, which Compose reads as interpolation and replaces with an
+  empty string. The app then runs with a *different* value than the file shows — silently.
+  Escape each literal `$` as `$$`. Most likely to bite a generated `SECRET_KEY`.
