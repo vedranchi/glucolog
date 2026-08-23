@@ -4,8 +4,9 @@
   tracking plus rough meal/macro tracking.
 * **Project aims:** learning vehicle, a genuinely deployable app (planned Oracle Always
   Free ARM host), and a portfolio piece. Favor correctness and clear, readable code.
-* **Tech stack:** Python, Django 5.2, PostgreSQL, WhiteNoise, Anymail/SendGrid (email),
-  gunicorn, Docker. Server-rendered templates — no client-side framework, no `fetch`.
+* **Tech stack:** Python, Django 5.2, PostgreSQL, WhiteNoise, env-driven SMTP email
+  (Gmail in prod, console backend in dev; anymail still installed for a later Resend swap),
+  gunicorn, Docker, Caddy. Server-rendered templates — no client-side framework, no `fetch`.
 * **Virtualenv:** use `./env/bin/python` (e.g. `./env/bin/python manage.py check`).
 
 ## 1. Apps (where things live)
@@ -33,32 +34,39 @@
 ## 3. Commands
 ```bash
 docker compose up -d db                  # Postgres on 127.0.0.1:5433 — REQUIRED for tests
-./env/bin/python manage.py check         # expect only the anymail/SendGrid W003 warning
+./env/bin/python manage.py check         # expect zero issues (the old anymail W003 went away with #30)
 ./env/bin/python manage.py test          # needs the db above, else "Connection refused"
 ./env/bin/python manage.py runserver
 ```
 
-> **`manage.py test` should find 17 tests, all passing.** If the count drops, suspect test
-> discovery before assuming tests were deleted — every app needs an `__init__.py`, and
-> `logs/` silently lost its own once, which hid the whole core-domain suite from a green run.
+> **`manage.py test` should find 44 tests, all passing** (verified 2026-08-23 on `dev`).
+> If the count drops, suspect test discovery before assuming tests were deleted — every app
+> needs an `__init__.py`, and `logs/` silently lost its own once, which hid the whole
+> core-domain suite from a green run.
 
-## 4. Current state — perishable, dated 2026-08-14
-**All of the previously-stranded work is merged to `dev`.** A fresh clone is now deployable:
-`deploy/README.md`'s runbook has every file it references, and the production security
-settings are in.
+## 4. Current state — perishable, dated 2026-08-23
+**Live in production** at `https://glucolog.duckdns.org` — first deploy 2026-08-23 on the
+Oracle Ampere VM, running `dev`. Caddy holds a valid Let's Encrypt cert, all three
+containers are healthy, and the security headers verify on the wire.
 
-Merged: #25 (SECURE_* from env), #26 (validation/ordering fixes + restored test discovery),
-#27 (Oracle deploy stack), #28 (NaN/Infinity rejected in glucose and macro input).
+Merged to `dev`: #25 (SECURE_* from env), #26 (validation/ordering + test discovery),
+#27 (Oracle deploy stack), #28 (NaN/Infinity rejected), #29 (JWT endpoints removed),
+#30 (SendGrid → env-driven SMTP), #31 (rate limiting on auth endpoints), #32 (cross-user
+isolation tests), #33 (verified backups + restore drill), #34 (PHI stripped from `__str__`,
+`LOGGING`/`ADMINS`), #35 (db healthcheck gate, capped logs, pinned deps).
 
 * **To discard:** the ~1,400-line `landing/*` redesign sitting in the working tree — that
   app is being removed anyway.
-* **Never deployed.** None of this has run on the VM yet.
+* **`main` is stale** — 46 commits behind `dev` as of this date. Deploy `dev`.
 
-**Top open risks, in order:** the live unthrottled JWT endpoints at `/users/api/token/`
-(nothing consumes them — delete them); no rate limiting on login/register/password-reset;
-no database backups; no `LOGGING`/`ADMINS`, so production 500s are invisible; and the
-profile page silently discarding edits. Strip PHI from `GlucoseLog.__str__` before wiring
-up any error reporter.
+**Deploy gotcha, learned the hard way:** Compose interpolates `$` in `.env`, so a
+`SECRET_KEY` containing `$` is silently truncated (you get a `variable is not set` warning
+and a different key than the file shows). Escape every literal `$` as `$$`.
+
+**Open items:** the profile page silently discarding edits; HSTS is deliberately at 7 days
+(`SECURE_HSTS_SECONDS`) — raise to 31536000 once HTTPS is proven stable, at which point the
+already-on `SECURE_HSTS_PRELOAD` becomes meaningful; backups live on the same VM as the
+database, so copy them off for real disaster recovery.
 
 **Source of truth for longer context:** `deploy/README.md` (the VM runbook), and `HANDOFF.md`
 (project state — **local-only, gitignored, never commit it**).
@@ -106,9 +114,9 @@ up any error reporter.
 ## 9. Known gotchas
 * **Bootstrap mismatch:** `CRISPY_TEMPLATE_PACK = "bootstrap5"` but `main/base.html` loads
   Bootstrap **4.6.2**. Crispy emits BS5 classes against BS4 CSS. Don't "fix" one side alone.
-* **JWT endpoints are live and public** at `/users/api/token/` — but nothing consumes them
-  (no serializers or viewsets exist, and `rest_framework` isn't in `INSTALLED_APPS`).
-  Treat them as an auth surface, not dormant config.
+* **The public JWT endpoints are GONE** (removed in #29) — don't reintroduce them. The DRF
+  packages are still in `requirements.txt` but nothing imports them; drop them in a
+  dependency pass.
 * **Python 3.14 locally vs 3.13 in Docker** — local runs don't exercise the deployed
   interpreter.
 * **Media is served only when `DEBUG`** (`core/urls.py:15-16`); Caddy serves it in prod.
