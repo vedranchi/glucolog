@@ -70,12 +70,16 @@ cp deploy/env.example .env
 python3 -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
 #   → paste into SECRET_KEY; set ALLOWED_HOSTS / CSRF_TRUSTED_ORIGINS / SITE_DOMAIN to
 #     your DuckDNS domain; set matching DB_PASSWORD + DATABASE_URL password.
+#   → set ADMINS, or unhandled 500s are logged and nobody is told.
+#   → DJANGO_LOGLEVEL=INFO is a sane start; DEBUG must stay False.
 nano .env
 
 cp deploy/email.env.example email.env
 nano email.env               # SMTP host/user + Gmail App Password
 
-# 8. Build & launch (web auto-runs migrate + collectstatic; Caddy fetches the cert)
+# 8. Build & launch. `web` waits for Postgres to pass its healthcheck before
+#    starting, so the boot-time migrate cannot race the database. First build on
+#    a 1-OCPU Ampere is slow — several minutes is normal.
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f caddy   # watch cert issuance
 
@@ -201,6 +205,9 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
   iptables (step 4); confirm DuckDNS resolves to the VM IP (`dig +short <domain>`).
 - **`DisallowedHost` / CSRF 403** → `ALLOWED_HOSTS` / `CSRF_TRUSTED_ORIGINS` in `.env`
   must include the exact domain (CSRF with `https://` scheme).
+- **`web` restarting in a loop** → `dcp ps` shows `db` health. `web` only starts once
+  Postgres reports healthy, so a stuck `db` means the database never came up: check
+  `dcp logs db` and that `DB_*` in `.env` match `DATABASE_URL`.
 - **Static 404 / unstyled admin** → check `web` logs for the collectstatic step and that
   the `static_data` volume mounted.
 - **Password reset email never arrives** → check `email.env`. Email settings now have safe

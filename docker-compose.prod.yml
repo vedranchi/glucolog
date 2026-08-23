@@ -6,10 +6,20 @@
 # Postgres is never published to the host on the public VM. Caddy is the only
 # container that binds public ports (80/443) and terminates TLS.
 
+# Docker's json driver is unbounded by default; on a free-tier disk that is a
+# slow, silent way to run out of space. Anchors do not cross compose files, so
+# this block is defined in each.
+x-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     container_name: glucolog_db
     restart: unless-stopped
+    logging: *default_logging
 
   web:
     build: .
@@ -17,18 +27,24 @@ services:
     env_file:
       - .env
       - email.env
+    # Wait for Postgres to actually accept connections, not merely to have
+    # started. Without this the boot-time `migrate` races the database.
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - static_data:/app/staticfiles
       - media_data:/app/media
     expose:
       - "8000"
     restart: unless-stopped
+    logging: *default_logging
 
   caddy:
     image: caddy:2
     container_name: glucolog_caddy
+    # Caddy retries a cold upstream on its own, so container start is enough
+    # here; it does not need to block on web being fully ready.
     depends_on:
       - web
     ports:
@@ -43,6 +59,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
+    logging: *default_logging
 
 volumes:
   static_data:

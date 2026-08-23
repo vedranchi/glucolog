@@ -1,3 +1,12 @@
+# Docker's json driver is unbounded by default; on a free-tier disk that is a
+# slow, silent way to run out of space. Anchors do not cross compose files, so
+# this block is defined in each.
+x-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     image: postgres:17
@@ -17,7 +26,21 @@ services:
     volumes:
       - glucolog_postgres_dev:/var/lib/postgresql/data
 
+    # The web container runs `migrate` the moment it starts. A bare
+    # `depends_on` only waits for the container to exist, not for Postgres to
+    # accept connections, so on a cold boot of a small VM migrate loses the race
+    # and the container restarts in a loop. This makes readiness observable so
+    # prod can wait on it properly.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
     restart: unless-stopped
+
+    logging: *default_logging
 
 volumes:
   glucolog_postgres_dev:
