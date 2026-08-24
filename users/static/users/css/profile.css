@@ -2,19 +2,19 @@
     max-width: 800px;
     margin: 2rem auto;
     padding: 2rem;
-    background: white;
+    background: var(--surface);
     border-radius: 12px;
-    box-shadow: 0 10px 24px rgba(47, 90, 87, 0.1);
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    box-shadow: var(--shadow-lg);
+    font-family: var(--font-sans);
 }
 
 .page-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #16324f;
+    color: var(--ink);
     margin: 0 0 2rem 0;
     padding-bottom: 1rem;
-    border-bottom: 3px solid #00a896;
+    border-bottom: 3px solid var(--accent);
 }
 
 .profile-header {
@@ -22,7 +22,7 @@
     align-items: center;
     gap: 2rem;
     padding-bottom: 2rem;
-    border-bottom: 2px solid #ddf2ef;
+    border-bottom: 2px solid var(--paper-2);
     margin-bottom: 2rem;
 }
 
@@ -35,7 +35,7 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #ddf2ef;
+    border: 4px solid var(--paper-2);
 }
 
 .profile-image-input {
@@ -48,7 +48,7 @@
     left: 50%;
     transform: translateX(-50%);
     background: transparent;
-    color: #028090;
+    color: var(--accent-hover);
     border: none;
     padding: 0;
     cursor: pointer;
@@ -56,12 +56,12 @@
     font-weight: 500;
     white-space: nowrap;
     text-decoration: none;
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     transition: color 0.2s ease;
 }
 
 .change-photo-btn:hover {
-    color: #16324f;
+    color: var(--ink);
 }
 
 .profile-info {
@@ -77,20 +77,20 @@
     font-size: 1.5rem;
     font-weight: 600;
     padding: 0.5rem;
-    border: 1px solid #b5ddd9;
+    border: 1px solid var(--line);
     border-radius: 6px;
     outline: none;
-    color: #16324f;
+    color: var(--ink);
     transition: border-color 0.2s;
 }
 
 .username-input:focus {
-    border-color: #00a896;
+    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(110, 169, 150, 0.12);
 }
 
 .email-display {
-    color: #4f6b80;
+    color: var(--ink-2);
     font-size: 1rem;
 }
 
@@ -105,10 +105,10 @@
 .form-section h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #16324f;
+    color: var(--ink);
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #ddf2ef;
+    border-bottom: 2px solid var(--paper-2);
 }
 
 .form-group {
@@ -118,7 +118,7 @@
 .form-group label {
     display: block;
     font-weight: 500;
-    color: #4f6763;
+    color: var(--ink-2);
     margin-bottom: 0.5rem;
 }
 
@@ -126,7 +126,7 @@
 .form-group input[type="email"] {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #b5ddd9;
+    border: 1px solid var(--line);
     border-radius: 6px;
     font-size: 1rem;
     transition: border-color 0.2s;
@@ -135,7 +135,7 @@
 .form-group select:focus,
 .form-group input[type="email"]:focus {
     outline: none;
-    border-color: #00a896;
+    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(110, 169, 150, 0.12);
 }
 
@@ -143,12 +143,12 @@
     display: flex;
     gap: 1rem;
     padding-top: 1.5rem;
-    border-top: 2px solid #ddf2ef;
+    border-top: 2px solid var(--paper-2);
 }
 
 .btn-primary {
-    background: #00a896;
-    color: white;
+    background: var(--accent);
+    color: var(--accent-ink);
     border: none;
     padding: 0.75rem 2rem;
     border-radius: 6px;
@@ -159,13 +159,13 @@
 }
 
 .btn-primary:hover {
-    background: #028090;
+    background: var(--accent-hover);
 }
 
 .btn-secondary {
-    background: #718782;
-    color: white;
-    border: none;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
     padding: 0.75rem 2rem;
     border-radius: 6px;
     font-size: 1rem;
@@ -177,23 +177,23 @@
 }
 
 .btn-secondary:hover {
-    background: #5e726e;
-    color: white;
+    background: var(--paper-2);
+    color: var(--ink);
 }
 
 .account-actions {
     margin-top: 1.25rem;
     padding-top: 1rem;
-    border-top: 1px dashed #c5e9e6;
+    border-top: 1px dashed var(--line);
 }
 
 .btn-logout {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #fff3f2;
-    color: #9b2c2c;
-    border: 1px solid #f1c6c3;
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid var(--danger-soft);
     border-radius: 8px;
     padding: 0.62rem 0.9rem;
     font-size: 0.92rem;
@@ -203,6 +203,6 @@
 }
 
 .btn-logout:hover {
-    background: #ffe8e6;
-    color: #7f1d1d;
+    background: var(--danger-soft);
+    color: var(--danger);
 }

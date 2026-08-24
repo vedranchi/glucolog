@@ -1,20 +1,20 @@
 .form-container {
     max-width: 760px;
     margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #c5e9e6;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 16px;
     padding: 1.35rem;
-    box-shadow: 0 12px 28px rgba(45, 95, 79, 0.08);
+    box-shadow: var(--shadow-lg);
 }
 
 .form-container h1 {
     margin: 0 0 1rem;
     font-size: 1.32rem;
-    color: #16324f;
+    color: var(--ink);
     font-weight: 700;
     padding-bottom: 0.7rem;
-    border-bottom: 1px solid #d9eae2;
+    border-bottom: 1px solid var(--paper-2);
 }
 
 .form-container form {
@@ -26,7 +26,7 @@
     margin: 0.9rem 0 0.4rem;
     font-size: 0.9rem;
     font-weight: 700;
-    color: #16324f;
+    color: var(--ink);
 }
 
 .form-container input[type="text"],
@@ -38,40 +38,40 @@
 .form-container select,
 .form-container textarea {
     width: 100%;
-    border: 1px solid #b9dfda;
+    border: 1px solid var(--line);
     border-radius: 10px;
-    background: #fbfefe;
+    background: var(--surface);
     padding: 0.62rem 0.72rem;
     font-size: 0.93rem;
-    color: #16324f;
+    color: var(--ink);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-container input:hover,
 .form-container select:hover,
 .form-container textarea:hover {
-    border-color: #9fd7cd;
+    border-color: var(--line);
 }
 
 .form-container input:focus,
 .form-container select:focus,
 .form-container textarea:focus {
     outline: none;
-    border-color: #00a896;
-    box-shadow: 0 0 0 3px rgba(95, 168, 132, 0.13);
-    background: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: var(--surface);
 }
 
 .form-container input[readonly] {
-    background: #ebf9f7;
-    color: #4f6b80;
+    background: var(--paper-2);
+    color: var(--ink-2);
 }
 
 .form-container small,
 .form-container .helptext {
     display: block;
     margin-top: 0.35rem;
-    color: #4f6b80;
+    color: var(--ink-2);
     font-size: 0.82rem;
 }
 
@@ -80,9 +80,9 @@
 .form-container p[style*="color: red"] {
     margin-top: 0.45rem;
     margin-bottom: 0.35rem;
-    color: #b3261e;
-    background: #fef3f2;
-    border: 1px solid #f3c9c6;
+    color: var(--danger);
+    background: var(--danger-soft);
+    border: 1px solid var(--danger-soft);
     border-radius: 10px;
     padding: 0.55rem 0.7rem;
     font-size: 0.85rem;
@@ -96,7 +96,7 @@
 .button-group {
     margin-top: 1.2rem;
     padding-top: 0.9rem;
-    border-top: 1px solid #e2efea;
+    border-top: 1px solid var(--paper-2);
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem;
@@ -113,45 +113,33 @@
 }
 
 .button-group button[type="submit"] {
-    background: #00a896;
-    color: #ffffff;
-    border-color: #028090;
+    background: var(--accent);
+    color: var(--surface);
+    border-color: var(--accent-hover);
     cursor: pointer;
 }
 
 .button-group button[type="submit"]:hover {
-    background: #028090;
-    color: #ffffff;
-}
-
-.button-group a button[type="button"] {
-    background: #effaf8;
-    color: #46685a;
-    border-color: #b9dfda;
-    cursor: pointer;
-}
-
-.button-group a button[type="button"]:hover {
-    background: #e4f7f4;
-    color: #16324f;
+    background: var(--accent-hover);
+    color: var(--surface);
 }
 
 .button-group a {
-    background: #effaf8;
-    color: #46685a;
-    border-color: #b9dfda;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    border-color: var(--line);
 }
 
 .button-group a:hover {
-    background: #e4f7f4;
-    color: #16324f;
+    background: var(--paper-2);
+    color: var(--ink);
 }
 
 .btn-delete {
     margin-top: 0.7rem;
-    border: 1px solid #f1c6c3;
-    background: #fef3f2;
-    color: #b3261e;
+    border: 1px solid var(--danger-soft);
+    background: var(--danger-soft);
+    color: var(--danger);
     font-weight: 700;
     border-radius: 10px;
     padding: 0.58rem 0.85rem;
@@ -159,7 +147,7 @@
 }
 
 .btn-delete:hover {
-    background: #fde8e6;
+    background: var(--danger-soft);
 }
 
 @media (max-width: 640px) {

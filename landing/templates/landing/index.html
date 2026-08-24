@@ -4,215 +4,313 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GlucoLog | Practical Diabetes Tracking</title>
+    <title>GlucoLog | See the pattern, not just the number</title>
     <meta
       name="description"
-      content="Track glucose, insulin, and meals in one practical dashboard. Built for daily diabetes management."
+      content="Log glucose, insulin, and meals on one timeline, in mmol/L or mg/dL, and see the trend behind your numbers."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="{% static 'landing/styles.css' %}" />
-  </head>
-  <body>
-    <div class="bg-orb orb-a"></div>
-    <div class="bg-orb orb-b"></div>
 
-    <header class="site-header">
-      <div class="container nav-wrap">
+    {% include "main/_theme_head.html" %}
+    <link rel="stylesheet" href="{% static 'landing/styles.css' %}" />
+    <noscript>
+      <style>
+        .reveal { opacity: 1; transform: none; }
+      </style>
+    </noscript>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="ambience" aria-hidden="true"></div>
+    <span class="top-sentinel" id="topSentinel" aria-hidden="true"></span>
+
+    <header class="topbar" id="topbar">
+      <div class="container topbar-inner">
         <a class="brand" href="#top" aria-label="GlucoLog home">
-          <span class="brand-dot"></span>
-          <span>GlucoLog</span>
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">GlucoLog</span>
         </a>
+
         <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu">
           Menu
         </button>
-        <nav id="menu" class="menu">
+
+        <nav id="menu" class="menu" aria-label="Main">
+          <a href="#how">How it works</a>
           <a href="#features">Features</a>
-          <a href="#workflow">Flow</a>
-          <a href="#gallery">Visuals</a>
-          <a href="{% url 'glucolog-register' %}" class="menu-cta">Start Free</a>
+          <a href="{% url 'glucolog-login' %}">Sign in</a>
+
+          {% include "main/_theme_switch.html" %}
+
+          <a href="{% url 'glucolog-register' %}" class="btn btn-primary btn-sm">Create account</a>
         </nav>
       </div>
     </header>
 
-    <main id="top">
-      <section class="hero container reveal">
-        <div class="hero-copy">
-          <p class="kicker">Diabetes Management Platform</p>
-          <h1>Simple tracking. Better daily decisions.</h1>
-          <p class="lead">Glucose, insulin, meals, and trends in one clear place.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create Account</a>
-            <a class="btn btn-ghost" href="{% url 'glucolog-login' %}">Sign In</a>
-            <button class="btn btn-detail" data-open-details="overview">More details</button>
+    <main id="main">
+      <!-- ============================== HERO ============================== -->
+      <section class="hero" id="top">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <h1 class="hero-title">See the pattern, not just the number.</h1>
+            <p class="hero-lead">
+              Glucose, insulin, and meals on one timeline. Trends show up here long before your
+              next appointment does.
+            </p>
+            <div class="actions">
+              <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create account</a>
+              <a class="btn btn-quiet" href="{% url 'glucolog-login' %}">Sign in</a>
+            </div>
+          </div>
+
+          <!-- The dashboard as it is actually built: the same sidebar, the same
+               Glucose Trend panel, and the same Chart.js line, given example
+               readings instead of a real account. -->
+          <figure
+            class="app-preview"
+            role="img"
+            aria-label="The GlucoLog dashboard: a sidebar with Dashboard, Insulin, Glucose and Meals, and the Glucose Trend panel charting an example day of readings from 5.4 to 8.1 mmol per litre."
+          >
+            <div class="app-window">
+              <nav class="app-rail">
+                <span class="app-rail-item is-active">Dashboard</span>
+                <span class="app-rail-item">Insulin</span>
+                <span class="app-rail-item">Glucose</span>
+                <span class="app-rail-item">Meals</span>
+              </nav>
+
+              <div class="app-main">
+                <header class="app-top">
+                  <span class="app-top-title">Dashboard</span>
+                  <span class="app-account">
+                    <span class="app-avatar"></span>
+                    Account
+                  </span>
+                </header>
+
+                <section class="app-panel">
+                  <div class="app-panel-head">
+                    <div>
+                      <h2 class="app-panel-title">Glucose Trend</h2>
+                      <p class="app-panel-date">Example day</p>
+                    </div>
+                    <div class="app-trend-controls">
+                      <span>Previous</span>
+                      <span>Today</span>
+                      <span class="is-disabled">Next</span>
+                    </div>
+                  </div>
+
+                  <div class="app-chart">
+                    <canvas id="demoChart" data-unit-label="mmol/L"></canvas>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <figcaption>The dashboard's glucose trend, drawn from example readings.</figcaption>
+          </figure>
+
+          {# example readings for the preview chart, in mmol/L #}
+          <script type="application/json" id="demoChartData">
+            {
+              "labels": ["07:12", "10:30", "13:20", "16:40", "19:45", "22:30"],
+              "values": [5.4, 7.8, 6.6, 6.2, 8.1, 6.8]
+            }
+          </script>
+        </div>
+      </section>
+
+      <!-- ========================= HOW IT WORKS ========================== -->
+      <section id="how" class="section">
+        <div class="container how-grid">
+          <div class="how-head reveal">
+            <h2>Three habits, one clear picture.</h2>
+            <p>Each one takes seconds. The picture builds over weeks.</p>
+          </div>
+
+          <ol class="how-list">
+            <li class="how-step reveal" style="--d: 0ms">
+              <h3>Log it in seconds</h3>
+              <p>A reading, a dose, or a plate. Add context and a note only if you want one.</p>
+
+              <div class="ui-preview" role="img"
+                aria-label="The Add Glucose Reading form: glucose value in mmol per litre, a context menu set to After Meal, and an optional note.">
+                <p class="ui-heading">Add Glucose Reading</p>
+                <div class="ui-field">
+                  <span class="ui-label">Glucose Value (mmol/L)</span>
+                  <span class="ui-input">6.2</span>
+                </div>
+                <div class="ui-field">
+                  <span class="ui-label">Context</span>
+                  <span class="ui-input is-select">After Meal</span>
+                </div>
+                <div class="ui-field">
+                  <span class="ui-label">Note</span>
+                  <span class="ui-input is-empty">Optional note</span>
+                </div>
+                <span class="ui-btn">Log Reading</span>
+              </div>
+            </li>
+
+            <li class="how-step reveal" style="--d: 90ms">
+              <h3>Watch it line up</h3>
+              <p>Today at a glance, with every count and average kept current as you log.</p>
+
+              <div class="ui-preview ui-metrics" role="img"
+                aria-label="Today's dashboard cards: four glucose logs averaging 6.4 mmol per litre, three insulin logs totalling 21 units, and three meal logs totalling 166 grams of carbs.">
+                <div class="ui-metric">
+                  <span class="ui-metric-head">Glucose Logs<em>Today</em></span>
+                  <span class="ui-metric-value">4</span>
+                  <span class="ui-metric-sub">Avg: 6.4 mmol/L</span>
+                </div>
+                <div class="ui-metric">
+                  <span class="ui-metric-head">Insulin Logs<em>Today</em></span>
+                  <span class="ui-metric-value">3</span>
+                  <span class="ui-metric-sub">Total: 21 units</span>
+                </div>
+                <div class="ui-metric">
+                  <span class="ui-metric-head">Meal Logs<em>Today</em></span>
+                  <span class="ui-metric-value">3</span>
+                  <span class="ui-metric-sub">Carbs: 166 g</span>
+                </div>
+              </div>
+            </li>
+
+            <li class="how-step reveal" style="--d: 180ms">
+              <h3>Decide from the trend</h3>
+              <p>Step back through any day, then bring a real history to your next appointment.</p>
+
+              <div class="ui-preview ui-trend" role="img"
+                aria-label="The Glucose Trend panel header, showing the charted date and buttons to move to the previous day, today, or the next day.">
+                <div class="ui-trend-head">
+                  <span class="ui-heading">Glucose Trend</span>
+                  <span class="ui-trend-date">March 14, 2026</span>
+                </div>
+                <div class="ui-trend-controls">
+                  <span>Previous</span>
+                  <span>Today</span>
+                  <span>Next</span>
+                </div>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- =========================== FEATURES ============================ -->
+      <section id="features" class="section">
+        <div class="container">
+          <h2 class="grid-head reveal">Everything that moves your glucose, in one place.</h2>
+
+          <div class="bento">
+            <article class="cell cell-timeline reveal" style="--d: 0ms">
+              <h3>One timeline</h3>
+              <p>Readings, doses, and meals land in a single feed, and every line opens for editing.</p>
+
+              <div class="ui-preview ui-activity" role="img"
+                aria-label="The Recent Activity feed: a glucose reading of 6.2 mmol per litre at 16:40, an insulin dose of 7 units at 13:06, a lunch entry at 13:02, and a glucose reading of 7.8 mmol per litre at 10:30.">
+                <p class="ui-heading">Recent Activity</p>
+                <ul>
+                  <li><span>Glucose reading (6.2 mmol/L)</span><span class="ui-time">16:40</span></li>
+                  <li><span>Insulin dose (7 U)</span><span class="ui-time">13:06</span></li>
+                  <li><span>Meal (Lunch)</span><span class="ui-time">13:02</span></li>
+                  <li><span>Glucose reading (7.8 mmol/L)</span><span class="ui-time">10:30</span></li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="cell cell-units reveal" style="--d: 80ms">
+              <h3>Your units, your call</h3>
+              <p>Switch whenever you like. Your whole history converts with you.</p>
+
+              <div class="segmented unit-toggle" role="group" aria-label="Glucose unit">
+                <button type="button" data-unit="mmol" aria-pressed="true">mmol/L</button>
+                <button type="button" data-unit="mgdl" aria-pressed="false">mg/dL</button>
+              </div>
+
+              <dl class="unit-demo">
+                <div>
+                  <dt>Fasting</dt>
+                  <dd class="unit-value" data-mmol="5.4">5.4</dd>
+                </div>
+                <div>
+                  <dt>Post-meal</dt>
+                  <dd class="unit-value" data-mmol="7.8">7.8</dd>
+                </div>
+                <div>
+                  <dt>Bedtime</dt>
+                  <dd class="unit-value" data-mmol="6.8">6.8</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="cell cell-safe reveal" style="--d: 160ms">
+              <h3>Nothing is lost</h3>
+              <p>Edit or undo any entry. Records are never silently erased.</p>
+            </article>
+
+            <article class="cell cell-week reveal" style="--d: 240ms">
+              <h3>Seven days at a glance</h3>
+              <p>The week, drawn against your target range.</p>
+              <svg class="spark" viewBox="0 0 260 72" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="spark-band" x="0" y="24" width="260" height="26" rx="6" />
+                <polyline
+                  class="spark-line"
+                  pathLength="1"
+                  points="0,44 37,30 74,52 111,34 148,40 185,22 222,36 260,30"
+                />
+              </svg>
+            </article>
+
+            <article class="cell cell-private reveal" style="--d: 320ms">
+              <h3>Yours alone</h3>
+              <p>No ads and no third-party trackers. Your logs stay in your account, and you can delete them whenever you want.</p>
+            </article>
           </div>
         </div>
-        <figure class="hero-media card">
-          <img
-            src="https://images.pexels.com/photos/6941884/pexels-photo-6941884.jpeg?auto=compress&cs=tinysrgb&w=1200"
-            alt="Person using a glucose monitor and app at a table"
-            loading="eager"
-          />
-          <figcaption>Built for real daily routines.</figcaption>
-        </figure>
       </section>
 
-      <section class="stats container reveal">
-        <article class="stat card">
-          <h3>Dashboard</h3>
-          <p>Today at a glance.</p>
-        </article>
-        <article class="stat card">
-          <h3>Trends</h3>
-          <p>Glucose chart by day.</p>
-        </article>
-        <article class="stat card">
-          <h3>Recent Activity</h3>
-          <p>Quick edits from feed.</p>
-        </article>
-      </section>
-
-      <section id="features" class="features container reveal">
-        <div class="section-head compact-head">
-          <p class="kicker">Current Features</p>
-          <h2>Everything core is already in place</h2>
-          <button class="link-btn" data-open-details="features">Open feature window</button>
-        </div>
-
-        <div class="feature-grid">
-          <article class="feature card"><h3>Glucose Logs</h3><p>Value, context, note, time.</p></article>
-          <article class="feature card"><h3>Insulin Logs</h3><p>Basal/bolus, units, brand.</p></article>
-          <article class="feature card"><h3>Meal Logs</h3><p>Carbs, protein, fats, calories.</p></article>
-          <article class="feature card"><h3>Unit Settings</h3><p>mmol/L or mg/dL.</p></article>
-          <article class="feature card"><h3>Insights</h3><p>Today + 7-day summaries.</p></article>
-          <article class="feature card"><h3>Edit Safety</h3><p>Edit and soft delete.</p></article>
-          <article class="feature card"><h3>Account Tools</h3><p>Auth, profile, reset password.</p></article>
-          <article class="feature card"><h3>JWT Endpoints</h3><p>Token + refresh routes.</p></article>
-        </div>
-      </section>
-
-      <section id="workflow" class="workflow container reveal">
-        <div class="section-head compact-head">
-          <p class="kicker">Flow</p>
-          <h2>Log, review, adjust</h2>
-          <button class="link-btn" data-open-details="workflow">Open workflow slides</button>
-        </div>
-        <div class="steps">
-          <article class="step card"><span class="step-no">01</span><h3>Log</h3><p>Fast inputs.</p></article>
-          <article class="step card"><span class="step-no">02</span><h3>Review</h3><p>Daily snapshot.</p></article>
-          <article class="step card"><span class="step-no">03</span><h3>Adjust</h3><p>Use trend context.</p></article>
-        </div>
-      </section>
-
-      <section id="gallery" class="gallery container reveal">
-        <div class="section-head compact-head">
-          <p class="kicker">Visual Context</p>
-          <h2>Care meets routine</h2>
-          <button class="link-btn" data-open-details="technical">Technical notes</button>
-        </div>
-        <div class="gallery-grid">
-          <figure class="card pic-wide">
-            <img
-              src="https://images.pexels.com/photos/6823505/pexels-photo-6823505.jpeg?auto=compress&cs=tinysrgb&w=1400"
-              alt="Glucose meter and notes on a desk"
-              loading="lazy"
-            />
-          </figure>
-          <figure class="card">
-            <img
-              src="https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=900"
-              alt="Meal prep bowls for tracking nutrition"
-              loading="lazy"
-            />
-          </figure>
-          <figure class="card">
-            <img
-              src="https://images.pexels.com/photos/8376297/pexels-photo-8376297.jpeg?auto=compress&cs=tinysrgb&w=900"
-              alt="Healthcare professional reviewing health data"
-              loading="lazy"
-            />
-          </figure>
-        </div>
-      </section>
-
-      <section id="cta" class="cta container reveal">
-        <div class="cta-card card">
-          <h2>Start practical tracking.</h2>
-          <p>Keep daily signals connected.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create Account</a>
-            <a class="btn btn-ghost" href="{% url 'glucolog-dashboard' %}">Open Dashboard</a>
+      <!-- ============================ CLOSER ============================= -->
+      <section class="closer">
+        <div class="container closer-inner reveal">
+          <h2>Start today's log.</h2>
+          <p>Free to use, in your own units, on any phone.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create account</a>
+            <a class="btn btn-quiet" href="{% url 'glucolog-login' %}">Sign in</a>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-wrap">
-        <p>GlucoLog</p>
-        <p>Practical diabetes tracking.</p>
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">GlucoLog</span>
+        </div>
+
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+          <a href="{% url 'glucolog-login' %}">Sign in</a>
+        </nav>
+
+        <p class="footer-disclaimer">
+          GlucoLog is a tracking tool, not medical advice. Always confirm treatment decisions
+          with your care team.
+        </p>
       </div>
     </footer>
 
-    <div class="detail-modal" id="detailModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-      <div class="detail-backdrop" data-close-details></div>
-      <section class="detail-window card">
-        <header class="detail-head">
-          <h3 id="detailTitle">Details</h3>
-          <button class="detail-close" data-close-details aria-label="Close">Close</button>
-        </header>
-
-        <div class="detail-body">
-          <article class="detail-slide" data-slide="overview">
-            <h4>Platform overview</h4>
-            <ul>
-              <li>Single dashboard for glucose, insulin, and meal logging.</li>
-              <li>Fast forms with notes and context fields.</li>
-              <li>Recent activity with direct edit access.</li>
-            </ul>
-          </article>
-
-          <article class="detail-slide" data-slide="features">
-            <h4>Feature detail</h4>
-            <ul>
-              <li>Glucose: context-based readings and unit conversion.</li>
-              <li>Insulin: basal/bolus tracking, totals, corrections.</li>
-              <li>Meals: macros + calories with meal context.</li>
-              <li>Accounts: registration, login, profile, password reset.</li>
-            </ul>
-          </article>
-
-          <article class="detail-slide" data-slide="workflow">
-            <h4>Workflow detail</h4>
-            <ul>
-              <li>Step 1: Log values and doses in seconds.</li>
-              <li>Step 2: Review dashboard totals and latest events.</li>
-              <li>Step 3: Check weekly summaries and trend chart.</li>
-            </ul>
-          </article>
-
-          <article class="detail-slide" data-slide="technical">
-            <h4>Technical detail</h4>
-            <ul>
-              <li>JWT token and refresh endpoints included.</li>
-              <li>Soft-delete safety for logs.</li>
-              <li>Responsive UI across desktop and mobile.</li>
-            </ul>
-          </article>
-        </div>
-
-        <footer class="detail-foot">
-          <button class="btn btn-ghost" id="detailPrev" type="button">Previous</button>
-          <p id="detailCounter">1 / 4</p>
-          <button class="btn btn-ghost" id="detailNext" type="button">Next</button>
-        </footer>
-      </section>
-    </div>
-
-    <script src="{% static 'landing/script.js' %}"></script>
+    <!-- same charting library the dashboard uses, pinned and hash-checked -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
+      integrity="sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="{% static 'main/js/theme.js' %}" defer></script>
+    <script src="{% static 'landing/script.js' %}" defer></script>
   </body>
 </html>

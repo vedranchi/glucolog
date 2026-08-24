@@ -1,0 +1,34 @@
+{% load static %}
+{% comment %}
+Shared <head> pieces for pages using the new design language: fonts, the token
+stylesheet, and the pre-paint theme resolution. Include it first, then add the
+page's own stylesheet after it.
+{% endcomment %}
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f5f2" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e1013" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="{% static 'main/css/theme.css' %}" />
+
+{# Runs before first paint so a stored choice never flashes the other theme. #}
+<script>
+  (function () {
+    var choice = null;
+    try {
+      choice = localStorage.getItem("glucolog-theme");
+    } catch (error) {}
+    var chosen = choice === "light" || choice === "dark";
+    var root = document.documentElement;
+    root.dataset.themeSource = chosen ? "stored" : "system";
+    root.dataset.theme = chosen
+      ? choice
+      : window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+  })();
+</script>

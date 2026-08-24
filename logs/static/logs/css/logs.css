@@ -1,17 +1,17 @@
 .summary-box {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfefe 100%);
-    border: 1px solid #c5e9e6;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 100%);
+    border: 1px solid var(--line);
     border-radius: 14px;
     padding: 1.2rem 1.3rem;
     margin-bottom: 1rem;
-    box-shadow: 0 8px 20px rgba(45, 95, 79, 0.08);
+    box-shadow: var(--shadow-lg);
 }
 
 .summary-box h2 {
     margin: 0 0 0.8rem;
     font-size: 1.05rem;
     font-weight: 700;
-    color: #16324f;
+    color: var(--ink);
 }
 
 .summary-box p {
@@ -19,7 +19,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: #46627a;
+    color: var(--ink-2);
     font-size: 0.96rem;
     text-align: left;
 }
@@ -29,27 +29,27 @@
 }
 
 .summary-box strong {
-    color: #16324f;
+    color: var(--ink);
 }
 
 .summary-box small {
-    color: #4f6b80;
+    color: var(--ink-2);
     font-size: 0.85rem;
 }
 
 h2 {
     margin: 1.3rem 0 0.75rem;
     font-size: 1.03rem;
-    color: #16324f;
+    color: var(--ink);
     font-weight: 700;
 }
 
 .primary-action-link {
     display: inline-block;
     text-decoration: none;
-    background: #00a896;
-    color: #ffffff;
-    border: 1px solid #028090;
+    background: var(--accent);
+    color: var(--surface);
+    border: 1px solid var(--accent-hover);
     border-radius: 10px;
     font-size: 0.94rem;
     font-weight: 700;
@@ -59,39 +59,39 @@ h2 {
 }
 
 .primary-action-link:hover {
-    color: #ffffff;
-    background: #028090;
-    border-color: #0a6f86;
+    color: var(--surface);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    background: #ffffff;
-    border: 1px solid #c5e9e6;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 8px 20px rgba(45, 95, 79, 0.08);
+    box-shadow: var(--shadow-lg);
     margin-bottom: 1rem;
 }
 
 thead th {
-    background: linear-gradient(180deg, #f5f8f8 0%, #f2f7f5 100%);
-    color: #16324f;
+    background: linear-gradient(180deg, var(--paper-2) 0%, var(--paper-2) 100%);
+    color: var(--ink);
     text-align: left;
     font-size: 0.84rem;
     letter-spacing: 0.01em;
     padding: 0.72rem 0.82rem;
     font-weight: 700;
-    border-bottom: 1px solid #c5e9e6;
+    border-bottom: 1px solid var(--line);
 }
 
 tbody td {
     padding: 0.72rem 0.82rem;
-    color: #16324f;
+    color: var(--ink);
     font-size: 0.91rem;
-    border-bottom: 1px solid #e2f5f2;
+    border-bottom: 1px solid var(--paper-2);
 }
 
 tbody tr:last-child td {
@@ -99,26 +99,26 @@ tbody tr:last-child td {
 }
 
 tbody tr:hover {
-    background: #f4fcfb;
+    background: var(--paper-2);
 }
 
 .clickable-row td a {
-    color: #0a9396;
+    color: var(--accent);
     text-decoration: none;
     font-weight: 700;
 }
 
 .clickable-row td a:hover {
-    color: #16324f;
+    color: var(--ink);
 }
 
 p {
     margin: 0.4rem 0 1rem;
     padding: 0.75rem 0.85rem;
-    border: 1px dashed #cfe3da;
+    border: 1px dashed var(--line);
     border-radius: 10px;
-    background: #f7fcfa;
-    color: #46627a;
+    background: var(--paper-2);
+    color: var(--ink-2);
     font-size: 0.9rem;
 }
 
@@ -139,7 +139,7 @@ p {
     }
 
     tbody tr {
-        border-bottom: 1px solid #e3efea;
+        border-bottom: 1px solid var(--paper-2);
         padding: 0.55rem 0.55rem 0.35rem;
     }
 
@@ -159,7 +159,7 @@ p {
         position: absolute;
         left: 0.45rem;
         top: 0.45rem;
-        color: #46627a;
+        color: var(--ink-2);
         font-weight: 700;
         font-size: 0.8rem;
     }
