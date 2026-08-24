@@ -10,11 +10,11 @@
 }
 
 .metric-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfefe 100%);
-    border: 1px solid #c5e9e6;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 100%);
+    border: 1px solid var(--line);
     border-radius: 14px;
     padding: 1.1rem 1.2rem;
-    box-shadow: 0 10px 24px rgba(45, 95, 79, 0.08);
+    box-shadow: var(--shadow-lg);
 }
 
 .metric-head {
@@ -26,48 +26,48 @@
 
 .metric-label {
     font-size: 0.9rem;
-    color: #46627a;
+    color: var(--ink-2);
     font-weight: 600;
 }
 
 .metric-badge {
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
-    background: linear-gradient(135deg, #e8f0f5 0%, #e1f7f4 100%);
-    color: #0a9396;
+    background: linear-gradient(135deg, var(--paper-2) 0%, var(--paper-2) 100%);
+    color: var(--accent);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.02em;
 }
 
 .metric-badge.neutral {
-    background: #eef2f4;
-    color: #46627a;
+    background: var(--paper-2);
+    color: var(--ink-2);
 }
 
 .metric-value {
     font-size: 2rem;
     line-height: 1.1;
-    color: #204d3d;
+    color: var(--ink);
     font-weight: 700;
     margin-bottom: 0.7rem;
 }
 
 .metric-sub {
     margin: 0 0 0.45rem 0;
-    color: #46627a;
+    color: var(--ink-2);
     font-size: 0.95rem;
 }
 
 .metric-sub strong,
 .metric-foot strong {
-    color: #16324f;
+    color: var(--ink);
     font-weight: 600;
 }
 
 .metric-foot {
     margin: 0;
-    color: #4f6b80;
+    color: var(--ink-2);
     font-size: 0.86rem;
 }
 
@@ -79,19 +79,19 @@
 .quick-actions a {
     display: block;
     text-decoration: none;
-    color: #16324f;
+    color: var(--ink);
     font-weight: 600;
-    background: #ebf9f7;
-    border: 1px solid #c5e9e6;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
     border-radius: 10px;
     padding: 0.55rem 0.7rem;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .quick-actions a:hover {
-    background: #e7f3ed;
-    border-color: #badbcd;
-    color: #16324f;
+    background: var(--paper-2);
+    border-color: var(--line);
+    color: var(--ink);
 }
 
 .content-grid {
@@ -101,11 +101,11 @@
 }
 
 .panel-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfefe 100%);
-    border: 1px solid #c5e9e6;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface) 100%);
+    border: 1px solid var(--line);
     border-radius: 14px;
     padding: 1.2rem;
-    box-shadow: 0 10px 24px rgba(45, 95, 79, 0.08);
+    box-shadow: var(--shadow-lg);
 }
 
 .panel-head {
@@ -120,11 +120,11 @@
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #16324f;
+    color: var(--ink);
 }
 
 .panel-meta {
-    color: #4f6b80;
+    color: var(--ink-2);
     font-size: 0.82rem;
     font-weight: 600;
 }
@@ -138,9 +138,9 @@
 }
 
 .activity-list li {
-    border: 1px solid #e1eee8;
+    border: 1px solid var(--line);
     border-radius: 10px;
-    background: #f4fcfb;
+    background: var(--paper-2);
     padding: 0;
     display: flex;
     justify-content: space-between;
@@ -161,24 +161,24 @@
 }
 
 .activity-link:hover {
-    background: #eef7f2;
-    color: #16324f;
+    background: var(--paper-2);
+    color: var(--ink);
 }
 
 .activity-label {
-    color: #16324f;
+    color: var(--ink);
     font-size: 0.92rem;
 }
 
 .activity-time {
-    color: #46627a;
+    color: var(--ink-2);
     font-size: 0.82rem;
     font-weight: 600;
 }
 
 .empty-state {
     justify-content: center;
-    color: #78968a;
+    color: var(--ink-2);
 }
 
 .chart-head {
@@ -187,7 +187,7 @@
 
 .chart-date {
     margin: 0.2rem 0 0 0;
-    color: #4f6b80;
+    color: var(--ink-2);
     font-size: 0.86rem;
     font-weight: 500;
 }
@@ -198,11 +198,11 @@
 }
 
 .trend-btn {
-    border: 1px solid #b9dfda;
+    border: 1px solid var(--line);
     border-radius: 9px;
     padding: 0.45rem 0.75rem;
-    background: #ecfbf9;
-    color: #16324f;
+    background: var(--paper-2);
+    color: var(--ink);
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
@@ -214,21 +214,21 @@
 }
 
 .trend-btn:hover {
-    background: #e7f3ed;
-    border-color: #b7d7c8;
-    color: #16324f;
+    background: var(--paper-2);
+    border-color: var(--line);
+    color: var(--ink);
 }
 
 .trend-btn-disabled {
-    background: #f3f7f7;
-    color: #8ba1ae;
-    border-color: #d9e7e4;
+    background: var(--paper-2);
+    color: var(--ink-3);
+    border-color: var(--line);
     cursor: not-allowed;
 }
 
 .chart-wrap {
-    background: #fbfefe;
-    border: 1px solid #e3f0ea;
+    background: var(--surface);
+    border: 1px solid var(--paper-2);
     border-radius: 10px;
     padding: 0.8rem;
 }

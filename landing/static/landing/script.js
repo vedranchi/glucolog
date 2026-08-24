@@ -1,110 +1,212 @@
+/* GlucoLog landing page behaviour.
+   Everything here is either feedback for a user action or a one-shot reveal.
+   No scroll listeners: position is observed with IntersectionObserver. */
+
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hasObserver = "IntersectionObserver" in window;
+
+/* --- mobile menu ---------------------------------------------------------- */
 const menuBtn = document.getElementById("menuBtn");
 const menu = document.getElementById("menu");
 
 if (menuBtn && menu) {
+  const closeMenu = () => {
+    menu.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded", "false");
+  };
+
   menuBtn.addEventListener("click", () => {
     const isOpen = menu.classList.toggle("open");
     menuBtn.setAttribute("aria-expanded", String(isOpen));
   });
 
-  menu.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      menu.classList.remove("open");
-      menuBtn.setAttribute("aria-expanded", "false");
-    });
+  menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenu();
   });
 }
 
+/* --- topbar gains a border once the hero scrolls under it ------------------ */
+const sentinel = document.getElementById("topSentinel");
+const topbar = document.getElementById("topbar");
+
+if (sentinel && topbar && hasObserver) {
+  new IntersectionObserver(([entry]) =>
+    topbar.classList.toggle("is-stuck", !entry.isIntersecting)
+  ).observe(sentinel);
+}
+
+/* --- scroll reveals ------------------------------------------------------- */
 const revealItems = document.querySelectorAll(".reveal");
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
+
+if (reducedMotion || !hasObserver) {
+  revealItems.forEach((item) => item.classList.add("show"));
+} else {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
         entry.target.classList.add("show");
-      }
-    });
-  },
-  { threshold: 0.15 }
-);
-revealItems.forEach((item) => observer.observe(item));
+        revealObserver.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.18 }
+  );
 
-const modal = document.getElementById("detailModal");
-const openButtons = document.querySelectorAll("[data-open-details]");
-const closeButtons = document.querySelectorAll("[data-close-details]");
-const slides = Array.from(document.querySelectorAll(".detail-slide"));
-const detailTitle = document.getElementById("detailTitle");
-const detailCounter = document.getElementById("detailCounter");
-const prevBtn = document.getElementById("detailPrev");
-const nextBtn = document.getElementById("detailNext");
+  revealItems.forEach((item) => revealObserver.observe(item));
+}
 
-const slideOrder = ["overview", "features", "workflow", "technical"];
-let currentIndex = 0;
+/* --- unit switch ----------------------------------------------------------
+   Mirrors the app: values are held in mmol/L and converted only for display.
+   1 mmol/L = 18.0182 mg/dL. */
+const MGDL_PER_MMOL = 18.0182;
+const unitButtons = document.querySelectorAll("[data-unit]");
+const unitValues = document.querySelectorAll(".unit-value");
 
-function setSlide(index) {
-  currentIndex = index;
-  const key = slideOrder[currentIndex];
+const renderUnit = (unit) => {
+  unitValues.forEach((node) => {
+    const mmol = Number.parseFloat(node.dataset.mmol);
+    if (Number.isNaN(mmol)) return;
 
-  slides.forEach((slide) => {
-    slide.classList.toggle("active", slide.dataset.slide === key);
+    node.textContent =
+      unit === "mgdl" ? String(Math.round(mmol * MGDL_PER_MMOL)) : mmol.toFixed(1);
+
+    if (reducedMotion) return;
+    node.classList.remove("is-swapping");
+    void node.offsetWidth; // restart the swap animation
+    node.classList.add("is-swapping");
   });
+};
 
-  const activeSlide = slides.find((slide) => slide.dataset.slide === key);
-  const heading = activeSlide?.querySelector("h4")?.textContent || "Details";
-
-  detailTitle.textContent = heading;
-  detailCounter.textContent = `${currentIndex + 1} / ${slideOrder.length}`;
-  prevBtn.disabled = currentIndex === 0;
-  nextBtn.disabled = currentIndex === slideOrder.length - 1;
-}
-
-function openModal(startKey) {
-  const foundIndex = slideOrder.indexOf(startKey);
-  setSlide(foundIndex >= 0 ? foundIndex : 0);
-  modal.classList.add("open");
-  modal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-}
-
-function closeModal() {
-  modal.classList.remove("open");
-  modal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-
-openButtons.forEach((button) => {
+unitButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    openModal(button.dataset.openDetails);
+    if (button.getAttribute("aria-pressed") === "true") return;
+
+    unitButtons.forEach((other) =>
+      other.setAttribute("aria-pressed", String(other === button))
+    );
+
+    renderUnit(button.dataset.unit);
   });
 });
 
-closeButtons.forEach((button) => {
-  button.addEventListener("click", closeModal);
-});
+/* --- dashboard preview chart ----------------------------------------------
+   The same Chart.js line the dashboard draws, given example readings. Colours
+   are read from the theme tokens and refreshed by repaintChart below. */
+const chartCanvas = document.getElementById("demoChart");
+const chartData = document.getElementById("demoChartData");
+let demoChart = null;
 
-prevBtn?.addEventListener("click", () => {
-  if (currentIndex > 0) {
-    setSlide(currentIndex - 1);
+const readDemoData = () => {
+  try {
+    return JSON.parse(chartData.textContent);
+  } catch (error) {
+    return null;
   }
-});
+};
 
-nextBtn?.addEventListener("click", () => {
-  if (currentIndex < slideOrder.length - 1) {
-    setSlide(currentIndex + 1);
-  }
-});
+const token = (name) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-document.addEventListener("keydown", (event) => {
-  if (!modal.classList.contains("open")) {
-    return;
-  }
+const drawChart = () => {
+  if (!chartCanvas || !chartData || typeof Chart === "undefined" || demoChart) return;
 
-  if (event.key === "Escape") {
-    closeModal();
-  }
-  if (event.key === "ArrowLeft" && currentIndex > 0) {
-    setSlide(currentIndex - 1);
-  }
-  if (event.key === "ArrowRight" && currentIndex < slideOrder.length - 1) {
-    setSlide(currentIndex + 1);
-  }
-});
+  const data = readDemoData();
+  if (!data) return;
+
+  const accent = token("--accent");
+  const ink = token("--ink-2");
+  const grid = token("--line-soft");
+  const surface = token("--surface");
+  const unitLabel = chartCanvas.dataset.unitLabel || "";
+
+  demoChart = new Chart(chartCanvas.getContext("2d"), {
+    type: "line",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: `Glucose (${unitLabel})`,
+          data: data.values,
+          borderColor: accent,
+          backgroundColor: token("--accent-soft"),
+          tension: 0.3,
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: accent,
+          pointBorderColor: surface,
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: reducedMotion ? false : { duration: 900 },
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: ink, boxWidth: 12, boxHeight: 12, padding: 12 },
+        },
+        tooltip: {
+          backgroundColor: token("--ink"),
+          titleColor: token("--paper"),
+          bodyColor: token("--paper"),
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { color: token("--ink-3"), font: { size: 11 } },
+          grid: { color: grid },
+          border: { display: false },
+        },
+        x: {
+          ticks: { color: token("--ink-3"), font: { size: 11 } },
+          grid: { display: false },
+          border: { color: grid },
+        },
+      },
+    },
+  });
+};
+
+/* Recolour the existing chart rather than rebuilding it: a fresh Chart on the
+   same canvas re-measures a box the previous one already sized, which made the
+   preview grow on every theme switch. */
+const repaintChart = () => {
+  if (!demoChart) return;
+
+  const accent = token("--accent");
+  const dataset = demoChart.data.datasets[0];
+
+  dataset.borderColor = accent;
+  dataset.backgroundColor = token("--accent-soft");
+  dataset.pointBackgroundColor = accent;
+  dataset.pointBorderColor = token("--surface");
+
+  demoChart.options.plugins.legend.labels.color = token("--ink-2");
+  demoChart.options.plugins.tooltip.backgroundColor = token("--ink");
+  demoChart.options.plugins.tooltip.titleColor = token("--paper");
+  demoChart.options.plugins.tooltip.bodyColor = token("--paper");
+  demoChart.options.scales.y.ticks.color = token("--ink-3");
+  demoChart.options.scales.y.grid.color = token("--line-soft");
+  demoChart.options.scales.x.ticks.color = token("--ink-3");
+  demoChart.options.scales.x.border.color = token("--line-soft");
+
+  demoChart.update("none");
+};
+
+if (document.readyState === "complete") {
+  drawChart();
+} else {
+  window.addEventListener("load", drawChart, { once: true });
+}
+
+document.addEventListener("themechange", repaintChart);

@@ -1,103 +1,115 @@
-document.addEventListener("DOMContentLoaded", () => {
+/* Glucose trend chart.
+
+   Colours come from the theme tokens rather than fixed hex values, so the
+   chart follows the light/dark switch (main/js/theme.js fires themechange). */
+
+(function () {
   const canvas = document.getElementById("glucoseChart");
-  if (!canvas || typeof Chart === "undefined") {
-    return;
-  }
+  if (!canvas) return;
 
-  let labels = [];
-  let values = [];
-  try {
-    labels = JSON.parse(document.getElementById("glucose-labels").textContent);
-    values = JSON.parse(document.getElementById("glucose-values").textContent);
-  } catch (error) {
-    labels = [];
-    values = [];
-  }
-  const unitLabel = canvas.dataset.unitLabel || "";
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const token = (name) =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-  const ctx = canvas.getContext("2d");
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: `Glucose (${unitLabel})`,
-          data: values,
-          borderColor: "#00a896",
-          backgroundColor: "rgba(0, 168, 150, 0.14)",
-          tension: 0.3,
-          fill: true,
-          pointRadius: 4,
-          pointBackgroundColor: "#00a896",
-          pointBorderColor: "#ffffff",
-          pointBorderWidth: 2,
-          pointHoverRadius: 6,
-          pointHoverBackgroundColor: "#028090",
-          pointHoverBorderColor: "#ffffff",
-          pointHoverBorderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          display: true,
-          labels: {
-            color: "#16324f",
-            font: {
-              size: 14,
-              family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-            },
-            padding: 15,
+  const readJSON = (id) => {
+    try {
+      return JSON.parse(document.getElementById(id).textContent);
+    } catch (error) {
+      return [];
+    }
+  };
+
+  let chart = null;
+
+  const draw = () => {
+    if (typeof Chart === "undefined" || chart) return;
+
+    const labels = readJSON("glucose-labels");
+    const values = readJSON("glucose-values");
+    const unitLabel = canvas.dataset.unitLabel || "";
+    const accent = token("--accent");
+    const grid = token("--line-soft");
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: `Glucose (${unitLabel})`,
+            data: values,
+            borderColor: accent,
+            backgroundColor: token("--accent-soft"),
+            tension: 0.3,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointBackgroundColor: accent,
+            pointBorderColor: token("--surface"),
+            pointBorderWidth: 2,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: reducedMotion ? false : { duration: 900 },
+        plugins: {
+          legend: {
+            display: true,
+            labels: { color: token("--ink-2"), boxWidth: 12, boxHeight: 12, padding: 14 },
+          },
+          tooltip: {
+            backgroundColor: token("--ink"),
+            titleColor: token("--paper"),
+            bodyColor: token("--paper"),
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: false,
           },
         },
-        tooltip: {
-          backgroundColor: "#16324f",
-          titleColor: "#ffffff",
-          bodyColor: "#ffffff",
-          padding: 12,
-          cornerRadius: 6,
-          titleFont: {
-            size: 14,
-            weight: "bold",
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: { color: token("--ink-3") },
+            grid: { color: grid },
+            border: { display: false },
           },
-          bodyFont: {
-            size: 13,
+          x: {
+            ticks: { color: token("--ink-3") },
+            grid: { display: false },
+            border: { color: grid },
           },
         },
       },
-      scales: {
-        y: {
-          beginAtZero: false,
-          ticks: {
-            color: "#46627a",
-            font: {
-              size: 12,
-            },
-          },
-          grid: {
-            color: "#e2f5f2",
-            borderColor: "#c5e9e6",
-            borderWidth: 1,
-          },
-        },
-        x: {
-          ticks: {
-            color: "#46627a",
-            font: {
-              size: 12,
-            },
-          },
-          grid: {
-            color: "#e2f5f2",
-            borderColor: "#c5e9e6",
-            borderWidth: 1,
-          },
-        },
-      },
-    },
-  });
-});
+    });
+  };
+
+  const repaint = () => {
+    if (!chart) return;
+    const accent = token("--accent");
+    const dataset = chart.data.datasets[0];
+
+    dataset.borderColor = accent;
+    dataset.backgroundColor = token("--accent-soft");
+    dataset.pointBackgroundColor = accent;
+    dataset.pointBorderColor = token("--surface");
+
+    chart.options.plugins.legend.labels.color = token("--ink-2");
+    chart.options.plugins.tooltip.backgroundColor = token("--ink");
+    chart.options.plugins.tooltip.titleColor = token("--paper");
+    chart.options.plugins.tooltip.bodyColor = token("--paper");
+    chart.options.scales.y.ticks.color = token("--ink-3");
+    chart.options.scales.y.grid.color = token("--line-soft");
+    chart.options.scales.x.ticks.color = token("--ink-3");
+    chart.options.scales.x.border.color = token("--line-soft");
+
+    chart.update("none");
+  };
+
+  document.addEventListener("DOMContentLoaded", draw);
+  document.addEventListener("themechange", repaint);
+})();

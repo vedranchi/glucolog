@@ -11,6 +11,7 @@
         GlucoLog - Diabetes Management
       {% endblock %}
     </title>
+    {% include "main/_theme_head.html" %}
     <link rel="stylesheet" href="{% static 'main/css/base.css' %}" />
     {% block extra_css %}
 
@@ -33,12 +34,15 @@
             <div class="top-title">
               {% block nav_title %}GlucoLog{% endblock %}
             </div>
-            <a href="{% url 'user-profile' %}" class="profile-link">
+            <div class="top-actions">
+              {% include "main/_theme_switch.html" %}
+              <a href="{% url 'user-profile' %}" class="profile-link">
               <img class="profile-avatar"
                    src="{% if user.image and user.image.name != 'default.jpg' %}{{ user.image.url }}{% else %}{% static 'main/images/default.jpg' %}{% endif %}"
                    alt="{{ user.username }}" />
-              <span>{{ user.username }}</span>
-            </a>
+                <span>{{ user.username }}</span>
+              </a>
+            </div>
           </header>
     {% endif %}
 
@@ -110,6 +114,7 @@
       </div><!-- app-layout -->
     {% endif %}
 
+    <script src="{% static 'main/js/theme.js' %}" defer></script>
     {% block extra_js %}
 
     {% endblock %}

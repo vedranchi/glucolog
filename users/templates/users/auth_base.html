@@ -1,0 +1,55 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}GlucoLog{% endblock %}</title>
+    <meta name="robots" content="noindex" />
+
+    {% include "main/_theme_head.html" %}
+    <link rel="stylesheet" href="{% static 'users/css/auth.css' %}" />
+  </head>
+
+  <body>
+    <div class="ambience" aria-hidden="true"></div>
+
+    <div class="auth-shell">
+      <header class="topbar">
+        <div class="container topbar-inner">
+          <a class="brand" href="{% url 'glucolog-home' %}">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-name">GlucoLog</span>
+          </a>
+
+          {% include "main/_theme_switch.html" %}
+        </div>
+      </header>
+
+      <main class="auth-main container">
+        <div class="auth-panel">
+          {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          <div class="auth-card">
+            {% block card %}{% endblock %}
+          </div>
+        </div>
+      </main>
+
+      <footer class="auth-footer container">
+        <p>
+          GlucoLog is a tracking tool, not medical advice. Always confirm treatment decisions
+          with your care team.
+        </p>
+      </footer>
+    </div>
+
+    <script src="{% static 'main/js/theme.js' %}" defer></script>
+  </body>
+</html>

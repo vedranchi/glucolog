@@ -11,9 +11,9 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(180deg, #f4f8f9 0%, #f1fbfa 48%, #edf6f2 100%);
-    color: #16324f;
+    font-family: var(--font-sans);
+    background: var(--paper);
+    color: var(--ink);
     line-height: 1.7;
     font-size: 17px;
     min-height: 100vh;
@@ -23,9 +23,9 @@ body {
    Navigation
    =================================== */
 .public-nav {
-    background-color: #ffffff;
+    background-color: var(--surface);
     padding: 1.25rem 2rem;
-    border-bottom: 2px solid #c5e9e6;
+    border-bottom: 2px solid var(--line);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -40,8 +40,8 @@ body {
 
 .sidebar-nav {
     width: 240px;
-    background-color: #ffffff;
-    border-right: 2px solid #c5e9e6;
+    background-color: var(--surface);
+    border-right: 2px solid var(--line);
     padding: 1.5rem 1rem;
     flex-shrink: 0;
 }
@@ -54,18 +54,18 @@ body {
 .top-profile {
     min-height: 70px;
     padding: 1rem 2rem;
-    border-bottom: 2px solid #c5e9e6;
+    border-bottom: 2px solid var(--line);
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    background-color: #ffffff;
+    background-color: var(--surface);
 }
 
 .top-title {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #16324f;
+    color: var(--ink);
 }
 
 .profile-link {
@@ -75,13 +75,13 @@ body {
     padding: 0.3rem 0.5rem;
     border-radius: 999px;
     font-weight: 600;
-    color: #16324f;
+    color: var(--ink);
     text-decoration: none;
 }
 
 .profile-link:hover {
-    background-color: #f1fbfa;
-    color: #16324f;
+    background-color: var(--paper-2);
+    color: var(--ink);
 }
 
 .profile-avatar {
@@ -89,7 +89,7 @@ body {
     height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #c5e9e6;
+    border: 2px solid var(--line);
 }
 
 .nav-left {
@@ -101,7 +101,7 @@ body {
 
 .public-nav a,
 .sidebar-nav a {
-    color: #00a896;
+    color: var(--accent);
     text-decoration: none;
     font-size: 1.0625rem;
     font-weight: 500;
@@ -112,13 +112,13 @@ body {
 
 .public-nav a:hover,
 .sidebar-nav a:hover {
-    color: #16324f;
-    background-color: #f1fbfa;
+    color: var(--ink);
+    background-color: var(--paper-2);
 }
 
 .public-nav a:active,
 .sidebar-nav a:active {
-    background-color: #e6f6f4;
+    background-color: var(--paper-2);
 }
 
 /* ===================================
@@ -147,10 +147,10 @@ main {
 .landing-copy,
 .landing-panel,
 .feature-card {
-    background: #ffffff;
-    border: 1px solid #c5e9e6;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 14px;
-    box-shadow: 0 10px 26px rgba(45, 95, 79, 0.08);
+    box-shadow: var(--shadow-lg);
 }
 
 .landing-copy {
@@ -163,16 +163,16 @@ main {
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #0a9396;
-    background: #e6fbf8;
-    border: 1px solid #c8ede7;
+    color: var(--accent);
+    background: var(--paper-2);
+    border: 1px solid var(--paper-2);
     border-radius: 999px;
     padding: 0.25rem 0.6rem;
     margin-bottom: 0.8rem;
 }
 
 .landing-copy h1 {
-    color: #16324f;
+    color: var(--ink);
     font-size: 2.35rem;
     line-height: 1.25;
     margin-bottom: 1rem;
@@ -180,7 +180,7 @@ main {
 }
 
 .landing-copy p {
-    color: #46627a;
+    color: var(--ink-2);
     font-size: 1.06rem;
     margin-bottom: 1.2rem;
     line-height: 1.75;
@@ -208,7 +208,7 @@ main {
     margin: 0 0 0.8rem;
     font-size: 1.08rem;
     font-weight: 700;
-    color: #16324f;
+    color: var(--ink);
 }
 
 .landing-metrics {
@@ -217,8 +217,8 @@ main {
 }
 
 .metric-item {
-    background: #f6fbf8;
-    border: 1px solid #d9f2ee;
+    background: var(--paper-2);
+    border: 1px solid var(--paper-2);
     border-radius: 10px;
     padding: 0.65rem 0.75rem;
     display: grid;
@@ -226,7 +226,7 @@ main {
 }
 
 .metric-title {
-    color: #46627a;
+    color: var(--ink-2);
     font-size: 0.78rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -234,7 +234,7 @@ main {
 }
 
 .metric-item strong {
-    color: #16324f;
+    color: var(--ink);
     font-size: 0.9rem;
 }
 
@@ -250,14 +250,14 @@ main {
 
 .feature-card h3 {
     margin: 0 0 0.45rem;
-    color: #16324f;
+    color: var(--ink);
     font-size: 1rem;
     font-weight: 700;
 }
 
 .feature-card p {
     margin: 0;
-    color: #46627a;
+    color: var(--ink-2);
     font-size: 0.91rem;
     line-height: 1.6;
 }
@@ -267,38 +267,38 @@ main {
    =================================== */
 .btn-primary {
     display: inline-block;
-    background: linear-gradient(135deg, #19b4ae 0%, #00a896 55%, #178f9a 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 55%, var(--accent-hover) 100%);
+    color: var(--surface);
     padding: 0.875rem 2.25rem;
     border-radius: 3px;
     text-decoration: none;
     font-size: 1.125rem;
     font-weight: 500;
     transition: background-color 0.2s ease;
-    border: 1px solid #028090;
+    border: 1px solid var(--accent-hover);
     cursor: pointer;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #19a7a7 0%, #028090 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
     text-decoration: none;
-    color: #ffffff;
+    color: var(--surface);
 }
 
 .btn-primary:active {
-    background-color: #05668d;
+    background-color: var(--accent-hover);
 }
 
 /* Secondary Button Style */
 .btn-secondary {
-    background-color: #ffffff;
-    color: #46627a;
-    border: 1px solid #b4ddd8;
+    background-color: var(--surface);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
 }
 
 .btn-secondary:hover {
-    background-color: #f1fbfa;
-    color: #16324f;
+    background-color: var(--paper-2);
+    color: var(--ink);
 }
 
 /* ===================================
@@ -307,10 +307,10 @@ main {
 .footer-note {
     margin-top: 0.2rem;
     padding: 1rem 1.2rem;
-    background-color: #f7fcf9;
+    background-color: var(--paper-2);
     border-radius: 12px;
-    border: 1px dashed #cde3d7;
-    color: #46627a;
+    border: 1px dashed var(--line);
+    color: var(--ink-2);
     font-size: 0.92rem;
     line-height: 1.6;
     text-align: center;
@@ -324,38 +324,38 @@ textarea,
 select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #b4ddd8;
+    border: 1px solid var(--line);
     border-radius: 3px;
     font-size: 1.0625rem;
-    color: #16324f;
-    background-color: #ffffff;
+    color: var(--ink);
+    background-color: var(--surface);
     font-family: inherit;
 }
 
 input:hover,
 textarea:hover,
 select:hover {
-    border-color: #8ecfc5;
+    border-color: var(--line);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
     outline: none;
-    border-color: #00a896;
-    box-shadow: 0 0 0 2px rgba(95, 168, 132, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 input::placeholder,
 textarea::placeholder {
-    color: #9fd8cf;
+    color: var(--line);
 }
 
 label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #16324f;
+    color: var(--ink);
     font-size: 1rem;
 }
 
@@ -363,12 +363,12 @@ label {
     margin-bottom: 1.5rem;
 }
 
-button,
+button:not(.theme-switch),
 .btn-submit {
-    background-color: #00a896;
-    color: #ffffff;
+    background-color: var(--accent);
+    color: var(--surface);
     padding: 0.75rem 1.75rem;
-    border: 1px solid #028090;
+    border: 1px solid var(--accent-hover);
     border-radius: 3px;
     font-size: 1.0625rem;
     cursor: pointer;
@@ -377,14 +377,14 @@ button,
     font-family: inherit;
 }
 
-button:hover,
+button:not(.theme-switch):hover,
 .btn-submit:hover {
-    background-color: #028090;
+    background-color: var(--accent-hover);
 }
 
-button:active,
+button:not(.theme-switch):active,
 .btn-submit:active {
-    background-color: #05668d;
+    background-color: var(--accent-hover);
 }
 
 /* ===================================
@@ -422,39 +422,39 @@ button:active,
 }
 
 .message.success {
-    border-color: #00a896;
-    background: #e8f5e9;
-    color: #2e7d32;
+    border-color: var(--accent);
+    background: var(--range-soft);
+    color: var(--range);
 }
 
 .message.error {
-    border-color: #e57373;
-    background: #ffebee;
-    color: #c62828;
+    border-color: var(--danger);
+    background: var(--danger-soft);
+    color: var(--danger);
 }
 
 .message.warning {
-    border-color: #ffb74d;
-    background: #fff3e0;
-    color: #e65100;
+    border-color: var(--warn);
+    background: var(--warn-soft);
+    color: var(--warn);
 }
 
 .message.info {
-    border-color: #64b5f6;
-    background: #e3f2fd;
-    color: #1565c0;
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
 }
 
 /* ===================================
    Links
    =================================== */
 a {
-    color: #00a896;
+    color: var(--accent);
     transition: color 0.2s ease;
 }
 
 a:hover {
-    color: #028090;
+    color: var(--accent-hover);
 }
 
 /* ===================================
@@ -513,7 +513,7 @@ a:hover {
     .sidebar-nav {
         width: 100%;
         border-right: none;
-        border-bottom: 2px solid #c5e9e6;
+        border-bottom: 2px solid var(--line);
         padding: 1rem;
     }
 
@@ -551,4 +551,88 @@ a:hover {
         width: 32px;
         height: 32px;
     }
+}
+
+/* ===================================
+   Theme bridge
+   base.css loads after Bootstrap 4, so these rules pull the components the
+   app still borrows from Bootstrap (and crispy forms) onto the theme tokens.
+   Without them a dark page would keep painting white fields and cards.
+   =================================== */
+.top-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-control,
+.form-select,
+.custom-select,
+select,
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"] {
+    color: var(--ink);
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+}
+
+.form-control:focus,
+.form-select:focus,
+select:focus,
+textarea:focus {
+    color: var(--ink);
+    background-color: var(--surface);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-control::placeholder {
+    color: var(--ink-3);
+}
+
+.form-label,
+label {
+    color: var(--ink);
+}
+
+.form-text,
+.helptext,
+small {
+    color: var(--ink-2);
+}
+
+.card,
+.list-group-item {
+    color: var(--ink);
+    background-color: var(--surface);
+    border-color: var(--line);
+}
+
+.table {
+    color: var(--ink);
+}
+
+.table th,
+.table td {
+    border-color: var(--line);
+}
+
+.alert {
+    color: var(--ink);
+    background-color: var(--paper-2);
+    border-color: var(--line);
+}
+
+.invalid-feedback,
+.errorlist {
+    color: var(--danger);
+}
+
+.asteriskField {
+    color: var(--danger);
 }
