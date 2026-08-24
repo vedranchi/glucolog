@@ -2,11 +2,16 @@
 
 * **Goal:** A modern, user-friendly web app for diabetes management — glucose and insulin
   tracking plus rough meal/macro tracking.
-* **Project aims:** learning vehicle, a genuinely deployable app (planned Oracle Always
+* **Project aims:** learning vehicle, a genuinely deployable app (live on an Oracle Always
   Free ARM host), and a portfolio piece. Favor correctness and clear, readable code.
 * **Tech stack:** Python, Django 5.2, PostgreSQL, WhiteNoise, env-driven SMTP email
   (Gmail in prod, console backend in dev; anymail still installed for a later Resend swap),
   gunicorn, Docker, Caddy. Server-rendered templates — no client-side framework, no `fetch`.
+* **Shape — one deployable, decided 2026-08-24.** Everything ships as a single Django
+  app on the Oracle VM: the public landing page, the authenticated product, and the admin,
+  all behind one Caddy instance at one domain. An earlier plan to split the marketing page
+  into a standalone Next.js site on Vercel was **reversed** — don't reintroduce a separate
+  frontend, a second host, or `NEXT_PUBLIC_*` wiring.
 * **Virtualenv:** use `./env/bin/python` (e.g. `./env/bin/python manage.py check`).
 
 ## 1. Apps (where things live)
@@ -15,8 +20,9 @@
 * `logs` — the core: `GlucoseLog`, `InsulinLog`, `MealLog`, plus their log/add/edit/delete views.
 * `dashboard` — post-login summary screen + glucose chart. Hosts the signup signal.
 * `main` — shared `base.html`, the `home()` redirect, and `NoCacheMiddleware`.
-* `landing` — public marketing page rendered by `home()`. **Legacy:** superseded by a
-  separate Next.js site and slated for removal — don't invest here.
+* `landing` — the public marketing page rendered by `home()` for anonymous visitors.
+  **Part of the product**, not a stopgap: Glucolog ships as one Django deployment, so the
+  landing page lives here and is styled with the same shared theme tokens as the app.
 * `core` — settings/urls/wsgi.
 
 ## 2. Domain invariants — do not break these
@@ -55,8 +61,9 @@ Merged to `dev`: #25 (SECURE_* from env), #26 (validation/ordering + test discov
 isolation tests), #33 (verified backups + restore drill), #34 (PHI stripped from `__str__`,
 `LOGGING`/`ADMINS`), #35 (db healthcheck gate, capped logs, pinned deps).
 
-* **To discard:** the ~1,400-line `landing/*` redesign sitting in the working tree — that
-  app is being removed anyway.
+* **Design refresh (PR #37, open against `dev`):** one shared token layer
+  (`main/static/main/css/theme.css`) plus a light/dark switch, with the landing, auth,
+  dashboard and log screens rebuilt on top of it.
 * **`main` is stale** — 46 commits behind `dev` as of this date. Deploy `dev`.
 
 **Deploy gotcha, learned the hard way:** Compose interpolates `$` in `.env`, so a
