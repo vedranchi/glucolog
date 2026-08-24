@@ -105,7 +105,8 @@ alias dcp='docker compose -f docker-compose.yml -f docker-compose.prod.yml'
 - Upload a profile picture → shows from `/media/…`, and survives `dcp restart web`.
 - `https://<domain>/admin/` loads and is styled; superuser logs in.
 - Trigger a password reset → email arrives (confirms `email.env`).
-- Set `NEXT_PUBLIC_APP_URL=https://<domain>` in Vercel + redeploy → landing CTAs reach the app.
+- `/` (the landing page) renders styled, and its sign-in / create-account CTAs land on
+  `/users/login/` and `/users/register/` on this same domain.
 - `dcp down && dcp up -d` → DB rows and uploaded media persist (named volumes).
 - Run `./deploy/backup.sh`, then restore it with `--into glucolog_drill` and confirm the row
   counts match. An untested backup is not a backup.
