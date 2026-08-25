@@ -304,7 +304,9 @@ def add_glucose(request, pk=None):
                 if value < Decimal("20") or value > Decimal("700"):
                     error = "Too high/low for mg/dL. Check if unit preference is correct"
                 else:
-                    mmol_value = (value / Decimal("18")).quantize(Decimal("0.1"))
+                    mmol_value = (value / Decimal(MMOL_TO_MGDL)).quantize(
+                        Decimal("0.01")
+                    )
 
         if not error:
             if glucose:

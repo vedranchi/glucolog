@@ -102,15 +102,16 @@ class UnitConversionTest(TestCase):
             reverse("add-glucose"), {"value": "100", "context": "fasting"}
         )
         log = GlucoseLog.objects.get(user=self.user)
-        # 100 / 18 = 5.55... quantised to one decimal place
-        self.assertEqual(log.value, Decimal("5.6"))
+        # 100 / 18 = 5.5555... quantised to two decimal places
+        self.assertEqual(log.value, Decimal("5.56"))
 
     def test_mgdl_user_sees_mgdl_on_the_log_page(self):
-        GlucoseLog.objects.create(user=self.user, value=Decimal("5.6"))
+        GlucoseLog.objects.create(user=self.user, value=Decimal("5.56"))
         response = self.client.get(reverse("log-glucose"))
         self.assertEqual(response.context["unit_label"], "mg/dL")
-        # 5.6 * 18 — the documented round-trip drift from storing 1 decimal
-        self.assertEqual(response.context["current_glucose_value"], 100.8)
+        # 5.56 * 18 — the documented round-trip drift from storing 2 decimals,
+        # tightened from the old 1-decimal-place drift (100 -> 100.8)
+        self.assertEqual(response.context["current_glucose_value"], 100.1)
 
     def test_mmol_user_sees_the_stored_value_untouched(self):
         other = User.objects.create_user(

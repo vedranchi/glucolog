@@ -35,8 +35,10 @@ class GlucoseLog(models.Model):
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    # value is always stored in mmol/L; convert on read for mg/dL users
-    value = models.DecimalField(max_digits=4, decimal_places=1)
+    # value is always stored in mmol/L; convert on read for mg/dL users.
+    # decimal_places=2 (not 1) to keep the mg/dL round-trip drift small —
+    # mmol/L and mg/dL never convert exactly, so some drift is inherent.
+    value = models.DecimalField(max_digits=5, decimal_places=2)
     note = models.CharField(max_length=255, blank=True, null=True)
     context = models.CharField(max_length=20, choices=CONTEXT, default="other")
     measured_at = models.DateTimeField(default=timezone.now)
