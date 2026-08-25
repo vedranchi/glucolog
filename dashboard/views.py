@@ -6,9 +6,7 @@ from django.urls import reverse
 from datetime import datetime, timedelta
 
 from users.services import get_user_preferences
-
-# standard conversion factor between mmol/L and mg/dL
-MMOL_TO_MGDL = 18
+from logs.conversions import MMOL_TO_MGDL
 
 
 @login_required

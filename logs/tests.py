@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
 from django.urls import reverse
 from logs.models import GlucoseLog, InsulinLog, MealLog
+from logs.conversions import MMOL_QUANTUM, MMOL_TO_MGDL, mgdl_to_mmol
 from users.models import UserPreferences
 from django.utils import timezone
 from datetime import timedelta
@@ -102,16 +103,40 @@ class UnitConversionTest(TestCase):
             reverse("add-glucose"), {"value": "100", "context": "fasting"}
         )
         log = GlucoseLog.objects.get(user=self.user)
-        # 100 / 18 = 5.5555... quantised to two decimal places
-        self.assertEqual(log.value, Decimal("5.56"))
+        # 100 / 18 = 5.5555... quantised to three decimal places
+        self.assertEqual(log.value, Decimal("5.556"))
 
     def test_mgdl_user_sees_mgdl_on_the_log_page(self):
-        GlucoseLog.objects.create(user=self.user, value=Decimal("5.56"))
+        GlucoseLog.objects.create(user=self.user, value=Decimal("5.556"))
         response = self.client.get(reverse("log-glucose"))
         self.assertEqual(response.context["unit_label"], "mg/dL")
-        # 5.56 * 18 — the documented round-trip drift from storing 2 decimals,
-        # tightened from the old 1-decimal-place drift (100 -> 100.8)
-        self.assertEqual(response.context["current_glucose_value"], 100.1)
+        # 5.556 * 18 = 100.008 -> 100.0. What was entered as 100 mg/dL comes
+        # back as 100 mg/dL; at 1 decimal place this read 100.8.
+        self.assertEqual(response.context["current_glucose_value"], 100.0)
+
+    def test_every_accepted_mgdl_value_round_trips_exactly(self):
+        """Storing in mmol/L must not perturb what a mg/dL user typed.
+
+        The two units share no common grid, so the stored precision has to be
+        fine enough that quantising and converting back lands on the original.
+        Sweeping the whole accepted range is what pins that: spot-checking
+        passes at 2 decimal places too, where 44% of values are actually off.
+        Fails if GlucoseLog.value.decimal_places and MMOL_QUANTUM drift apart.
+        """
+        for mgdl in range(20, 701):
+            stored = mgdl_to_mmol(Decimal(mgdl))
+            displayed = round(float(stored) * MMOL_TO_MGDL, 1)
+            self.assertEqual(
+                displayed, float(mgdl), f"{mgdl} mg/dL -> {stored} -> {displayed}"
+            )
+
+    def test_stored_precision_matches_the_quantum(self):
+        """MMOL_QUANTUM is only correct if the column can actually hold it."""
+        field = GlucoseLog._meta.get_field("value")
+        self.assertEqual(
+            Decimal(1).scaleb(-field.decimal_places).normalize(),
+            MMOL_QUANTUM.normalize(),
+        )
 
     def test_mmol_user_sees_the_stored_value_untouched(self):
         other = User.objects.create_user(
