@@ -16,6 +16,7 @@ cd /opt/glucolog
 COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.prod.yml)
 BRANCH="${GLUCOLOG_BRANCH:-dev}"
 IMAGE="ghcr.io/vedranchi/glucolog:${GLUCOLOG_TAG:-dev}"
+CONTAINER="glucolog_web"
 
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 
@@ -39,15 +40,23 @@ if [ "$config_before" != "$config_after" ]; then
 fi
 
 # --- image: whatever CI last published ------------------------------------
-image_before="$(docker image inspect "$IMAGE" --format '{{.Id}}' 2>/dev/null || echo none)"
 if ! "${COMPOSE[@]}" pull --quiet web; then
     log "ERROR: could not pull $IMAGE — leaving the running app alone."
     exit 1
 fi
-image_after="$(docker image inspect "$IMAGE" --format '{{.Id}}')"
 
-if [ "$image_before" != "$image_after" ]; then
-    log "new image: ${image_before#sha256:} -> ${image_after#sha256:}"
+# Compare what the container is actually running against what we intend to run,
+# rather than whether this particular pull changed anything. Those two answers
+# differ whenever the image moved by some route other than this script: someone
+# pulled by hand, the container was recreated from a stale local build, or the
+# compose image reference itself changed. A pull-diff check calls every one of
+# those "no change" and leaves production on the wrong image indefinitely.
+# Converging on desired state is self-healing and costs one extra inspect.
+running="$(docker inspect "$CONTAINER" --format '{{.Image}}' 2>/dev/null || echo none)"
+desired="$(docker image inspect "$IMAGE" --format '{{.Id}}')"
+
+if [ "$running" != "$desired" ]; then
+    log "image drift: running ${running#sha256:}, want ${desired#sha256:}"
     changed=1
 fi
 
