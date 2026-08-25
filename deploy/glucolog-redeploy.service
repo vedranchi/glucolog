@@ -1,0 +1,15 @@
+[Unit]
+Description=Redeploy Glucolog when CI publishes a new image
+Documentation=file:///opt/glucolog/deploy/README.md
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/opt/glucolog
+ExecStart=/opt/glucolog/deploy/redeploy.sh
+# The script exits 0 and silent when nothing changed, so any output in the
+# journal is a real deploy or a real failure.
+StandardOutput=journal
+StandardError=journal

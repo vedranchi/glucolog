@@ -3,7 +3,7 @@
 * **Goal:** A modern, user-friendly web app for diabetes management — glucose and insulin
   tracking plus rough meal/macro tracking.
 * **Project aims:** learning vehicle, a genuinely deployable app (live on an Oracle Always
-  Free ARM host), and a portfolio piece. Favor correctness and clear, readable code.
+  Free VM), and a portfolio piece. Favor correctness and clear, readable code.
 * **Tech stack:** Python, Django 5.2, PostgreSQL, WhiteNoise, env-driven SMTP email
   (Gmail in prod, console backend in dev; anymail still installed for a later Resend swap),
   gunicorn, Docker, Caddy. Server-rendered templates — no client-side framework, no `fetch`.
@@ -45,15 +45,34 @@ docker compose up -d db                  # Postgres on 127.0.0.1:5433 — REQUIR
 ./env/bin/python manage.py runserver
 ```
 
-> **`manage.py test` should find 44 tests, all passing** (verified 2026-08-23 on `dev`).
+> **`manage.py test` should find 44 tests, all passing** (verified 2026-08-25 on `dev`).
 > If the count drops, suspect test discovery before assuming tests were deleted — every app
 > needs an `__init__.py`, and `logs/` silently lost its own once, which hid the whole
 > core-domain suite from a green run.
 
-## 4. Current state — perishable, dated 2026-08-23
+CI runs that same suite under `DEBUG=False` (`.github/workflows/ci.yml`). To reproduce it
+locally, run `collectstatic` **first**: with `DEBUG=False` the WhiteNoise manifest storage
+raises `Missing staticfiles manifest entry` for every `{% static %}` tag until it has,
+erroring 27 of the 44 tests. Ordinary local runs pass only because `staticfiles/` is
+already populated — a clean checkout is not so lucky.
+
+## 4. Current state — perishable, dated 2026-08-25
 **Live in production** at `https://glucolog.duckdns.org` — first deploy 2026-08-23 on the
-Oracle Ampere VM, running `dev`. Caddy holds a valid Let's Encrypt cert, all three
-containers are healthy, and the security headers verify on the wire.
+Oracle VM, running `dev`. Caddy holds a valid Let's Encrypt cert, all three containers are
+healthy, and the security headers verify on the wire.
+
+**The VM is `VM.Standard.E2.1.Micro` — x86_64, 2 cores, 956 MiB RAM.** *Not* the Ampere A1
+arm64 box this file and `deploy/README.md` both claimed until 2026-08-25. It now carries a
+2 GB swapfile; before that it had none, with ~630 MiB of its 956 MiB already resident in
+the three containers.
+
+**Deploying is automatic — merging to `dev` ships.** Actions runs the tests, builds the
+image, pushes it to `ghcr.io/vedranchi/glucolog:dev`; a systemd timer on the VM
+(`deploy/redeploy.sh`, every 3 min) pulls and restarts `web` only when the digest changed.
+**Never build the image on the VM.** It takes ~7m40s there and is IO-bound, not
+network-bound — `mkdir && chown` on two empty dirs costs 32s while PyPI streams at
+12 MB/s. The long silence reads as a hang, and an abandoned build leaves the *old
+container running*: exactly how #37's design refresh sat merged-but-undeployed for a day.
 
 Merged to `dev`: #25 (SECURE_* from env), #26 (validation/ordering + test discovery),
 #27 (Oracle deploy stack), #28 (NaN/Infinity rejected), #29 (JWT endpoints removed),
@@ -61,9 +80,9 @@ Merged to `dev`: #25 (SECURE_* from env), #26 (validation/ordering + test discov
 isolation tests), #33 (verified backups + restore drill), #34 (PHI stripped from `__str__`,
 `LOGGING`/`ADMINS`), #35 (db healthcheck gate, capped logs, pinned deps).
 
-* **Design refresh (PR #37, open against `dev`):** one shared token layer
+* **Design refresh (#37, merged):** one shared token layer
   (`main/static/main/css/theme.css`) plus a light/dark switch, with the landing, auth,
-  dashboard and log screens rebuilt on top of it.
+  dashboard and log screens rebuilt on top of it. **Live since 2026-08-25.**
 * **`main` is stale** — 46 commits behind `dev` as of this date. Deploy `dev`.
 
 **Deploy gotcha, learned the hard way:** Compose interpolates `$` in `.env`, so a
