@@ -1,0 +1,14 @@
+[Unit]
+Description=Poll GHCR for a new Glucolog image
+Documentation=file:///opt/glucolog/deploy/README.md
+
+[Timer]
+# Give docker time to bring the stack up first.
+OnBootSec=3min
+OnUnitActiveSec=3min
+# Avoid every reboot hitting GHCR at the same instant.
+RandomizedDelaySec=30s
+Unit=glucolog-redeploy.service
+
+[Install]
+WantedBy=timers.target

@@ -22,6 +22,9 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 | `deploy/backup.sh` | verified `pg_dump` + rotation (cron) |
 | `deploy/restore.sh` | restore a dump; `--into` for a non-destructive drill |
 | `deploy/duckdns.sh` | optional dynamic-DNS updater |
+| `deploy/redeploy.sh` | pull-based deploy: GHCR image + config, restart only on change |
+| `deploy/glucolog-redeploy.{service,timer}` | systemd units that run it every 3 min |
+| `.github/workflows/ci.yml` | tests every change; builds + publishes the image from `dev` |
 
 > **Prerequisite:** the prod-security settings in `core/settings.py` must be committed
 > and present on the branch you deploy. The VM pulls from git.
@@ -30,8 +33,20 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 
 ## One-time VM setup
 
-1. **Instance** — Oracle Ampere A1 (arm64), Ubuntu 22.04/24.04. Note the public IP and
-   **reserve it** (Networking → Reserved public IPs) so it survives stop/start.
+1. **Instance** — the live VM is `VM.Standard.E2.1.Micro`: **x86_64, 2 cores, 956 MiB
+   RAM, no swap**, Ubuntu. (Earlier revisions of this file said "Ampere A1 (arm64)" —
+   that was wrong, and it matters: 1 GB of RAM is why images are built in CI and not
+   here.) Note the public IP and **reserve it** (Networking → Reserved public IPs) so it
+   survives stop/start.
+
+   Add swap — with 956 MiB total and ~630 MiB resident in the three containers, the box
+   has no headroom:
+   ```bash
+   sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+   sudo mkswap /swapfile && sudo swapon /swapfile
+   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+   sudo sysctl -w vm.swappiness=10   # swap as a safety net, not a habit
+   ```
 
 2. **Open the ports (VCN ingress)** — Networking → your VCN → Security List → add
    ingress rules: TCP **80** and TCP **443** from `0.0.0.0/0` (22 already exists).
@@ -77,10 +92,11 @@ nano .env
 cp deploy/email.env.example email.env
 nano email.env               # SMTP host/user + Gmail App Password
 
-# 8. Build & launch. `web` waits for Postgres to pass its healthcheck before
-#    starting, so the boot-time migrate cannot race the database. First build on
-#    a 1-OCPU Ampere is slow — several minutes is normal.
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# 8. Launch. Pulls the image CI published to GHCR — no build happens here.
+#    `web` waits for Postgres to pass its healthcheck before starting, so the
+#    boot-time migrate cannot race the database.
+docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f caddy   # watch cert issuance
 
 # 9. Create an admin user
@@ -195,7 +211,66 @@ Mail goes out over the same SMTP as password reset, so it only works once
 > add `--log-opt max-size=10m --log-opt max-file=3` to the daemon config, or a
 > `logging:` block per service in the compose file.
 
-## Update / redeploy
+## Update / redeploy — automatic
+
+**Merging to `dev` deploys.** `.github/workflows/ci.yml` runs the test suite, and on
+`dev` builds the image and pushes it to `ghcr.io/vedranchi/glucolog:dev`. A systemd
+timer on the VM polls every 3 minutes and restarts `web` only when the image digest or
+the compose config actually changed.
+
+Nothing inbound is opened and no VM SSH key lives in GitHub Secrets — the VM pulls, CI
+never pushes to it.
+
+```
+push to dev ─▶ Actions: test ─▶ build ─▶ GHCR:dev
+                                           │
+                       glucolog-redeploy.timer (VM, every 3 min)
+                                           │
+                       digest changed? ─yes─▶ compose up -d web
+```
+
+### Why the VM does not build
+
+A full `docker build` on this box takes **~7m40s**, and it is IO-bound, not
+network-bound: PyPI pulls at 12 MB/s, but `mkdir && chown` on two empty directories
+takes 32 seconds and exporting the image layer takes 84. It runs alongside the live
+Postgres in 956 MiB of RAM. It *does* finish — but the long silent stretch during the
+wheel downloads reads as a hang, and an abandoned build leaves the **old container
+still running**, which is how a merged UI change can sit undeployed for days. CI builds
+it on a 4-core runner instead; the VM's share of a deploy is now a ~100 MB pull.
+
+### Install the timer (one-time)
+
+```bash
+sudo cp /opt/glucolog/deploy/glucolog-redeploy.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now glucolog-redeploy.timer
+systemctl list-timers glucolog-redeploy   # confirm it is scheduled
+```
+
+The GHCR package must be **public** for the unauthenticated pull to work. After the
+first CI run, set it at
+`github.com/users/vedranchi/packages/container/glucolog/settings` → Change visibility →
+Public. (The image holds only application code; every secret arrives at runtime through
+`env_file`.) To keep it private instead, log the VM in once with a read-only PAT:
+`echo <PAT> | docker login ghcr.io -u vedranchi --password-stdin`.
+
+### Watching and forcing a deploy
+
+```bash
+journalctl -u glucolog-redeploy -f        # deploy log; silent when nothing changed
+sudo systemctl start glucolog-redeploy    # deploy right now, don't wait for the timer
+/opt/glucolog/deploy/redeploy.sh          # same thing, in the foreground
+```
+
+`redeploy.sh` refuses to act and exits non-zero if the VM checkout has diverged from
+`origin/dev` (it fast-forwards only) or if the image pull fails — in both cases the
+running app is left alone.
+
+### Manual fallback
+
+If GHCR or Actions is unavailable and you must build on the VM, it still works — budget
+about eight minutes and expect the long silences:
 
 ```bash
 cd /opt/glucolog && git pull
