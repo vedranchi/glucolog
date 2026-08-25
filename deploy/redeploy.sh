@@ -37,6 +37,15 @@ config_after="$(git rev-parse HEAD)"
 if [ "$config_before" != "$config_after" ]; then
     log "config updated: ${config_before:0:7} -> ${config_after:0:7}"
     changed=1
+
+    # That pull may have just rewritten *this file*. Bash reads a script lazily
+    # by byte offset, so editing one mid-run can make it resume at the wrong
+    # place and execute garbage. Re-exec so the rest of the deploy runs the
+    # version we actually just fetched. The guard stops it looping.
+    if [ -z "${GLUCOLOG_REEXEC:-}" ]; then
+        log "re-executing $0 after self-update"
+        GLUCOLOG_REEXEC=1 exec "$0" "$@"
+    fi
 fi
 
 # --- image: whatever CI last published ------------------------------------
