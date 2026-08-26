@@ -9,9 +9,7 @@ from users.models import UserPreferences
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
-
-# standard conversion factor between mmol/L and mg/dL
-MMOL_TO_MGDL = 18
+from logs.conversions import MMOL_TO_MGDL, mgdl_to_mmol
 
 
 @login_required
@@ -304,7 +302,7 @@ def add_glucose(request, pk=None):
                 if value < Decimal("20") or value > Decimal("700"):
                     error = "Too high/low for mg/dL. Check if unit preference is correct"
                 else:
-                    mmol_value = (value / Decimal("18")).quantize(Decimal("0.1"))
+                    mmol_value = mgdl_to_mmol(value)
 
         if not error:
             if glucose:
