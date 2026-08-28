@@ -70,17 +70,22 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 5. **DuckDNS** — create the subdomain at duckdns.org and set its IP to the VM's public IP.
    If the IP isn't reserved, install `deploy/duckdns.sh` on a 5-min cron (see the script).
 
+6. **Install rclone** (for the offsite backup push — see Backups below)
+   ```bash
+   sudo apt-get update && sudo apt-get install -y rclone
+   ```
+
 ---
 
 ## Deploy
 
 ```bash
-# 6. Get the code
+# 7. Get the code
 git clone git@github.com:vedranchi/glucolog.git /opt/glucolog
 cd /opt/glucolog
 git checkout <deploy-branch>
 
-# 7. Secrets (never committed)
+# 8. Secrets (never committed)
 cp deploy/env.example .env
 python3 -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
 #   → paste into SECRET_KEY; set ALLOWED_HOSTS / CSRF_TRUSTED_ORIGINS / SITE_DOMAIN to
@@ -92,14 +97,14 @@ nano .env
 cp deploy/email.env.example email.env
 nano email.env               # SMTP host/user + Gmail App Password
 
-# 8. Launch. Pulls the image CI published to GHCR — no build happens here.
+# 9. Launch. Pulls the image CI published to GHCR — no build happens here.
 #    `web` waits for Postgres to pass its healthcheck before starting, so the
 #    boot-time migrate cannot race the database.
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f caddy   # watch cert issuance
 
-# 9. Create an admin user
+# 10. Create an admin user
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec web \
   python manage.py createsuperuser
 ```
