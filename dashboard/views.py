@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Avg, Count, Sum
 from logs.models import GlucoseLog, InsulinLog, MealLog
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -38,25 +39,23 @@ def dashboard(request):
             latest_glucose_value *= MMOL_TO_MGDL
         latest_glucose_value = round(latest_glucose_value, 1)
 
-    avg_glucose = (
-        round(sum(g.value for g in glucose_today) / glucose_today.count(), 1)
-        if glucose_today.exists()
-        else None
-    )
-    if unit_label == "mg/dL" and avg_glucose is not None:
-        avg_glucose = round(avg_glucose * MMOL_TO_MGDL, 1)
+    glucose_stats = glucose_today.aggregate(avg_glucose=Avg("value"), count=Count("id"))
+    avg_glucose = glucose_stats["avg_glucose"]
+    if avg_glucose is not None:
+        if unit_label == "mg/dL":
+            avg_glucose = round(avg_glucose * MMOL_TO_MGDL, 1)
+        else:
+            avg_glucose = round(avg_glucose, 1)
 
+    insulin_stats = insulin_today.aggregate(total_units=Sum("units"), count=Count("id"))
     total_insulin = (
-        round(sum(i.units for i in insulin_today), 1)
-        if insulin_today.exists()
-        else None
+        round(insulin_stats["total_units"], 1) if insulin_stats["count"] else None
     )
 
-    # carbs uses `or 0` because MealLog.carbs is nullable
+    # SUM ignores NULLs, matching the previous `m.carbs or 0` per-row fallback
+    meal_stats = meals_today.aggregate(total_carbs=Sum("carbs"), count=Count("id"))
     carbs_consumed = (
-        round(sum(m.carbs or 0 for m in meals_today), 1)
-        if meals_today.exists()
-        else None
+        round(meal_stats["total_carbs"] or 0, 1) if meal_stats["count"] else None
     )
 
     # build recent activity feed from all three log types, show last 5
@@ -123,9 +122,9 @@ def dashboard(request):
         "total_insulin": total_insulin,
         "carbs_consumed": carbs_consumed,
         "recent_activity": recent_activity,
-        "glucose_count_today": glucose_today.count(),
-        "insulin_count_today": insulin_today.count(),
-        "meal_count_today": meals_today.count(),
+        "glucose_count_today": glucose_stats["count"],
+        "insulin_count_today": insulin_stats["count"],
+        "meal_count_today": meal_stats["count"],
         "latest_glucose": latest_glucose,
         "latest_glucose_value": latest_glucose_value,
         "latest_insulin": latest_insulin,
