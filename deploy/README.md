@@ -70,17 +70,22 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 5. **DuckDNS** — create the subdomain at duckdns.org and set its IP to the VM's public IP.
    If the IP isn't reserved, install `deploy/duckdns.sh` on a 5-min cron (see the script).
 
+6. **Install rclone** (for the offsite backup push — see Backups below)
+   ```bash
+   sudo apt-get update && sudo apt-get install -y rclone
+   ```
+
 ---
 
 ## Deploy
 
 ```bash
-# 6. Get the code
+# 7. Get the code
 git clone git@github.com:vedranchi/glucolog.git /opt/glucolog
 cd /opt/glucolog
 git checkout <deploy-branch>
 
-# 7. Secrets (never committed)
+# 8. Secrets (never committed)
 cp deploy/env.example .env
 python3 -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
 #   → paste into SECRET_KEY; set ALLOWED_HOSTS / CSRF_TRUSTED_ORIGINS / SITE_DOMAIN to
@@ -92,14 +97,14 @@ nano .env
 cp deploy/email.env.example email.env
 nano email.env               # SMTP host/user + Gmail App Password
 
-# 8. Launch. Pulls the image CI published to GHCR — no build happens here.
+# 9. Launch. Pulls the image CI published to GHCR — no build happens here.
 #    `web` waits for Postgres to pass its healthcheck before starting, so the
 #    boot-time migrate cannot race the database.
 docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f caddy   # watch cert issuance
 
-# 9. Create an admin user
+# 10. Create an admin user
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec web \
   python manage.py createsuperuser
 ```
@@ -172,14 +177,49 @@ requires typing the database name to confirm:
 > A backup that has never been restored is not a backup. Run the drill after the
 > first deploy, and again whenever Postgres is upgraded.
 
+### Offsite copy
+
+Cronned `backup.sh` protects against a bad migration or an accidental `DROP` —
+not against losing the VM, since the backups sit on the same instance as the
+database. Two independent offsite copies close that gap:
+
+**Primary — VM pushes to Backblaze B2.** After each verified dump and local
+rotation, `backup.sh` sources `.env.backup` (a gitignored file on the VM,
+never in git — same treatment as `.env`) and runs `rclone copy` to a private
+B2 bucket:
+
+```
+B2_BUCKET=glucolog
+RCLONE_CONFIG_B2GLUCOLOG_TYPE=b2
+RCLONE_CONFIG_B2GLUCOLOG_ACCOUNT=<application key ID>
+RCLONE_CONFIG_B2GLUCOLOG_KEY=<application key>
+```
+
+The application key is scoped to just that bucket (not the master key). The
+bucket has Object Lock on (Governance mode, ~30-day retention), so a leaked
+key or a buggy script can't delete existing backups within that window — it
+can only add new ones. This push is best-effort: if it fails (network, B2
+outage), the job logs a warning and still exits 0, since the verified local
+dump is already safe and rotation must not be skipped over it.
+
+**Secondary — developer machine pulls via rsync.** `deploy/pull_backups.sh`
+`rsync`s `/opt/glucolog/backups/` down to this machine's own gitignored
+`backups/` dir, over the same deploy-key SSH access used to reach the VM.
+Scheduled via `launchd`
+(`~/Library/LaunchAgents/com.glucolog.pullbackups.plist`), daily at 09:00
+local time — only runs while that Mac is on, which is why B2 is the primary
+copy and this is a second, independent one. Run it by hand any time with
+`./deploy/pull_backups.sh`; check `launchctl list | grep glucolog` to confirm
+the job is loaded, and `~/Library/Logs/glucolog-pull-backups.log` for its
+output.
+
 ### Gaps to close
 
-- **Backups sit on the same VM as the database.** They protect against a bad
-  migration, an accidental `DROP`, or corruption — **not** against losing the
-  instance. Copy them off (`scp`, `rclone`) for that.
 - Dumps contain health data. `backups/` is gitignored and excluded from the
-  image; keep it that way, and treat any copy as PHI.
-- Nothing alerts on a failed backup. Until something does, check the log.
+  image; keep it that way, and treat any copy — local, B2, or elsewhere — as
+  PHI.
+- Nothing alerts on a failed backup or a failed offsite push. Until something
+  does, check the log.
 
 ## Logs and error alerts
 
