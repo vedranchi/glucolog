@@ -590,19 +590,25 @@ svg {
     display: inline-flex;
   }
 
+  /* A full-screen drawer, not a small dropdown: at phone widths there isn't
+     room for a card floating over the hero, and a short card left the hero's
+     own "Create account"/"Sign in" buttons visible (and overlapping) right
+     behind it. Fixed to the viewport, below the topbar, with its own scroll,
+     so every item is reachable without the page needing to zoom or scroll. */
   .menu {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: var(--gutter);
-    left: var(--gutter);
+    position: fixed;
+    inset: 68px 0 0 0;
     flex-direction: column;
     align-items: stretch;
     gap: 0.35rem;
-    padding: 0.75rem;
+    margin: 0;
+    padding: 1rem var(--gutter) 1.5rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow-lg);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
     opacity: 0;
     transform: translateY(-8px);
     pointer-events: none;
@@ -613,6 +619,13 @@ svg {
     opacity: 1;
     transform: none;
     pointer-events: auto;
+  }
+
+  /* Stops the page from scrolling behind the open drawer. `:has()` covers
+     modern browsers; `.nav-open` (toggled in script.js) is the fallback. */
+  html:has(#menu.open),
+  html.nav-open {
+    overflow: hidden;
   }
 
   .menu > a:not(.btn) {

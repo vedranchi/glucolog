@@ -13,11 +13,13 @@ if (menuBtn && menu) {
   const closeMenu = () => {
     menu.classList.remove("open");
     menuBtn.setAttribute("aria-expanded", "false");
+    document.documentElement.classList.remove("nav-open");
   };
 
   menuBtn.addEventListener("click", () => {
     const isOpen = menu.classList.toggle("open");
     menuBtn.setAttribute("aria-expanded", String(isOpen));
+    document.documentElement.classList.toggle("nav-open", isOpen);
   });
 
   menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));

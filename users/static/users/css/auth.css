@@ -19,6 +19,7 @@
   align-items: center;
   justify-content: center;
   padding-block: clamp(1.5rem, 5vw, 3.5rem);
+  min-width: 0; /* a grid item otherwise floors at its content's min-content width */
 }
 
 /* the column that holds the messages and the card; a definite width here keeps
