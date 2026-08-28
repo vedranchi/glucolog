@@ -131,6 +131,50 @@ class RateLimitTest(TestCase):
         )
 
 
+class ProfileUpdateTest(TestCase):
+    """The profile page is one <form> covering three model forms at once.
+
+    Regression coverage for the bug where a failing section (e.g. a bad
+    email) saved the other, unrelated sections anyway and reported success —
+    the user's actual edit vanished with no error shown.
+    """
+
+    def setUp(self):
+        cache.clear()
+        self.user = User.objects.create_user(
+            username="profileuser", email="profile@example.com", password="pw12345!"
+        )
+        self.client.login(email="profile@example.com", password="pw12345!")
+
+    def _post(self, **overrides):
+        data = {
+            "username": self.user.username,
+            "email": self.user.email,
+            "glucose_unit": "mmol",
+            "diabetes_type": "type1",
+        }
+        data.update(overrides)
+        return self.client.post(reverse("user-profile"), data)
+
+    def test_valid_edit_saves_every_section(self):
+        response = self._post(username="renamed", glucose_unit="mg/dL")
+        self.assertRedirects(response, reverse("user-profile"))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, "renamed")
+        self.assertEqual(self.user.preferences.glucose_unit, "mg/dL")
+
+    def test_invalid_section_saves_nothing_and_shows_the_error(self):
+        response = self._post(email="not-an-email", glucose_unit="mg/dL")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Enter a valid email address")
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "profile@example.com")
+        # a sibling section that validated fine must not be saved either --
+        # the old code saved it and reported false success
+        self.assertEqual(self.user.preferences.glucose_unit, "mmol")
+
+
 class NoPublicTokenEndpointsTest(TestCase):
     """The JWT endpoints were public, unthrottled and served no API.
 

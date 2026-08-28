@@ -206,3 +206,9 @@
     background: var(--danger-soft);
     color: var(--danger);
 }
+
+.field-error {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.4rem;
+}
