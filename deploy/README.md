@@ -172,11 +172,25 @@ requires typing the database name to confirm:
 > A backup that has never been restored is not a backup. Run the drill after the
 > first deploy, and again whenever Postgres is upgraded.
 
+### Offsite copy
+
+Cronned `backup.sh` protects against a bad migration or an accidental `DROP` —
+not against losing the VM, since the backups sit on the same instance as the
+database. `deploy/pull_backups.sh` closes that gap by `rsync`-ing
+`/opt/glucolog/backups/` down to the developer machine's own (gitignored)
+`backups/` dir, over the same deploy-key SSH access used to reach the VM.
+
+Scheduled via `launchd` (`~/Library/LaunchAgents/com.glucolog.pullbackups.plist`),
+daily at 09:00 local time — only runs while that Mac is on. Run it by hand any
+time with `./deploy/pull_backups.sh`; check `launchctl list | grep glucolog` to
+confirm the job is loaded, and `~/Library/Logs/glucolog-pull-backups.log` for
+its output.
+
 ### Gaps to close
 
-- **Backups sit on the same VM as the database.** They protect against a bad
-  migration, an accidental `DROP`, or corruption — **not** against losing the
-  instance. Copy them off (`scp`, `rclone`) for that.
+- The offsite copy above depends on one developer's laptop being on daily —
+  fine for now, but not a substitute for a real off-site target (e.g. rclone to
+  object storage) if this needs to survive that machine being unavailable too.
 - Dumps contain health data. `backups/` is gitignored and excluded from the
   image; keep it that way, and treat any copy as PHI.
 - Nothing alerts on a failed backup. Until something does, check the log.
