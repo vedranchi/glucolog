@@ -65,3 +65,22 @@ echo "[backup] ok: $TARGET ($SIZE)"
 # Rotation happens only after the new dump has been verified above.
 DELETED="$(find "$BACKUP_DIR" -name 'glucolog-*.sql.gz' -type f -mtime "+$RETENTION_DAYS" -print -delete | wc -l | tr -d ' ')"
 echo "[backup] retention ${RETENTION_DAYS}d: removed $DELETED old backup(s), $(find "$BACKUP_DIR" -name 'glucolog-*.sql.gz' -type f | wc -l | tr -d ' ') remaining"
+
+# Offsite copy — best-effort. .env.backup is optional and gitignored, same as
+# .env; its absence just means no offsite target is configured on this
+# machine yet. A push failure does not fail the job: the local dump above is
+# already verified and safe, so a network hiccup here shouldn't page anyone.
+ENV_BACKUP="$REPO_DIR/.env.backup"
+if [ -f "$ENV_BACKUP" ] && command -v rclone >/dev/null 2>&1; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_BACKUP"
+  set +a
+  if [ -n "${B2_BUCKET:-}" ]; then
+    if rclone copy "$BACKUP_DIR" "b2glucolog:${B2_BUCKET}" >/dev/null 2>&1; then
+      echo "[backup] offsite: synced to B2 bucket $B2_BUCKET"
+    else
+      echo "[backup] WARNING: offsite sync to B2 failed — local backup is still ok" >&2
+    fi
+  fi
+fi

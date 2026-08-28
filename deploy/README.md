@@ -176,24 +176,45 @@ requires typing the database name to confirm:
 
 Cronned `backup.sh` protects against a bad migration or an accidental `DROP` —
 not against losing the VM, since the backups sit on the same instance as the
-database. `deploy/pull_backups.sh` closes that gap by `rsync`-ing
-`/opt/glucolog/backups/` down to the developer machine's own (gitignored)
-`backups/` dir, over the same deploy-key SSH access used to reach the VM.
+database. Two independent offsite copies close that gap:
 
-Scheduled via `launchd` (`~/Library/LaunchAgents/com.glucolog.pullbackups.plist`),
-daily at 09:00 local time — only runs while that Mac is on. Run it by hand any
-time with `./deploy/pull_backups.sh`; check `launchctl list | grep glucolog` to
-confirm the job is loaded, and `~/Library/Logs/glucolog-pull-backups.log` for
-its output.
+**Primary — VM pushes to Backblaze B2.** After each verified dump and local
+rotation, `backup.sh` sources `.env.backup` (a gitignored file on the VM,
+never in git — same treatment as `.env`) and runs `rclone copy` to a private
+B2 bucket:
+
+```
+B2_BUCKET=glucolog
+RCLONE_CONFIG_B2GLUCOLOG_TYPE=b2
+RCLONE_CONFIG_B2GLUCOLOG_ACCOUNT=<application key ID>
+RCLONE_CONFIG_B2GLUCOLOG_KEY=<application key>
+```
+
+The application key is scoped to just that bucket (not the master key). The
+bucket has Object Lock on (Governance mode, ~30-day retention), so a leaked
+key or a buggy script can't delete existing backups within that window — it
+can only add new ones. This push is best-effort: if it fails (network, B2
+outage), the job logs a warning and still exits 0, since the verified local
+dump is already safe and rotation must not be skipped over it.
+
+**Secondary — developer machine pulls via rsync.** `deploy/pull_backups.sh`
+`rsync`s `/opt/glucolog/backups/` down to this machine's own gitignored
+`backups/` dir, over the same deploy-key SSH access used to reach the VM.
+Scheduled via `launchd`
+(`~/Library/LaunchAgents/com.glucolog.pullbackups.plist`), daily at 09:00
+local time — only runs while that Mac is on, which is why B2 is the primary
+copy and this is a second, independent one. Run it by hand any time with
+`./deploy/pull_backups.sh`; check `launchctl list | grep glucolog` to confirm
+the job is loaded, and `~/Library/Logs/glucolog-pull-backups.log` for its
+output.
 
 ### Gaps to close
 
-- The offsite copy above depends on one developer's laptop being on daily —
-  fine for now, but not a substitute for a real off-site target (e.g. rclone to
-  object storage) if this needs to survive that machine being unavailable too.
 - Dumps contain health data. `backups/` is gitignored and excluded from the
-  image; keep it that way, and treat any copy as PHI.
-- Nothing alerts on a failed backup. Until something does, check the log.
+  image; keep it that way, and treat any copy — local, B2, or elsewhere — as
+  PHI.
+- Nothing alerts on a failed backup or a failed offsite push. Until something
+  does, check the log.
 
 ## Logs and error alerts
 
