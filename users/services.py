@@ -15,35 +15,21 @@ def get_health_profile(user):
 
 def handle_profile_form(request):
     if request.method == "POST":
-        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
-        if p_form.is_valid():
-            p_form.save()
-            return p_form, True
-        return p_form, False
-    return ProfileUpdateForm(instance=request.user), False
+        return ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+    return ProfileUpdateForm(instance=request.user)
 
 
 def handle_preferences_form(request):
     prefs, _ = UserPreferences.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = PreferencesForm(request.POST, instance=prefs)
-        if form.is_valid():
-            form.save()
-            return form, True
-        return form, False
-
-    return PreferencesForm(instance=prefs), False
+        return PreferencesForm(request.POST, instance=prefs)
+    return PreferencesForm(instance=prefs)
 
 
 def handle_health_profile_form(request):
     prefs, _ = HealthProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = HealthProfileForm(request.POST, instance=prefs)
-        if form.is_valid():
-            form.save()
-            return form, True
-        return form, False
-
-    return HealthProfileForm(instance=prefs), False
+        return HealthProfileForm(request.POST, instance=prefs)
+    return HealthProfileForm(instance=prefs)

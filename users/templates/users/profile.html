@@ -30,11 +30,20 @@ Account Settings — GlucoLog
             
             <div class="profile-info">
                 <div class="username-container">
-                    <input type="text" class="username-input" name="username" value="{{ user.username }}" placeholder="Username" required>
+                    <input type="text" class="username-input" name="username" value="{{ update_profile_form.username.value|default_if_none:'' }}" placeholder="Username" required>
+                    {% for error in update_profile_form.username.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <input type="email" name="email" value="{{ user.email }}" placeholder="Email address" required id="id_email">
+                    <input type="email" name="email" value="{{ update_profile_form.email.value|default_if_none:'' }}" placeholder="Email address" required id="id_email">
+                    {% for error in update_profile_form.email.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
                 </div>
+                {% for error in update_profile_form.image.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
             </div>
         </div>
 
@@ -46,6 +55,9 @@ Account Settings — GlucoLog
                     {{ preferences_form.glucose_unit.label }}
                 </label>
                 {{ preferences_form.glucose_unit }}
+                {% for error in preferences_form.glucose_unit.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
             </div>
         </div>
 
@@ -57,6 +69,9 @@ Account Settings — GlucoLog
                     {{ health_profile_form.diabetes_type.label }}
                 </label>
                 {{ health_profile_form.diabetes_type }}
+                {% for error in health_profile_form.diabetes_type.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
             </div>
         </div>
 

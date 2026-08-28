@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.views.decorators.http import require_POST
 from django_ratelimit.decorators import ratelimit
 
@@ -56,26 +57,28 @@ def login_view(request):
 
 @login_required
 def user_profile_view(request):
-    profile_form, update_prof = handle_profile_form(request)
-    preferences_form, update_pref = handle_preferences_form(request)
-    health_profile_form, update_health = handle_health_profile_form(request)
+    profile_form = handle_profile_form(request)
+    preferences_form = handle_preferences_form(request)
+    health_profile_form = handle_health_profile_form(request)
 
-    if update_prof:
-        messages.success(request, "Profile updated")
-        return redirect("user-profile")
-
-    if update_pref:
-        messages.success(request, "Preferences updated")
-        return redirect("user-profile")
-
-    if update_health:
-        messages.success(request, "Health profile updated")
-        return redirect("user-profile")
+    if request.method == "POST":
+        forms = (profile_form, preferences_form, health_profile_form)
+        # All three sections live in one <form>, so every submit posts all of
+        # them together. Validate as a unit and save atomically — saving only
+        # the sections that happened to validate silently drops the one that
+        # didn't, with no error shown (the bug this replaced).
+        if all([form.is_valid() for form in forms]):
+            with transaction.atomic():
+                for form in forms:
+                    form.save()
+            messages.success(request, "Profile updated")
+            return redirect("user-profile")
+        messages.error(request, "Please fix the errors below")
 
     context = {
         "preferences_form": preferences_form,
         "health_profile_form": health_profile_form,
-        "update_profile_form": profile_form
+        "update_profile_form": profile_form,
     }
     return render(request, "users/profile.html", context)
 
