@@ -189,3 +189,5 @@ backups/
 # local-only working notes — must never be committed
 HANDOFF.md
 skills-lock.json
+# Committed template; the real .env stays ignored above.
+!.env.example
