@@ -112,26 +112,51 @@ A few decisions worth pointing out to anyone skimming the code:
 
 ## Running locally
 
-Requires Python 3.13+ and Docker.
+### Prerequisites
+
+- **Python 3.13 or newer.** Check with `python3 --version`. Django 5.2 itself needs 3.10+,
+  but CI and the Docker image both run 3.13.
+  > macOS ships Python **3.9** at `/usr/bin/python3`, which is too old. If `python3` points
+  > there, installing dependencies fails with a misleading
+  > `No matching distribution found for Django==5.2.8` — that's the interpreter, not the
+  > network. Install a newer Python (e.g. `brew install python@3.13`) and use it explicitly
+  > in step 1.
+- **Docker**, for the PostgreSQL container.
+
+### Setup
 
 ```bash
-# 1. Config — SECRET_KEY and DATABASE_URL fail fast with no fallback,
-#    so this step is not optional.
-cp .env.example .env
-python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
-# paste the result into SECRET_KEY
+git clone https://github.com/vedranchi/glucolog.git
+cd glucolog
 
-# 2. Dependencies
-python -m venv env
+# 1. Virtualenv. Every later command uses ./env/bin/python, so create this first —
+#    the secret key in step 2 is generated with Django, which lives in here.
+python3 -m venv env
 ./env/bin/pip install -r requirements.txt
 
-# 3. Postgres (required — the dev server and the tests both need it)
+# 2. Config. SECRET_KEY and DATABASE_URL fail fast with no fallback, so this is
+#    not optional. The defaults in .env.example match the db container below.
+cp .env.example .env
+
+#    Generate a key and paste it into SECRET_KEY. The sed pipe doubles any `$`
+#    to `$$` — see the note below for why that matters.
+./env/bin/python -c "from django.core.management.utils import get_random_secret_key as k; print(k())" | sed 's/\$/\$\$/g'
+
+# 3. Postgres, on port 5433
 docker compose up -d db
 
-# 4. Django
+# 4. Migrate and run
 ./env/bin/python manage.py migrate
 ./env/bin/python manage.py runserver
 ```
+
+The app is then at **http://127.0.0.1:8000**.
+
+> **Why the `$` escaping:** Docker Compose interpolates `.env`, so a literal `$` starts a
+> variable reference and everything after it is silently dropped — Compose warns
+> `The "..." variable is not set` and the key it uses differs from the one in the file.
+> Django's key generator uses an alphabet that includes `$`, so roughly two thirds of
+> generated keys are affected. Doubling each `$` to `$$` avoids it.
 
 ### Demo data
 
@@ -143,20 +168,41 @@ including a partial day for today, so the "Today" cards aren't empty:
 ./env/bin/python manage.py seed_demo_data --reset
 ```
 
-Logs in as `demo@glucolog.app` / `Demo1234!`. It refuses to run unless `DEBUG=True`, so it
-can't be pointed at production by accident.
+Then sign in as **`demo@glucolog.app`** / **`Demo1234!`**. The command refuses to run
+unless `DEBUG=True`, so it can't be pointed at production by accident.
+
+For the Django admin at `/admin/`, create your own superuser:
+
+```bash
+./env/bin/python manage.py createsuperuser
+```
 
 ## Testing
 
 ```bash
-docker compose up -d db
+docker compose up -d db                              # tests need the database
+./env/bin/python manage.py collectstatic --noinput   # required — see below
 ./env/bin/python manage.py test
 ```
 
+`collectstatic` is **not optional on a fresh clone.** Django's test runner forces
+`DEBUG=False`, which switches WhiteNoise to its manifest storage; without a built manifest
+every `{% static %}` tag raises `Missing staticfiles manifest entry` and around 30 of the
+50 tests error out. `staticfiles/` is gitignored, so a working copy that has been run
+before passes while a clean checkout does not — run it once and the suite goes green.
+
 CI runs the same suite with `DEBUG=False` on every push and pull request against `dev`.
-To reproduce that locally, run `collectstatic` first — with `DEBUG=False` WhiteNoise's
-manifest storage raises `Missing staticfiles manifest entry` for every `{% static %}` tag
-until it has.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `No matching distribution found for Django==5.2.8` | The venv was built with Python 3.9 (macOS system Python) | Rebuild it with 3.13+: `rm -rf env && python3.13 -m venv env` |
+| `KeyError: 'SECRET_KEY'` | No `.env` file | `cp .env.example .env` and set a key |
+| `connection to server at "127.0.0.1", port 5433 failed: Connection refused` | Postgres isn't running | `docker compose up -d db` |
+| `Missing staticfiles manifest entry for '...'` | No built manifest | `./env/bin/python manage.py collectstatic --noinput` |
+| Compose warns `The "..." variable is not set` | Unescaped `$` in a `.env` value | Double it: `$` → `$$` |
+| `python: command not found` | macOS has no bare `python` | Use `python3`, or `./env/bin/python` once the venv exists |
 
 ## Deployment
 
