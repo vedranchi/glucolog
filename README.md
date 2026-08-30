@@ -164,6 +164,16 @@ Merging to `dev` ships automatically: GitHub Actions tests the change, builds th
 and pushes it to GHCR; a systemd timer on the VM pulls and restarts only when the image
 digest has changed. See [`deploy/README.md`](deploy/README.md) for the full VM runbook.
 
+## How this was built
+
+A large share of the code here was generated with Claude Code, and it seems more useful to
+say so than to leave it implied. What that looks like in practice: the domain rules the
+generated code has to work within — glucose stored only in mmol/L, soft deletes filtered at
+every call site, per-user scoping on every query, no PHI in logs — are written down in
+[`CLAUDE.md`](CLAUDE.md) and enforced by the test suite, so an AI-written change is held to
+the same line as a hand-written one. The architecture, the domain constraints, and the
+decisions about what ships are not generated.
+
 ## Status / known limitations
 
 This is an active learning project as well as a working app, so a few things are
