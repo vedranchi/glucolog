@@ -173,3 +173,11 @@ open by design rather than overlooked:
   a 1-year max-age once that's confirmed.
 - Backups are pulled off-site, but full disaster-recovery drills are ongoing.
 - Some legacy Bootstrap 4/5 class mismatches remain from an earlier theme pass.
+
+## License
+
+[MIT](LICENSE) © Vedran Chichov
+
+Glucolog is a personal project for tracking your own readings. It is not a medical device,
+it gives no clinical advice, and nothing it displays should be used to make treatment
+decisions — talk to your care team instead.
