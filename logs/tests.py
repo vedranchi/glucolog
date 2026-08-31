@@ -688,3 +688,59 @@ class DisplayRoundingTest(TestCase):
         response = self.client.get(reverse("log-glucose"))
         self.assertIsNone(response.context["current_glucose_value"])
         self.assertIsNone(response.context["avg_glucose"])
+
+
+class SeedDemoDataTest(TestCase):
+    """The seeder is how screenshots get taken, so it has to survive a rerun.
+
+    Identity is the email (it is the USERNAME_FIELD), but AbstractUser still
+    carries a unique `username`. The demo address moved with the GlucoRead
+    rename, so any install seeded before it already holds the obvious username
+    under the old address — deriving one blindly turned a re-seed into an
+    IntegrityError on exactly the machines that had used the command before.
+    """
+
+    def _seed(self, **kwargs):
+        """Run the command as a developer would — under DEBUG.
+
+        The test runner forces DEBUG=False, which the command correctly refuses
+        to run under; test_refuses_to_run_outside_debug covers that path.
+        """
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        # The command reports what it seeded on stdout regardless of verbosity;
+        # capture it so it does not interleave with the test runner's output.
+        with self.settings(DEBUG=True):
+            call_command("seed_demo_data", stdout=StringIO(), **kwargs)
+
+    def test_seeds_alongside_a_pre_rename_demo_account(self):
+        User.objects.create_user(
+            username="demo", email="demo@glucolog.app", password="x"
+        )
+        self._seed(email="demo@glucoread.app")
+
+        user = User.objects.get(email="demo@glucoread.app")
+        self.assertNotEqual(user.username, "demo")
+        # the older account is left entirely alone
+        self.assertTrue(User.objects.filter(email="demo@glucolog.app").exists())
+
+    def test_rerun_reuses_the_same_account(self):
+        self._seed(email="demo@glucoread.app")
+        self._seed(email="demo@glucoread.app", reset=True)
+        self.assertEqual(User.objects.filter(email="demo@glucoread.app").count(), 1)
+
+    def test_refuses_to_run_outside_debug(self):
+        """The only thing standing between --reset and a production database."""
+        from io import StringIO
+
+        from django.core.management import CommandError, call_command
+
+        with self.settings(DEBUG=False):
+            with self.assertRaises(CommandError):
+                call_command(
+                    "seed_demo_data",
+                    stdout=StringIO(),
+                    email="demo@glucoread.app",
+                )
