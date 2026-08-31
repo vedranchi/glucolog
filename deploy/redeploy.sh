@@ -22,6 +22,14 @@ log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 
 changed=0
 
+# Survives the re-exec below. Without it the re-executed process starts fresh,
+# re-runs the config check against an already-fast-forwarded checkout, sees no
+# difference, and forgets the config ever moved.
+config_changed="${GLUCOLOG_CONFIG_CHANGED:-0}"
+if [ "$config_changed" -eq 1 ]; then
+    changed=1
+fi
+
 # --- config: compose files, Caddyfile, deploy scripts ---------------------
 # --ff-only so a surprise divergence fails loudly instead of auto-merging on a
 # production host. .env and email.env are gitignored and untouched by this.
@@ -37,6 +45,7 @@ config_after="$(git rev-parse HEAD)"
 if [ "$config_before" != "$config_after" ]; then
     log "config updated: ${config_before:0:7} -> ${config_after:0:7}"
     changed=1
+    config_changed=1
 
     # That pull may have just rewritten *this file*. Bash reads a script lazily
     # by byte offset, so editing one mid-run can make it resume at the wrong
@@ -44,7 +53,7 @@ if [ "$config_before" != "$config_after" ]; then
     # version we actually just fetched. The guard stops it looping.
     if [ -z "${GLUCOLOG_REEXEC:-}" ]; then
         log "re-executing $0 after self-update"
-        GLUCOLOG_REEXEC=1 exec "$0" "$@"
+        GLUCOLOG_REEXEC=1 GLUCOLOG_CONFIG_CHANGED=1 exec "$0" "$@"
     fi
 fi
 
@@ -84,6 +93,27 @@ fi
 # both correct and a no-op for anything unchanged.
 log "redeploying"
 "${COMPOSE[@]}" up -d
+
+# Caddy's config is a bind-mounted file, and compose compares service
+# definitions rather than the contents of what those services mount. So `up -d`
+# leaves the proxy running its old in-memory config however much the Caddyfile
+# on disk has changed -- which is how a redirect could ship, appear deployed,
+# and do nothing. Reload it explicitly.
+#
+# `caddy reload` over `restart`: it adapts and validates the new config first
+# and keeps the running one if that fails, so a broken Caddyfile fails this step
+# loudly instead of taking the site down. Verified against caddy:2 -- exit 1 on a
+# bad config, container still serving.
+if [ "$config_changed" -eq 1 ]; then
+    log "reloading caddy"
+    if "${COMPOSE[@]}" exec -T caddy \
+        caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
+        log "caddy reloaded"
+    else
+        log "ERROR: caddy reload failed — the proxy is still serving the previous"
+        log "       config. Fix the Caddyfile; the app itself is unaffected."
+    fi
+fi
 
 # Untagged parents of the image we just replaced. Disk is cheap here (39G free)
 # but an unbounded image history on a free-tier box is not.
