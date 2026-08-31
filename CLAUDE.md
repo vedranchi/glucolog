@@ -1,4 +1,4 @@
-# Project Knowledge: Glucolog
+# Project Knowledge: GlucoRead
 
 * **Goal:** A modern, user-friendly web app for diabetes management — glucose and insulin
   tracking plus rough meal/macro tracking.
@@ -21,7 +21,7 @@
 * `dashboard` — post-login summary screen + glucose chart. Hosts the signup signal.
 * `main` — shared `base.html`, the `home()` redirect, and `NoCacheMiddleware`.
 * `landing` — the public marketing page rendered by `home()` for anonymous visitors.
-  **Part of the product**, not a stopgap: Glucolog ships as one Django deployment, so the
+  **Part of the product**, not a stopgap: GlucoRead ships as one Django deployment, so the
   landing page lives here and is styled with the same shared theme tokens as the app.
 * `core` — settings/urls/wsgi.
 
@@ -57,9 +57,59 @@ erroring most of the suite. Ordinary local runs pass only because `staticfiles/`
 already populated — a clean checkout is not so lucky.
 
 ## 4. Current state — perishable, dated 2026-08-31
-**Live in production** at `https://glucolog.duckdns.org` — first deploy 2026-08-23 on the
-Oracle VM, running `dev`. Caddy holds a valid Let's Encrypt cert, all three containers are
-healthy, and the security headers verify on the wire.
+**Renamed GlucoLog → GlucoRead (2026-08-31, legal).** The new domain is
+`glucoread.com`. The rename was deliberately split: everything user-visible and
+in-repo moved, while every name that also exists as *live state on the VM* was left
+alone so a merge to `dev` could not break the running deploy.
+
+*Moved:* brand text (one spelling now, `GlucoRead`), the `glucoread-*` URL route
+names, the `glucoread-theme` localStorage key, the cache table (`glucoread_cache`,
+renamed by `main/migrations/0002`; 0001 still creates the old name so fresh installs
+and production converge), the GitHub repo slug, and `demo@glucoread.app`.
+
+*Deliberately still `glucolog`, needs a coordinated VM cutover:* the domain and
+`SITE_DOMAIN`/`ALLOWED_HOSTS`/duckdns, the Postgres db/role/password and the
+`glucolog_postgres_dev` volume, `/opt/glucolog`, the `glucolog_*` container names,
+`ghcr.io/vedranchi/glucolog`, the `glucolog-redeploy` systemd units, the
+`glucolog-*.sql.gz` backup prefix and its B2 remote, and the `GLUCOLOG_*` env vars.
+**Do not "finish" these piecemeal** — `redeploy.sh` fast-forwards the VM checkout and
+re-execs itself, so a `cd /opt/glucoread` merged before the directory is moved breaks
+deploys silently. Note the HSTS open item below is unblocked once the domain moves.
+
+**The repo rename is done, and its trap is worth remembering.** CI derives the image
+name from `IMAGE_NAME: ${{ github.repository }}` (`.github/workflows/ci.yml`) while
+`docker-compose.prod.yml` and `deploy/redeploy.sh` hard-code the path. Renaming the repo
+without moving those two references would have left CI publishing to the new path while
+the VM kept pulling the old tag — which still exists, so the pull succeeds, `redeploy.sh`
+sees no drift, exits 0, and production silently stops receiving updates. All three now say
+`ghcr.io/vedranchi/glucoread`.
+
+**A renamed repo also means a new GHCR package, and new packages are private.** The VM
+pulls anonymously, so the first publish under a new name needs the package flipped to
+Public or every pull 403s. `redeploy.sh` fails safe there — it logs and leaves the running
+app alone — so the symptom is "deploys stopped", not an outage.
+
+**Live in production** at `https://glucoread.com` — first deploy 2026-08-23 on the Oracle
+VM, running `dev`. Moved off `glucolog.duckdns.org` on 2026-08-31, onto a reserved Oracle
+public IP. Caddy holds valid Let's Encrypt certs, all three containers are healthy, and the
+security headers verify on the wire.
+
+**One canonical hostname.** `deploy/Caddyfile` serves the app on `{$SITE_DOMAIN}` only;
+`www.glucoread.com` and the old `glucolog.duckdns.org` are 301'd to it by a separate block.
+Redirecting at the proxy means those never reach Django, so they must *not* be in
+`ALLOWED_HOSTS` — and must not be in `SITE_DOMAIN` either. A hostname appearing in both the
+app block and the redirect block is a fatal Caddy config error that takes the whole site
+down, so change `.env` and the Caddyfile together.
+
+**Caddy is only restarted by a deploy.** `redeploy.sh` used to run `up -d web`, so a
+Caddyfile change fast-forwarded into the checkout and then did nothing until Caddy happened
+to restart for some unrelated reason. It now runs `up -d` for the whole stack; compose only
+recreates what actually differs.
+
+**Rolling the image back across `main/0002` breaks rate limiting.** That migration renames
+the cache table, and a rollback to a pre-rename image leaves `CACHES` pointing at a table
+that no longer exists, so every rate-limited auth view raises `ProgrammingError`. The
+migration is reversible — unapply it (`migrate main 0001`) as part of any such rollback.
 
 **The VM is `VM.Standard.E2.1.Micro` — x86_64, 2 cores, 956 MiB RAM.** *Not* the Ampere A1
 arm64 box this file and `deploy/README.md` both claimed until 2026-08-25. It now carries a

@@ -20,9 +20,9 @@ password_reset_view = ratelimit(key="ip", rate="5/h", method="POST", block=True)
 )
 
 urlpatterns = [
-    path('register/', register_view, name="glucolog-register"),
-    path('login/', login_view, name='glucolog-login'),
-    path('logout/', logout_view, name="glucolog-logout"),
+    path('register/', register_view, name="glucoread-register"),
+    path('login/', login_view, name='glucoread-login'),
+    path('logout/', logout_view, name="glucoread-logout"),
     path('profile/', user_profile_view, name="user-profile"),
     
     # password reset views

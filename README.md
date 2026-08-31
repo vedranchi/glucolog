@@ -1,14 +1,14 @@
-# Glucolog
+# GlucoRead
 
 A web app for people managing diabetes day-to-day — glucose readings, insulin doses, and
 rough meal/macro tracking in one place, with a dashboard that turns raw logs into a picture
 of the day.
 
-**Live:** [glucolog.duckdns.org](https://glucolog.duckdns.org)
+**Live:** [glucoread.com](https://glucoread.com)
 &nbsp;·&nbsp;
-[![CI](https://github.com/vedranchi/glucolog/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/vedranchi/glucolog/actions/workflows/ci.yml)
+[![CI](https://github.com/vedranchi/glucoread/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/vedranchi/glucoread/actions/workflows/ci.yml)
 
-![Glucolog landing page](docs/screenshots/landing.png)
+![GlucoRead landing page](docs/screenshots/landing.png)
 
 ---
 
@@ -26,21 +26,21 @@ hand-maintained stylesheets.
 |---|---|
 | ![Insulin tracking](docs/screenshots/insulin.png) | ![Meal tracking](docs/screenshots/meals.png) |
 
-Logging is deliberately boring: short forms, explicit units, no hidden defaults.
+Logging is made simple: short forms, explicit units, no hidden defaults.
 
 ![Add a glucose reading](docs/screenshots/glucose-form.png)
 
 The same templates collapse to a phone without a separate mobile codebase — the layout
 stacks to a single column and the nav folds into a full-screen drawer.
 
-| Phone layout | Nav drawer open |
-|---|---|
-| <img src="docs/screenshots/mobile.jpg" alt="Glucolog on a phone" width="280"> | <img src="docs/screenshots/mobile-nav.jpg" alt="Mobile nav drawer" width="280"> |
+| Phone layout | Nav drawer open | Glucose log on mobile |
+|---|---|---|
+| <img src="docs/screenshots/mobile.jpg" alt="GlucoRead on a phone" width="280"> | <img src="docs/screenshots/mobile-nav.jpg" alt="Mobile nav drawer" width="280"> | <img src="docs/screenshots/mobileview.png" alt="Glucose log screen on a phone" width="280"> |
 
 ## Why this exists
 
 Most CRUD portfolio projects stop at "users can create/read/update/delete a record."
-Glucolog is built around the constraints that make a *health* app different from a todo
+GlucoRead is built around the constraints that make a *health* app different from a todo
 app: values have a canonical unit that must never drift, records can never be truly
 deleted, every query has to be scoped to the right person, and nothing that touches a
 diagnosis belongs in a log line. Those rules are documented and enforced consistently
@@ -126,8 +126,8 @@ A few decisions worth pointing out to anyone skimming the code:
 ### Setup
 
 ```bash
-git clone https://github.com/vedranchi/glucolog.git
-cd glucolog
+git clone https://github.com/vedranchi/glucoread.git
+cd glucoread
 
 # 1. Virtualenv. Every later command uses ./env/bin/python, so create this first —
 #    the secret key in step 2 is generated with Django, which lives in here.
@@ -168,7 +168,7 @@ including a partial day for today, so the "Today" cards aren't empty:
 ./env/bin/python manage.py seed_demo_data --reset
 ```
 
-Then sign in as **`demo@glucolog.app`** / **`Demo1234!`**. The command refuses to run
+Then sign in as **`demo@glucoread.app`** / **`Demo1234!`**. The command refuses to run
 unless `DEBUG=True`, so it can't be pointed at production by accident.
 
 For the Django admin at `/admin/`, create your own superuser:
@@ -234,6 +234,6 @@ open by design rather than overlooked:
 
 [MIT](LICENSE) © Vedran Chichov
 
-Glucolog is a personal project for tracking your own readings. It is not a medical device,
+GlucoRead is a personal project for tracking your own readings. It is not a medical device,
 it gives no clinical advice, and nothing it displays should be used to make treatment
 decisions — talk to your care team instead.

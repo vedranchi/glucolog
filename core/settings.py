@@ -45,7 +45,7 @@ ALLOWED_HOSTS = env.list(
 
 # Domains allowed to POST to us (Origin check on secure requests). Needed when
 # the site is reached via a custom domain/subdomain; e.g.
-# CSRF_TRUSTED_ORIGINS=https://glucolog.example.com
+# CSRF_TRUSTED_ORIGINS=https://glucoread.example.com
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 # Trust the proxy's X-Forwarded-Proto header so Django knows the original request
@@ -239,7 +239,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "glucolog_cache",
+        "LOCATION": "glucoread_cache",
     }
 }
 
@@ -301,6 +301,6 @@ AUTH_USER_MODEL = "users.User"  # new
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
-LOGIN_URL = "glucolog-login"
+LOGIN_URL = "glucoread-login"
 # Where sign-in and sign-up land when there is no (valid) ?next= to honour.
-LOGIN_REDIRECT_URL = "glucolog-dashboard"
+LOGIN_REDIRECT_URL = "glucoread-dashboard"

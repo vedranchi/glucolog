@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 {% load static %}
 
-{% block title %}Dashboard — GlucoLog{% endblock %}
+{% block title %}Dashboard — GlucoRead{% endblock %}
 {% block nav_title %}Dashboard{% endblock %}
 
 {% block extra_css %}
@@ -112,7 +112,7 @@
                 </div>
                 <div class="trend-controls">
                     <a
-                        href="{% url 'glucolog-dashboard' %}?chart_date={{ previous_chart_date|date:'Y-m-d' }}"
+                        href="{% url 'glucoread-dashboard' %}?chart_date={{ previous_chart_date|date:'Y-m-d' }}"
                         class="trend-btn"
                         aria-label="Previous day"
                     >
@@ -120,14 +120,14 @@
                     </a>
                     {% if next_chart_date %}
                     <a
-                        href="{% url 'glucolog-dashboard' %}"
+                        href="{% url 'glucoread-dashboard' %}"
                         class="trend-btn"
                         aria-label="Jump to today"
                     >
                         Today
                     </a>
                     <a
-                        href="{% url 'glucolog-dashboard' %}?chart_date={{ next_chart_date|date:'Y-m-d' }}"
+                        href="{% url 'glucoread-dashboard' %}?chart_date={{ next_chart_date|date:'Y-m-d' }}"
                         class="trend-btn"
                         aria-label="Next day"
                     >

@@ -1,4 +1,4 @@
-# Deploying Glucolog to the Oracle VM
+# Deploying GlucoRead to the Oracle VM
 
 Production runs as three containers via Docker Compose — **Caddy** (public, TLS) →
 **web** (gunicorn) → **db** (Postgres) — reachable over HTTPS at a DuckDNS domain.
@@ -81,7 +81,7 @@ Internet ──443──▶ caddy ──proxy──▶ web:8000 (gunicorn/Django
 
 ```bash
 # 7. Get the code
-git clone git@github.com:vedranchi/glucolog.git /opt/glucolog
+git clone git@github.com:vedranchi/glucoread.git /opt/glucolog
 cd /opt/glucolog
 git checkout <deploy-branch>
 

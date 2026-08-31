@@ -12,7 +12,7 @@ User = get_user_model()
 class DashboardAccessTest(TestCase):
     def test_redirect_if_not_logged_in(self):
         self.client.logout()
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertEqual(response.status_code, 302)
 
 
@@ -25,7 +25,7 @@ class DashboardContextTest(TestCase):
         self.client.login(email="test@example.com", password="test123")
 
     def test_dashboard_context_contains_recent_activity(self):
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertIn("recent_activity", response.context)
 
 
@@ -48,7 +48,7 @@ class DashboardAggregationTest(TestCase):
         # a meal with no carbs entered must not crash SUM or drop the other total
         MealLog.objects.create(user=self.user, carbs=None)
 
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
 
         self.assertEqual(response.context["avg_glucose"], Decimal("6.0"))
         self.assertEqual(response.context["total_insulin"], Decimal("2.5"))
@@ -57,7 +57,7 @@ class DashboardAggregationTest(TestCase):
         self.assertEqual(response.context["meal_count_today"], 2)
 
     def test_no_logs_today_reports_none_not_zero(self):
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertIsNone(response.context["avg_glucose"])
         self.assertIsNone(response.context["total_insulin"])
         self.assertIsNone(response.context["carbs_consumed"])
@@ -77,7 +77,7 @@ class RecentActivityLabelTest(TestCase):
         self.client.login(email="label@example.com", password="pw12345!")
 
     def _labels(self):
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         return [item["label"] for item in response.context["recent_activity"]]
 
     def test_meal_without_a_note_has_no_none_in_its_label(self):

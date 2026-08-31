@@ -30,7 +30,7 @@ class Command(BaseCommand):
     help = "Seed a demo user with realistic glucose/insulin/meal history for screenshots."
 
     def add_arguments(self, parser):
-        parser.add_argument("--email", default="demo@glucolog.app")
+        parser.add_argument("--email", default="demo@glucoread.app")
         parser.add_argument("--password", default="Demo1234!")
         parser.add_argument("--days", type=int, default=14)
         parser.add_argument("--seed", type=int, default=42)

@@ -11,7 +11,7 @@ docker compose up -d db
 ./env/bin/python manage.py seed_demo_data --reset
 ```
 
-Logs in as `demo@glucolog.app` / `Demo1234!` (override with `--email`/`--password`). Safe
+Logs in as `demo@glucoread.app` / `Demo1234!` (override with `--email`/`--password`). Safe
 to re-run — `--reset` clears the demo user's previous logs first. Refuses to run unless
 `DEBUG=True`, so it can't accidentally touch the production database.
 

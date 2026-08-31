@@ -26,7 +26,7 @@ services:
     # `build:` is kept so the image can still be produced by hand, but a 1 GB
     # free-tier VM should never be the thing doing it — that build takes ~8
     # minutes of IO-starved grinding alongside the live database.
-    image: ghcr.io/vedranchi/glucolog:${GLUCOLOG_TAG:-dev}
+    image: ghcr.io/vedranchi/glucoread:${GLUCOLOG_TAG:-dev}
     build: .
     container_name: glucolog_web
     env_file:

@@ -106,4 +106,4 @@ def user_profile_view(request):
 def logout_view(request):
     logout(request)
     # redirect to login
-    return redirect("glucolog-home")
+    return redirect("glucoread-home")

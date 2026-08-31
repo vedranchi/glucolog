@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
       {% block title %}
-        GlucoLog - Diabetes Management
+        GlucoRead - Diabetes Management
       {% endblock %}
     </title>
     {% include "main/_theme_head.html" %}
@@ -23,7 +23,7 @@
       <div class="app-layout">
         <nav class="sidebar-nav">
           <div class="nav-left">
-            <a href="{% url 'glucolog-dashboard' %}">Dashboard</a>
+            <a href="{% url 'glucoread-dashboard' %}">Dashboard</a>
             <a href="{% url 'log-insulin' %}">Insulin</a>
             <a href="{% url 'log-glucose' %}">Glucose</a>
             <a href="{% url 'log-meal' %}">Meals</a>
@@ -32,7 +32,7 @@
         <div class="page-layout">
           <header class="top-profile">
             <div class="top-title">
-              {% block nav_title %}GlucoLog{% endblock %}
+              {% block nav_title %}GlucoRead{% endblock %}
             </div>
             <div class="top-actions">
               {% include "main/_theme_switch.html" %}
@@ -62,10 +62,10 @@
               <div class="landing-copy">
                 <span class="landing-kicker">Diabetes Management Platform</span>
                 <h1>Manage glucose, insulin, and meals in one clear dashboard.</h1>
-                <p>GlucoLog helps you log faster, see patterns sooner, and make day-to-day decisions with confidence.</p>
+                <p>GlucoRead helps you log faster, see patterns sooner, and make day-to-day decisions with confidence.</p>
                 <div class="landing-actions">
-                  <a href="{% url 'glucolog-login' %}" class="btn-primary">Get Started</a>
-                  <a href="{% url 'glucolog-register' %}" class="btn-secondary">Create Account</a>
+                  <a href="{% url 'glucoread-login' %}" class="btn-primary">Get Started</a>
+                  <a href="{% url 'glucoread-register' %}" class="btn-secondary">Create Account</a>
                 </div>
               </div>
 
@@ -103,7 +103,7 @@
               </article>
             </section>
 
-            <div class="footer-note">Track, manage, and improve your health with GlucoLog.</div>
+            <div class="footer-note">Track, manage, and improve your health with GlucoRead.</div>
           </div>
         {% endif %}
       {% endblock %}
