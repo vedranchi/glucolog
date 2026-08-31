@@ -54,10 +54,23 @@ class Command(BaseCommand):
 
         random.seed(options["seed"])
 
-        user, created = User.objects.get_or_create(
-            email=options["email"],
-            defaults={"username": options["email"].split("@")[0]},
-        )
+        user = User.objects.filter(email=options["email"]).first()
+        created = user is None
+        if created:
+            # Identity here is the email -- it is the USERNAME_FIELD. But
+            # AbstractUser still carries a unique `username`, and the obvious
+            # one may already be taken: the demo address changed with the
+            # GlucoRead rename, so any install seeded before it has a `demo`
+            # row under the old address. Deriving the username blindly turned
+            # a re-seed into an IntegrityError on exactly the machines that had
+            # used this command before.
+            base = options["email"].split("@")[0]
+            username = base
+            suffix = 1
+            while User.objects.filter(username=username).exists():
+                suffix += 1
+                username = f"{base}{suffix}"
+            user = User.objects.create(email=options["email"], username=username)
         user.set_password(options["password"])
         user.save()
 
