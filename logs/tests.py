@@ -56,24 +56,39 @@ class GlucoseLogModelTest(TestCase):
         self.assertNotIn("lunch", str(meal))
 
 
-class GlucoseQueryTest(TestCase):
+class SevenDayWindowTest(TestCase):
+    """The 7-day detail list is a rolling window, not a calendar range.
+
+    Replaces a test that logged in with positional create_user() args — setting
+    email="test123" and an unusable password — so the login silently failed and
+    was never asserted, and which then queried the ORM directly. It would have
+    passed with logs/views/ deleted.
+    """
+
     def setUp(self):
-        self.user = User.objects.create_user("test", "test123")
-        self.client.login(username="test", password="test123")
+        self.user = User.objects.create_user(
+            username="window", email="window@example.com", password="pw12345!"
+        )
+        self.client.login(email="window@example.com", password="pw12345!")
 
-        GlucoseLog.objects.create(user=self.user, value=5.2, measured_at=timezone.now())
-
-        GlucoseLog.objects.create(
-            user=self.user, value=6.8, measured_at=timezone.now() - timedelta(days=10)
+    def test_only_the_last_seven_days_reach_the_page(self):
+        recent = GlucoseLog.objects.create(user=self.user, value=Decimal("5.2"))
+        GlucoseLog.objects.create(user=self.user, value=Decimal("6.8"))
+        GlucoseLog.objects.filter(pk=recent.pk).update(
+            measured_at=timezone.now() - timedelta(days=10)
         )
 
-        # test only the last 7 days. Exclude the 10 day old query
+        response = self.client.get(reverse("log-glucose"))
+        self.assertEqual(response.status_code, 200)
+        values = [r["value"] for r in response.context["recent_seven_days"]]
+        self.assertEqual(values, [6.8])
 
-    def test_last_7_days(self):
-        seven_days_ago = timezone.now() - timedelta(days=7)
-
-        qs = GlucoseLog.objects.filter(user=self.user, measured_at__gte=seven_days_ago)
-        self.assertEqual(qs.count(), 1)  # expect one glucose reading to be returned
+    def test_a_soft_deleted_reading_is_excluded(self):
+        GlucoseLog.objects.create(
+            user=self.user, value=Decimal("7.1"), is_deleted=True
+        )
+        response = self.client.get(reverse("log-glucose"))
+        self.assertEqual(response.context["recent_seven_days"], [])
 
 
 # unit conversion
