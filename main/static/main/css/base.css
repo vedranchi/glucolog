@@ -52,6 +52,9 @@ body {
 }
 
 .top-profile {
+    position: sticky;
+    top: 0;
+    z-index: 30;
     min-height: 70px;
     padding: 1rem 2rem;
     border-bottom: 2px solid var(--line);

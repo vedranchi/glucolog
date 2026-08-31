@@ -1,0 +1,19 @@
+{% extends "main/base.html" %}
+
+{% block title %}Page not found — GlucoLog{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+  <div class="auth-card">
+    <h1>Page not found</h1>
+    <p>
+      That address doesn't lead anywhere. It may have been mistyped, or the page
+      may have moved since you last saw it.
+    </p>
+    <p>
+      Nothing has happened to your logs — they're all still where you left them.
+    </p>
+    <a class="btn-primary" href="{% url 'glucolog-home' %}">Back to GlucoLog</a>
+  </div>
+</section>
+{% endblock %}

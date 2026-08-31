@@ -20,5 +20,14 @@ document.addEventListener("DOMContentLoaded", () => {
   proteinInput.addEventListener("input", calculateCalories);
   fatsInput.addEventListener("input", calculateCalories);
 
-  calculateCalories();
+  // Only derive calories on load if there is actually something to derive them
+  // from. The macro fields are nullable, so editing a meal that stored calories
+  // but no macros arrives here with all three blank — recomputing would put 0
+  // in the readonly field and overwrite the saved value on save.
+  const hasMacros = [carbsInput, proteinInput, fatsInput].some(
+    (input) => input.value.trim() !== ""
+  );
+  if (hasMacros) {
+    calculateCalories();
+  }
 });

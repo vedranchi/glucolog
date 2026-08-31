@@ -1,11 +1,30 @@
-from django.shortcuts import render, redirect
+from django.conf import settings
+from django.shortcuts import render, redirect, resolve_url
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from django_ratelimit.decorators import ratelimit
+
+
+def _redirect_target(request):
+    """Where to send a user after they authenticate.
+
+    Honours ?next= so @login_required sends them on to the page they actually
+    asked for, but only when it points back at this site — an unchecked `next`
+    is an open redirect.
+    """
+    target = request.POST.get("next") or request.GET.get("next")
+    if target and url_has_allowed_host_and_scheme(
+        url=target,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return target
+    return resolve_url(settings.LOGIN_REDIRECT_URL)
 
 from .services import (
     handle_preferences_form,
@@ -27,7 +46,7 @@ def register_view(request):
             username = form.cleaned_data.get("username")
             login(request, user)
             messages.success(request, f"Account created for {username}")
-            return redirect("glucolog-dashboard")
+            return redirect(_redirect_target(request))
     else:
         form = CustomUserCreationForm()
     return render(request, "users/register.html", {"form": form})
@@ -47,7 +66,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
-            return redirect("glucolog-dashboard")
+            return redirect(_redirect_target(request))
         else:
             messages.error(request, "Invalid username or password")
     else:

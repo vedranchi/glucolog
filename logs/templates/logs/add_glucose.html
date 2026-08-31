@@ -33,29 +33,30 @@
             step="0.1"
             min="0"
             required
-            value="{{ prefill_value|default:'' }}"
+            value="{{ form.value|default_if_none:'' }}"
         >
         {% if error %}
         <p class="error-message">{{ error }}</p>
         {% endif %}
-        
+
         <label for="context">Context</label>
         <select name="context" id="context">
             <option value="">Select context</option>
-            <option value="fasting" {% if glucose.context == 'fasting' %}selected{% endif %}>Fasting</option>
-            <option value="before meal" {% if glucose.context == 'before meal' %}selected{% endif %}>Before Meal</option>
-            <option value="after meal" {% if glucose.context == 'after meal' %}selected{% endif %}>After Meal</option>
-            <option value="bedtime" {% if glucose.context == 'bedtime' %}selected{% endif %}>Bedtime</option>
-            <option value="other" {% if glucose.context == 'other' %}selected{% endif %}>Other</option>
+            <option value="fasting" {% if form.context == 'fasting' %}selected{% endif %}>Fasting</option>
+            <option value="before meal" {% if form.context == 'before meal' %}selected{% endif %}>Before Meal</option>
+            <option value="after meal" {% if form.context == 'after meal' %}selected{% endif %}>After Meal</option>
+            <option value="bedtime" {% if form.context == 'bedtime' %}selected{% endif %}>Bedtime</option>
+            <option value="other" {% if form.context == 'other' %}selected{% endif %}>Other</option>
         </select>
-        
+
         <label for="note">Note</label>
-        <input 
-            type="text" 
-            name="note" 
-            id="note" 
+        <input
+            type="text"
+            name="note"
+            id="note"
             placeholder="Optional note"
-            value="{{ glucose.note|default:'' }}"
+            maxlength="255"
+            value="{{ form.note|default_if_none:'' }}"
         >
         
         <div class="button-group">

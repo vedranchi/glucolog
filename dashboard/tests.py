@@ -61,3 +61,29 @@ class DashboardAggregationTest(TestCase):
         self.assertIsNone(response.context["avg_glucose"])
         self.assertIsNone(response.context["total_insulin"])
         self.assertIsNone(response.context["carbs_consumed"])
+
+
+class RecentActivityLabelTest(TestCase):
+    """MealLog.note is nullable, and the demo seeder creates meals without one.
+
+    The label was built with an f-string, so those rendered as the literal text
+    "Meal (None)" in Recent Activity — including in the screenshots.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="labeluser", email="label@example.com", password="pw12345!"
+        )
+        self.client.login(email="label@example.com", password="pw12345!")
+
+    def _labels(self):
+        response = self.client.get(reverse("glucolog-dashboard"))
+        return [item["label"] for item in response.context["recent_activity"]]
+
+    def test_meal_without_a_note_has_no_none_in_its_label(self):
+        MealLog.objects.create(user=self.user, note=None, context="lunch")
+        self.assertEqual(self._labels(), ["Meal"])
+
+    def test_meal_with_a_note_still_shows_it(self):
+        MealLog.objects.create(user=self.user, note="Chicken wrap", context="lunch")
+        self.assertEqual(self._labels(), ["Meal (Chicken wrap)"])

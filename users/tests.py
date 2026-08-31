@@ -188,3 +188,49 @@ class NoPublicTokenEndpointsTest(TestCase):
         for url in ("/users/api/token/", "/users/api/token/refresh/"):
             with self.subTest(url=url):
                 self.assertEqual(self.client.post(url).status_code, 404)
+
+
+class LoginNextRedirectTest(TestCase):
+    """@login_required appends ?next=; sign-in used to ignore it.
+
+    The user asked for one page, authenticated, and landed on the dashboard
+    instead. `next` is validated against the current host — an unchecked one is
+    an open redirect.
+    """
+
+    def setUp(self):
+        cache.clear()
+        self.user = User.objects.create_user(
+            username="nextuser", email="next@example.com", password="pw12345!"
+        )
+
+    def test_login_required_view_sends_the_user_back_where_they_asked(self):
+        target = reverse("add-glucose")
+        response = self.client.get(target)
+        self.assertRedirects(
+            response, f"{reverse('glucolog-login')}?next={target}"
+        )
+
+        response = self.client.post(
+            reverse("glucolog-login"),
+            {"username": "next@example.com", "password": "pw12345!", "next": target},
+        )
+        self.assertRedirects(response, target)
+
+    def test_login_without_next_lands_on_the_dashboard(self):
+        response = self.client.post(
+            reverse("glucolog-login"),
+            {"username": "next@example.com", "password": "pw12345!"},
+        )
+        self.assertRedirects(response, reverse("glucolog-dashboard"))
+
+    def test_offsite_next_is_ignored(self):
+        response = self.client.post(
+            reverse("glucolog-login"),
+            {
+                "username": "next@example.com",
+                "password": "pw12345!",
+                "next": "https://evil.example.com/steal",
+            },
+        )
+        self.assertRedirects(response, reverse("glucolog-dashboard"))

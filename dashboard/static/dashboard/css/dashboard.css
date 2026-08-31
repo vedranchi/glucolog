@@ -176,9 +176,15 @@
     font-weight: 600;
 }
 
-.empty-state {
+.activity-list .empty-state {
     justify-content: center;
+    align-items: center;
+    text-align: center;
     color: var(--ink-2);
+    padding: 0.75rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 .chart-head {

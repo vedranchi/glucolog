@@ -9,7 +9,21 @@ from users.models import UserPreferences
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
-from logs.conversions import MMOL_TO_MGDL, mgdl_to_mmol
+from logs.conversions import mgdl_to_mmol, to_display
+
+
+def clean_text(value, max_length, label):
+    """Normalise an optional free-text POST field and enforce the column width.
+
+    `max_length` on a model field is a *form-layer* constraint — `Model.save()`
+    does not truncate, so an over-long string reaches Postgres and raises
+    DataError, which surfaces as a 500. These views hand-parse `request.POST`
+    with no ModelForm in between, so the check has to happen here.
+    """
+    text = (value or "").strip()
+    if len(text) > max_length:
+        raise ValueError(f"{label} must be {max_length} characters or fewer.")
+    return text
 
 
 @login_required
@@ -18,26 +32,18 @@ def log_insulin(request):
     insulin_today = InsulinLog.objects.filter(
         user=request.user, taken_at__date=today, is_deleted=False
     )
-    basal_today = InsulinLog.objects.filter(
-        user=request.user,
-        insulin_type="basal",
-        taken_at__date=today,
-        is_deleted=False,
-    )
-    bolus_today = InsulinLog.objects.filter(
-        user=request.user,
-        insulin_type="bolus",
-        taken_at__date=today,
-        is_deleted=False,
-    )
 
-    total_insulin = (
-        round(sum(i.units for i in insulin_today), 1)
-        if insulin_today.exists()
-        else None
+    # All three of today's figures in one query. Sum() returns None when nothing
+    # matches: the card reads that as "no doses logged yet" for the total, but
+    # the basal/bolus splits should show 0 rather than blank.
+    totals = insulin_today.aggregate(
+        total=Sum("units"),
+        basal=Sum("units", filter=Q(insulin_type="basal")),
+        bolus=Sum("units", filter=Q(insulin_type="bolus")),
     )
-    basal_units = round(sum(i.units for i in basal_today), 1)
-    bolus_units = round(sum(i.units for i in bolus_today), 1)
+    total_insulin = round(totals["total"], 1) if totals["total"] is not None else None
+    basal_units = round(totals["basal"] or 0, 1)
+    bolus_units = round(totals["bolus"] or 0, 1)
 
     recent_activity = []
     for i in insulin_today:
@@ -65,6 +71,12 @@ def log_insulin(request):
         .annotate(
             basal_units=Sum("units", filter=Q(insulin_type="basal")),
             bolus_units=Sum("units", filter=Q(insulin_type="bolus")),
+            # Summed here rather than added in the template. Django's `add`
+            # filter coerces through int() first, so it both truncated half
+            # units (5.5 + 3.5 rendered as 8) and returned "" whenever one
+            # side was a NULL Sum — which `|default:"0"` then displayed as a
+            # total of 0 for any day that had only bolus doses.
+            total_units=Sum("units"),
         )
         .order_by("-date")
     )
@@ -102,45 +114,63 @@ def add_insulin(request, pk=None):
         else None
     )
 
+    # What the form should render. On GET that's the stored record; on a rejected
+    # POST it's what the user actually typed, so an error doesn't discard their
+    # input (and, when editing, doesn't silently revert the fields to the values
+    # already in the database).
+    form = {
+        "units": insulin.units if insulin else "",
+        "insulin_type": insulin.insulin_type if insulin else "",
+        "brand": insulin.brand if insulin else "",
+        "note": insulin.note if insulin else "",
+    }
+
     if request.method == "POST":
+        form = {
+            "units": request.POST.get("units", ""),
+            "insulin_type": request.POST.get("insulin_type", ""),
+            "brand": request.POST.get("brand", ""),
+            "note": request.POST.get("note", ""),
+        }
+        error = None
+
         try:
-            units = Decimal(request.POST.get("units"))
-            if units <= 0 or units >= 300:
+            units = Decimal(form["units"])
+            if not units.is_finite() or units <= 0 or units >= 300:
                 raise ValueError
         except (InvalidOperation, TypeError, ValueError):
-            messages.error(request, "Invalid units value.")
-            # stay in edit mode when editing, otherwise back to the add form
-            if insulin:
-                return redirect("edit-insulin", pk=insulin.pk)
-            return redirect("add-insulin")
+            error = "Invalid units value."
 
-        insulin_type = request.POST.get("insulin_type")
-        if insulin_type not in dict(InsulinLog.INSULIN_TYPES):
-            messages.error(request, "Invalid insulin type.")
-            if insulin:
-                return redirect("edit-insulin", pk=insulin.pk)
-            return redirect("add-insulin")
+        if not error and form["insulin_type"] not in dict(InsulinLog.INSULIN_TYPES):
+            error = "Invalid insulin type."
 
-        brand = request.POST.get("brand")
-        note = request.POST.get("note")
+        if not error:
+            try:
+                brand = clean_text(form["brand"], 50, "Brand")
+                note = clean_text(form["note"], 255, "Note")
+            except ValueError as exc:
+                error = str(exc)
 
-        if insulin:
-            insulin.units = units
-            insulin.insulin_type = insulin_type
-            insulin.brand = brand
-            insulin.note = note
-            insulin.save()
+        if error:
+            messages.error(request, error)
         else:
-            InsulinLog.objects.create(
-                user=request.user,
-                units=units,
-                insulin_type=insulin_type,
-                brand=brand,
-                note=note,
-            )
-        return redirect("log-insulin")
+            if insulin:
+                insulin.units = units
+                insulin.insulin_type = form["insulin_type"]
+                insulin.brand = brand
+                insulin.note = note
+                insulin.save()
+            else:
+                InsulinLog.objects.create(
+                    user=request.user,
+                    units=units,
+                    insulin_type=form["insulin_type"],
+                    brand=brand,
+                    note=note,
+                )
+            return redirect("log-insulin")
 
-    context = {"insulin": insulin, "is_edit_mode": bool(insulin)}
+    context = {"insulin": insulin, "is_edit_mode": bool(insulin), "form": form}
     return render(request, "logs/add_insulin.html", context)
 
 
@@ -157,8 +187,8 @@ def delete_insulin_record(request, pk):
 @login_required
 def log_glucose(request):
     profile, _ = UserPreferences.objects.get_or_create(user=request.user)
-    unit = profile.glucose_unit
-    unit_label = "mg/dL" if unit == "mg/dL" else "mmol/L"
+    is_mgdl = profile.glucose_unit == UserPreferences.GLUCOSE_UNIT_MGDL
+    unit_label = "mg/dL" if is_mgdl else "mmol/L"
 
     today = timezone.now().date()
 
@@ -171,13 +201,9 @@ def log_glucose(request):
 
     glucose_stats = GlucoseLog.objects.filter(
         user=request.user, measured_at__date=today, is_deleted=False
-    ).aggregate(
-        avg_glucose=Avg("value"), count_glucose=Count("id"), total_glucose=Sum("value")
-    )
+    ).aggregate(avg_glucose=Avg("value"), count_glucose=Count("id"))
 
-    avg_glucose = glucose_stats["avg_glucose"]
-    if avg_glucose and unit_label == "mg/dL":
-        avg_glucose = round(avg_glucose * MMOL_TO_MGDL, 1)
+    avg_glucose = to_display(glucose_stats["avg_glucose"], is_mgdl)
 
     glucose_today = GlucoseLog.objects.filter(
         user=request.user, measured_at__date=today, is_deleted=False
@@ -186,13 +212,10 @@ def log_glucose(request):
     # today's readings list, converted to display unit
     recent_activity = []
     for g in glucose_today:
-        value = float(g.value)
-        if unit_label == "mg/dL":
-            value = round(value * MMOL_TO_MGDL, 1)
         recent_activity.append(
             {
                 "id": g.id,
-                "value": value,
+                "value": to_display(g.value, is_mgdl),
                 "note": g.note,
                 "context": g.context,
                 "when": g.measured_at,
@@ -200,11 +223,9 @@ def log_glucose(request):
         )
     recent_activity = sorted(recent_activity, key=lambda a: a["when"], reverse=True)[:10]
 
-    current_value = None
-    if current_glucose:
-        current_value = float(current_glucose.value)
-        if unit_label == "mg/dL":
-            current_value = round(current_value * MMOL_TO_MGDL, 1)
+    current_value = to_display(
+        current_glucose.value if current_glucose else None, is_mgdl
+    )
 
     # daily averages for the weekly summary table
     last_seven_days = timezone.now().date() - timedelta(days=6)
@@ -226,12 +247,9 @@ def log_glucose(request):
 
     recent_7_days = []
     for g in recent_7_days_qs:
-        value = float(g.value)
-        if unit_label == "mg/dL":
-            value = round(value * MMOL_TO_MGDL, 1)
         recent_7_days.append(
             {
-                "value": value,
+                "value": to_display(g.value, is_mgdl),
                 "measured_at": g.measured_at,
                 "context": g.context,
                 "note": g.note,
@@ -240,8 +258,7 @@ def log_glucose(request):
         )
 
     for entry in weekly_glucose:
-        if entry["avg_glucose"] is not None and unit_label == "mg/dL":
-            entry["avg_glucose"] = round(entry["avg_glucose"] * MMOL_TO_MGDL, 1)
+        entry["avg_glucose"] = to_display(entry["avg_glucose"], is_mgdl)
 
     context = {
         "current_glucose_value": current_value,
@@ -249,7 +266,6 @@ def log_glucose(request):
             current_glucose.measured_at if current_glucose else None
         ),
         "avg_glucose": avg_glucose,
-        "total_glucose": glucose_stats["total_glucose"],
         "reading_count": glucose_stats["count_glucose"],
         "recent_activity": recent_activity,
         "unit_label": unit_label,
@@ -270,63 +286,87 @@ def add_glucose(request, pk=None):
     )
 
     profile, _ = UserPreferences.objects.get_or_create(user=request.user)
-    unit = profile.glucose_unit
-    unit_label = "mg/dL" if unit == "mg/dL" else "mmol/L"
+    # One test drives both the display and the storage path. They used to differ
+    # — display asked "is it mg/dL?" while storage asked "is it mmol?" and fell
+    # through to mg/dL — so an unexpected preference value would render as
+    # mmol/L but be divided by 18 on the way in, a factor-of-18 error in a
+    # stored medical record. Now an unknown unit is treated as mmol/L
+    # throughout, which stores the value unchanged.
+    is_mgdl = profile.glucose_unit == UserPreferences.GLUCOSE_UNIT_MGDL
+    unit_label = "mg/dL" if is_mgdl else "mmol/L"
+
+    # stored mmol/L converted back to the user's display unit for the edit form
+    prefill_value = to_display(glucose.value if glucose else None, is_mgdl)
+
+    form = {
+        "value": "" if prefill_value is None else prefill_value,
+        "context": glucose.context if glucose else "",
+        "note": glucose.note if glucose else "",
+    }
 
     error = None
     if request.method == "POST":
-        raw_value = request.POST.get("value")
-        note = request.POST.get("note") or ""
+        # Echo the submission back on failure rather than the stored record, so
+        # a rejected reading doesn't leave the user staring at an empty box (or,
+        # when editing, silently revert to what's already saved).
+        form = {
+            "value": request.POST.get("value", ""),
+            "context": request.POST.get("context", ""),
+            "note": request.POST.get("note", ""),
+        }
         # empty selection falls back to the model default; anything else must be a real choice
-        context = request.POST.get("context") or "other"
+        reading_context = form["context"] or "other"
 
-        if context not in dict(GlucoseLog.CONTEXT):
+        if reading_context not in dict(GlucoseLog.CONTEXT):
             error = "Invalid reading context."
 
         try:
-            value = Decimal(raw_value)
+            note = clean_text(form["note"], 255, "Note")
+        except ValueError as exc:
+            # `or` throughout so the first problem found is the one reported;
+            # a later check used to overwrite an earlier error and mask it.
+            error = error or str(exc)
+
+        mmol_value = None
+        try:
+            value = Decimal(form["value"])
         except (TypeError, InvalidOperation):
-            error = "Enter a valid number"
+            error = error or "Enter a valid number"
         else:
             # NaN and Infinity construct without raising, so they reach here;
             # the range comparisons below would then raise InvalidOperation
             # outside the try above and surface as a 500.
             if not value.is_finite():
-                error = "Enter a valid number"
-            elif unit == "mmol":
-                if value < Decimal("1") or value > Decimal("40"):
-                    error = "Too high/low for mmol/L. Check if unit preference is correct"
-                else:
-                    mmol_value = value
-            else:  # mg/dL — convert to mmol/L before storing
+                error = error or "Enter a valid number"
+            elif is_mgdl:  # convert to mmol/L before storing
                 if value < Decimal("20") or value > Decimal("700"):
-                    error = "Too high/low for mg/dL. Check if unit preference is correct"
+                    error = error or (
+                        "Too high/low for mg/dL. Check if unit preference is correct"
+                    )
                 else:
                     mmol_value = mgdl_to_mmol(value)
+            else:
+                if value < Decimal("1") or value > Decimal("40"):
+                    error = error or (
+                        "Too high/low for mmol/L. Check if unit preference is correct"
+                    )
+                else:
+                    mmol_value = value
 
         if not error:
             if glucose:
                 glucose.value = mmol_value
                 glucose.note = note
-                glucose.context = context
+                glucose.context = reading_context
                 glucose.save()
             else:
                 GlucoseLog.objects.create(
                     user=request.user,
                     value=mmol_value,
                     note=note,
-                    context=context,
+                    context=reading_context,
                 )
             return redirect("log-glucose")
-
-    # convert stored mmol/L back to the user's display unit for pre-filling the edit form
-    prefill_value = None
-    if glucose:
-        prefill_value = float(glucose.value)
-        if unit == "mg/dL":
-            prefill_value = round(prefill_value * MMOL_TO_MGDL, 1)
-        else:
-            prefill_value = round(prefill_value, 1)
 
     return render(
         request,
@@ -336,7 +376,7 @@ def add_glucose(request, pk=None):
             "is_edit_mode": bool(glucose),
             "unit_label": unit_label,
             "error": error,
-            "prefill_value": prefill_value,
+            "form": form,
         },
     )
 
@@ -418,49 +458,80 @@ def add_meal(request, pk=None):
         else None
     )
 
+    # The macro fields are nullable on purpose — a meal can be logged without
+    # full nutrition data. Blank stays blank here rather than becoming "0", so
+    # reopening and saving an edit can't turn "not recorded" into "recorded as
+    # zero".
+    def macro(value):
+        return "" if value is None else value
+
+    form = {
+        "note": meal.note if meal else "",
+        "carbs": macro(meal.carbs) if meal else "",
+        "protein": macro(meal.protein) if meal else "",
+        "fats": macro(meal.fats) if meal else "",
+        "calories": macro(meal.calories) if meal else "",
+        "context": meal.context if meal else "",
+    }
+
     if request.method == "POST":
+        form = {
+            "note": request.POST.get("note", ""),
+            "carbs": request.POST.get("carbs", ""),
+            "protein": request.POST.get("protein", ""),
+            "fats": request.POST.get("fats", ""),
+            "calories": request.POST.get("calories", ""),
+            "context": request.POST.get("context", ""),
+        }
+        error = None
+
         try:
-            carbs = parse_macro(request.POST.get("carbs"))
-            protein = parse_macro(request.POST.get("protein"))
-            fats = parse_macro(request.POST.get("fats"))
-            calories = parse_macro(request.POST.get("calories"))
+            carbs = parse_macro(form["carbs"])
+            protein = parse_macro(form["protein"])
+            fats = parse_macro(form["fats"])
+            calories = parse_macro(form["calories"])
         except ValueError:
-            messages.error(request, "Nutrition values must be numbers between 0 and 9999.9.")
-            if meal:
-                return redirect("edit-meal", pk=meal.pk)
-            return redirect("add-meal")
+            error = "Nutrition values must be numbers between 0 and 9999.9."
 
-        note = request.POST.get("note")
         # empty selection falls back to the model default; anything else must be a real choice
-        context = request.POST.get("context") or "breakfast"
-        if context not in dict(MealLog.CONTEXT):
-            messages.error(request, "Invalid meal type.")
-            if meal:
-                return redirect("edit-meal", pk=meal.pk)
-            return redirect("add-meal")
+        meal_context = form["context"] or "breakfast"
+        if not error and meal_context not in dict(MealLog.CONTEXT):
+            error = "Invalid meal type."
 
-        if meal:
-            meal.carbs = carbs
-            meal.protein = protein
-            meal.fats = fats
-            meal.calories = calories
-            meal.context = context
-            meal.note = note
-            meal.save()
+        if not error:
+            try:
+                note = clean_text(form["note"], 255, "Meal description")
+            except ValueError as exc:
+                error = str(exc)
+
+        if error:
+            messages.error(request, error)
         else:
-            MealLog.objects.create(
-                user=request.user,
-                carbs=carbs,
-                protein=protein,
-                fats=fats,
-                calories=calories,
-                note=note,
-                context=context,
-            )
-        return redirect("log-meal")
+            if meal:
+                meal.carbs = carbs
+                meal.protein = protein
+                meal.fats = fats
+                meal.calories = calories
+                meal.context = meal_context
+                meal.note = note
+                meal.save()
+            else:
+                MealLog.objects.create(
+                    user=request.user,
+                    carbs=carbs,
+                    protein=protein,
+                    fats=fats,
+                    calories=calories,
+                    note=note,
+                    context=meal_context,
+                )
+            return redirect("log-meal")
 
-    context = {"meal": meal, "is_edit_mode": bool(meal)}
-    return render(request, "logs/add_meal.html", context)
+    return render(
+        request,
+        "logs/add_meal.html",
+        {"meal": meal, "is_edit_mode": bool(meal), "form": form},
+    )
 
 
 @login_required
