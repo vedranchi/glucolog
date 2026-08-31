@@ -240,3 +240,46 @@ class LoginNextRedirectTest(TestCase):
             },
         )
         self.assertRedirects(response, reverse("glucoread-dashboard"))
+
+
+class AdminLoginRateLimitTest(TestCase):
+    """The admin ships its own login view, outside every decorator in `users`.
+
+    That left the superuser credential — the most valuable one in the app —
+    taking unlimited guesses on the most scanned path on the internet, while an
+    ordinary user was capped at five attempts. This pins the fix, because the
+    gap is invisible: nothing fails, the form just answers forever.
+    """
+
+    def setUp(self):
+        cache.clear()
+
+    def test_admin_login_is_throttled_by_credential(self):
+        from django.urls import reverse
+
+        url = reverse("admin:login")
+        creds = {"username": "root@example.com", "password": "wrong"}
+
+        # the limit is 5/5m per submitted username
+        for attempt in range(5):
+            response = self.client.post(url, creds)
+            self.assertNotEqual(
+                response.status_code, 403, f"blocked early on attempt {attempt + 1}"
+            )
+
+        self.assertEqual(self.client.post(url, creds).status_code, 403)
+
+    def test_admin_login_page_still_loads_for_a_blocked_client(self):
+        """Only POSTs are limited, so a locked-out visitor can still read the page."""
+        from django.urls import reverse
+
+        url = reverse("admin:login")
+        for _ in range(6):
+            self.client.post(url, {"username": "root@example.com", "password": "x"})
+        self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_admin_path_is_configurable(self):
+        """Production moves the admin off the default path scanners probe."""
+        from django.conf import settings
+
+        self.assertTrue(settings.ADMIN_PATH.endswith("/"))
