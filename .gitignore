@@ -183,11 +183,17 @@ sendgrid.env
 # claude
 .claude
 
-# database dumps — contain health data, never commit
+# database dumps — contain health data, never commit.
+# backup.sh honours a BACKUP_DIR override, so match dumps anywhere, not just here.
 backups/
+*.sql
+*.sql.gz
+*.dump
 
 # local-only working notes — must never be committed
 HANDOFF.md
 skills-lock.json
+TODO
+.agents/
 # Committed template; the real .env stays ignored above.
 !.env.example

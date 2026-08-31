@@ -213,6 +213,19 @@ copy and this is a second, independent one. Run it by hand any time with
 the job is loaded, and `~/Library/Logs/glucolog-pull-backups.log` for its
 output.
 
+The script takes the VM address and key from the environment — this repository
+is public, so neither belongs in it:
+
+```bash
+export GLUCOLOG_VM_HOST=ubuntu@<vm-ip>
+export GLUCOLOG_SSH_KEY=~/.ssh/<key>
+```
+
+It exits immediately with a named error if either is unset, rather than hanging
+on a connection to nowhere. **The launch agent must set both too** — a plist
+does not inherit your shell profile, so add them to its `EnvironmentVariables`
+dict or the scheduled pull will fail every morning while manual runs succeed.
+
 ### Gaps to close
 
 - Dumps contain health data. `backups/` is gitignored and excluded from the
