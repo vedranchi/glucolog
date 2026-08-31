@@ -244,14 +244,35 @@ svg {
   display: flex;
   align-items: center;
   border-bottom: 1px solid transparent;
-  transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+  transition: border-color 0.3s var(--ease);
 }
 
-.topbar.is-stuck {
+/* The frosted panel is painted by a pseudo-element, never by .topbar itself.
+   backdrop-filter (like transform and filter) turns an element into the
+   containing block for every fixed-position descendant. With the blur on the
+   bar, the mobile drawer below — position: fixed; inset: 68px 0 0 0 — resolved
+   against the 68px bar instead of the viewport the moment the bar went sticky,
+   collapsing to nothing somewhere off the top of the screen. The pseudo-element
+   is a sibling of the drawer, not an ancestor, so it blurs without capturing
+   it. */
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent;
+  transition: background 0.3s var(--ease);
+}
+
+.topbar.is-stuck::before {
   background: var(--paper); /* fallback where color-mix is unsupported */
   background: color-mix(in srgb, var(--paper) 82%, transparent);
   backdrop-filter: blur(14px) saturate(150%);
   -webkit-backdrop-filter: blur(14px) saturate(150%);
+}
+
+.topbar.is-stuck {
   border-bottom-color: var(--line-soft);
 }
 
@@ -613,19 +634,20 @@ svg {
     transform: translateY(-8px);
     pointer-events: none;
     transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    /* Keeps a swipe inside the drawer from chaining into the page behind it
+       once the drawer's own scroll hits either end. This replaces an
+       `overflow: hidden` lock on <html>: a non-scrolling root has no
+       scrollport for `position: sticky` to resolve against, so the topbar fell
+       back to its static position — scrolled off the top of the screen, taking
+       the button that closes the drawer with it — and the page jumped as the
+       scroll offset was clamped. */
+    overscroll-behavior: contain;
   }
 
   .menu.open {
     opacity: 1;
     transform: none;
     pointer-events: auto;
-  }
-
-  /* Stops the page from scrolling behind the open drawer. `:has()` covers
-     modern browsers; `.nav-open` (toggled in script.js) is the fallback. */
-  html:has(#menu.open),
-  html.nav-open {
-    overflow: hidden;
   }
 
   .menu > a:not(.btn) {

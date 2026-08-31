@@ -7,6 +7,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- **Mobile menu was unreachable once the page was scrolled.** Opening the
+  drawer from the sticky topbar put it off the top of the screen and took the
+  header with it, leaving the page locked until a reload. The frosted bar now
+  paints on a pseudo-element (`backdrop-filter` on the bar itself made it the
+  containing block for the fixed drawer), and the drawer contains its own scroll
+  instead of locking `overflow` on `<html>` (which stopped `position: sticky`
+  from working at all).
+
 ## [1.0.0] — 2026-08-31
 
 First tagged release. The app has been running in production since 2026-08-23;
