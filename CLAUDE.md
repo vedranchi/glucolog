@@ -1,4 +1,4 @@
-# Project Knowledge: Glucolog
+# Project Knowledge: GlucoRead
 
 * **Goal:** A modern, user-friendly web app for diabetes management — glucose and insulin
   tracking plus rough meal/macro tracking.
@@ -21,7 +21,7 @@
 * `dashboard` — post-login summary screen + glucose chart. Hosts the signup signal.
 * `main` — shared `base.html`, the `home()` redirect, and `NoCacheMiddleware`.
 * `landing` — the public marketing page rendered by `home()` for anonymous visitors.
-  **Part of the product**, not a stopgap: Glucolog ships as one Django deployment, so the
+  **Part of the product**, not a stopgap: GlucoRead ships as one Django deployment, so the
   landing page lives here and is styled with the same shared theme tokens as the app.
 * `core` — settings/urls/wsgi.
 
@@ -57,6 +57,34 @@ erroring most of the suite. Ordinary local runs pass only because `staticfiles/`
 already populated — a clean checkout is not so lucky.
 
 ## 4. Current state — perishable, dated 2026-08-31
+**Renamed GlucoLog → GlucoRead (2026-08-31, legal).** The new domain is
+`glucoread.com`. The rename was deliberately split: everything user-visible and
+in-repo moved, while every name that also exists as *live state on the VM* was left
+alone so a merge to `dev` could not break the running deploy.
+
+*Moved:* brand text (one spelling now, `GlucoRead`), the `glucoread-*` URL route
+names, the `glucoread-theme` localStorage key, the cache table (`glucoread_cache`,
+renamed by `main/migrations/0002`; 0001 still creates the old name so fresh installs
+and production converge), the GitHub repo slug, and `demo@glucoread.app`.
+
+*Deliberately still `glucolog`, needs a coordinated VM cutover:* the domain and
+`SITE_DOMAIN`/`ALLOWED_HOSTS`/duckdns, the Postgres db/role/password and the
+`glucolog_postgres_dev` volume, `/opt/glucolog`, the `glucolog_*` container names,
+`ghcr.io/vedranchi/glucolog`, the `glucolog-redeploy` systemd units, the
+`glucolog-*.sql.gz` backup prefix and its B2 remote, and the `GLUCOLOG_*` env vars.
+**Do not "finish" these piecemeal** — `redeploy.sh` fast-forwards the VM checkout and
+re-execs itself, so a `cd /opt/glucoread` merged before the directory is moved breaks
+deploys silently. Note the HSTS open item below is unblocked once the domain moves.
+
+**Renaming the GitHub repo silently stops deploys.** CI derives the image name from
+`IMAGE_NAME: ${{ github.repository }}` (`.github/workflows/ci.yml`), but
+`docker-compose.prod.yml` and `deploy/redeploy.sh` both hard-code
+`ghcr.io/vedranchi/glucolog`. Rename the repo to `glucoread` and CI starts publishing
+to `ghcr.io/vedranchi/glucoread:dev` while the VM keeps pulling the old tag — which
+still exists, so the pull succeeds, `redeploy.sh` sees no image drift and exits 0.
+Production just quietly stops receiving updates. Change the repo name and those two
+hard-coded references in the same cutover.
+
 **Live in production** at `https://glucolog.duckdns.org` — first deploy 2026-08-23 on the
 Oracle VM, running `dev`. Caddy holds a valid Let's Encrypt cert, all three containers are
 healthy, and the security headers verify on the wire.

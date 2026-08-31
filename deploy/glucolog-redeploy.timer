@@ -1,5 +1,5 @@
 [Unit]
-Description=Poll GHCR for a new Glucolog image
+Description=Poll GHCR for a new GlucoRead image
 Documentation=file:///opt/glucolog/deploy/README.md
 
 [Timer]

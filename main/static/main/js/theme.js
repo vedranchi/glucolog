@@ -5,7 +5,7 @@
    scripts react (the glucose charts repaint on themechange). */
 
 (function () {
-  const STORAGE_KEY = "glucolog-theme";
+  const STORAGE_KEY = "glucoread-theme";
   const root = document.documentElement;
   const switches = document.querySelectorAll("[data-theme-switch]");
   const system = window.matchMedia("(prefers-color-scheme: dark)");

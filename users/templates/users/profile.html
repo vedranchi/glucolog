@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Account Settings — GlucoLog
+Account Settings — GlucoRead
 {% endblock %}
 {% block nav_title %}Profile{% endblock %}
 
@@ -78,12 +78,12 @@ Account Settings — GlucoLog
         <!-- Form Actions -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">Save Changes</button>
-            <a href="{% url 'glucolog-dashboard' %}" class="btn-secondary">Cancel</a>
+            <a href="{% url 'glucoread-dashboard' %}" class="btn-secondary">Cancel</a>
         </div>
     </form>
 
     <div class="account-actions">
-        <form method="POST" action="{% url 'glucolog-logout' %}">
+        <form method="POST" action="{% url 'glucoread-logout' %}">
             {% csrf_token %}
             <button type="submit" class="btn-logout">Log out</button>
         </form>

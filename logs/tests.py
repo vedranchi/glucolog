@@ -221,13 +221,13 @@ class CrossUserIsolationTest(TestCase):
                 self.assertIsNone(obj.deleted_at)
 
     def test_another_users_records_never_appear_in_list_views(self):
-        for name in ("log-glucose", "log-insulin", "log-meal", "glucolog-dashboard"):
+        for name in ("log-glucose", "log-insulin", "log-meal", "glucoread-dashboard"):
             with self.subTest(view=name):
                 body = self.client.get(reverse(name)).content.decode()
                 self.assertNotIn("owner glucose", body)
 
     def test_intruder_sees_empty_aggregates_not_the_owners_totals(self):
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertIsNone(response.context["avg_glucose"])
         self.assertIsNone(response.context["total_insulin"])
         self.assertIsNone(response.context["carbs_consumed"])
@@ -280,7 +280,7 @@ class SoftDeleteExclusionTest(TestCase):
         self.assertEqual(float(response.context["carbs_today"]), 30.0)
 
     def test_dashboard_totals_exclude_deleted_records(self):
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertEqual(float(response.context["avg_glucose"]), 6.0)
         self.assertEqual(float(response.context["total_insulin"]), 4.0)
         self.assertEqual(float(response.context["carbs_consumed"]), 30.0)
@@ -637,7 +637,7 @@ class DashboardChartOrderingTest(TestCase):
         GlucoseLog.objects.create(
             user=self.user, value=5.0, measured_at=now - timedelta(hours=3)
         )
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertEqual(response.context["glucose_values"], [5.0, 7.0])
 
 
@@ -670,7 +670,7 @@ class DisplayRoundingTest(TestCase):
 
     def test_dashboard_label_is_not_three_decimals(self):
         self._set_unit(UserPreferences.GLUCOSE_UNIT_MMOL)
-        response = self.client.get(reverse("glucolog-dashboard"))
+        response = self.client.get(reverse("glucoread-dashboard"))
         self.assertEqual(
             response.context["recent_activity"][0]["label"],
             "Glucose reading (5.6 mmol/L)",

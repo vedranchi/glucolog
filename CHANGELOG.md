@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Glucolog are documented here.
+All notable changes to GlucoRead are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -109,5 +109,5 @@ this marks the point at which it was deemed complete enough to version.
   the CDN tags are version-pinned but carry no `integrity` attribute.
 - HSTS is held at 7 days pending a move to a custom domain.
 
-[Unreleased]: https://github.com/vedranchi/glucolog/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/vedranchi/glucolog/releases/tag/v1.0.0
+[Unreleased]: https://github.com/vedranchi/glucoread/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/vedranchi/glucoread/releases/tag/v1.0.0

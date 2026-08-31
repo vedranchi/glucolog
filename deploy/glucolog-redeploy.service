@@ -1,5 +1,5 @@
 [Unit]
-Description=Redeploy Glucolog when CI publishes a new image
+Description=Redeploy GlucoRead when CI publishes a new image
 Documentation=file:///opt/glucolog/deploy/README.md
 After=docker.service
 Requires=docker.service

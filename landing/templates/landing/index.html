@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GlucoLog | See the pattern, not just the number</title>
+    <title>GlucoRead | See the pattern, not just the number</title>
     <meta
       name="description"
       content="Log glucose, insulin, and meals on one timeline, in mmol/L or mg/dL, and see the trend behind your numbers."
@@ -26,9 +26,9 @@
 
     <header class="topbar" id="topbar">
       <div class="container topbar-inner">
-        <a class="brand" href="#top" aria-label="GlucoLog home">
+        <a class="brand" href="#top" aria-label="GlucoRead home">
           <span class="brand-mark" aria-hidden="true"></span>
-          <span class="brand-name">GlucoLog</span>
+          <span class="brand-name">GlucoRead</span>
         </a>
 
         <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu">
@@ -38,11 +38,11 @@
         <nav id="menu" class="menu" aria-label="Main">
           <a href="#how">How it works</a>
           <a href="#features">Features</a>
-          <a href="{% url 'glucolog-login' %}">Sign in</a>
+          <a href="{% url 'glucoread-login' %}">Sign in</a>
 
           {% include "main/_theme_switch.html" %}
 
-          <a href="{% url 'glucolog-register' %}" class="btn btn-primary btn-sm">Create account</a>
+          <a href="{% url 'glucoread-register' %}" class="btn btn-primary btn-sm">Create account</a>
         </nav>
       </div>
     </header>
@@ -58,8 +58,8 @@
               next appointment does.
             </p>
             <div class="actions">
-              <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create account</a>
-              <a class="btn btn-quiet" href="{% url 'glucolog-login' %}">Sign in</a>
+              <a class="btn btn-primary" href="{% url 'glucoread-register' %}">Create account</a>
+              <a class="btn btn-quiet" href="{% url 'glucoread-login' %}">Sign in</a>
             </div>
           </div>
 
@@ -69,7 +69,7 @@
           <figure
             class="app-preview"
             role="img"
-            aria-label="The GlucoLog dashboard: a sidebar with Dashboard, Insulin, Glucose and Meals, and the Glucose Trend panel charting an example day of readings from 5.4 to 8.1 mmol per litre."
+            aria-label="The GlucoRead dashboard: a sidebar with Dashboard, Insulin, Glucose and Meals, and the Glucose Trend panel charting an example day of readings from 5.4 to 8.1 mmol per litre."
           >
             <div class="app-window">
               <nav class="app-rail">
@@ -276,8 +276,8 @@
           <h2>Start today's log.</h2>
           <p>Free to use, in your own units, on any phone.</p>
           <div class="actions">
-            <a class="btn btn-primary" href="{% url 'glucolog-register' %}">Create account</a>
-            <a class="btn btn-quiet" href="{% url 'glucolog-login' %}">Sign in</a>
+            <a class="btn btn-primary" href="{% url 'glucoread-register' %}">Create account</a>
+            <a class="btn btn-quiet" href="{% url 'glucoread-login' %}">Sign in</a>
           </div>
         </div>
       </section>
@@ -287,17 +287,17 @@
       <div class="container footer-inner">
         <div class="footer-brand">
           <span class="brand-mark" aria-hidden="true"></span>
-          <span class="brand-name">GlucoLog</span>
+          <span class="brand-name">GlucoRead</span>
         </div>
 
         <nav class="footer-nav" aria-label="Footer">
           <a href="#how">How it works</a>
           <a href="#features">Features</a>
-          <a href="{% url 'glucolog-login' %}">Sign in</a>
+          <a href="{% url 'glucoread-login' %}">Sign in</a>
         </nav>
 
         <p class="footer-disclaimer">
-          GlucoLog is a tracking tool, not medical advice. Always confirm treatment decisions
+          GlucoRead is a tracking tool, not medical advice. Always confirm treatment decisions
           with your care team.
         </p>
       </div>

@@ -47,15 +47,15 @@ class LoginTest(TestCase):
 
     def test_valid_credentials_log_the_user_in(self):
         response = self.client.post(
-            reverse("glucolog-login"),
+            reverse("glucoread-login"),
             {"username": "login@example.com", "password": "pw12345!"},
         )
-        self.assertRedirects(response, reverse("glucolog-dashboard"))
+        self.assertRedirects(response, reverse("glucoread-dashboard"))
         self.assertEqual(int(self.client.session["_auth_user_id"]), self.user.pk)
 
     def test_wrong_password_does_not_log_in(self):
         response = self.client.post(
-            reverse("glucolog-login"),
+            reverse("glucoread-login"),
             {"username": "login@example.com", "password": "nope"},
         )
         self.assertEqual(response.status_code, 200)
@@ -86,14 +86,14 @@ class RateLimitTest(TestCase):
 
     def test_login_throttles_by_username(self):
         """5/5m per credential, so one account cannot be ground down."""
-        url = reverse("glucolog-login")
+        url = reverse("glucoread-login")
         creds = {"username": "rate@example.com", "password": "wrong"}
         for _ in range(5):
             self.assertEqual(self.client.post(url, creds).status_code, 200)
         self.assertEqual(self.client.post(url, creds).status_code, 403)
 
     def test_register_throttles_by_ip(self):
-        url = reverse("glucolog-register")
+        url = reverse("glucoread-register")
         for i in range(10):
             self.client.post(url, {"username": f"u{i}", "email": f"u{i}@example.com"})
         self.assertEqual(self.client.post(url, {}).status_code, 403)
@@ -114,10 +114,11 @@ class RateLimitTest(TestCase):
         cache.set("shared-probe", "v", 30)
         self.assertEqual(cache.get("shared-probe"), "v")
 
-    def test_cache_table_name_matches_the_migration(self):
-        """The table is created by main/0001; the name is coupled in two places.
+    def test_cache_table_name_matches_the_migrations(self):
+        """0001 creates the table, 0002 renames it; the name is coupled in three
+        places.
 
-        Renaming one without the other leaves every rate-limited view raising
+        Renaming one without the others leaves every rate-limited view raising
         ProgrammingError on a real database. The test runner creates cache
         tables automatically, so no other test can catch that drift.
         """
@@ -125,9 +126,14 @@ class RateLimitTest(TestCase):
 
         from django.conf import settings
 
-        migration = import_module("main.migrations.0001_create_cache_table")
+        create = import_module("main.migrations.0001_create_cache_table")
+        rename = import_module("main.migrations.0002_rename_cache_table")
+
+        # 0002 has to rename the exact table 0001 created, ...
+        self.assertEqual(create.CACHE_TABLE, rename.OLD_TABLE)
+        # ... and settings has to point at what the last migration leaves behind.
         self.assertEqual(
-            settings.CACHES["default"]["LOCATION"], migration.CACHE_TABLE
+            settings.CACHES["default"]["LOCATION"], rename.NEW_TABLE
         )
 
 
@@ -208,29 +214,29 @@ class LoginNextRedirectTest(TestCase):
         target = reverse("add-glucose")
         response = self.client.get(target)
         self.assertRedirects(
-            response, f"{reverse('glucolog-login')}?next={target}"
+            response, f"{reverse('glucoread-login')}?next={target}"
         )
 
         response = self.client.post(
-            reverse("glucolog-login"),
+            reverse("glucoread-login"),
             {"username": "next@example.com", "password": "pw12345!", "next": target},
         )
         self.assertRedirects(response, target)
 
     def test_login_without_next_lands_on_the_dashboard(self):
         response = self.client.post(
-            reverse("glucolog-login"),
+            reverse("glucoread-login"),
             {"username": "next@example.com", "password": "pw12345!"},
         )
-        self.assertRedirects(response, reverse("glucolog-dashboard"))
+        self.assertRedirects(response, reverse("glucoread-dashboard"))
 
     def test_offsite_next_is_ignored(self):
         response = self.client.post(
-            reverse("glucolog-login"),
+            reverse("glucoread-login"),
             {
                 "username": "next@example.com",
                 "password": "pw12345!",
                 "next": "https://evil.example.com/steal",
             },
         )
-        self.assertRedirects(response, reverse("glucolog-dashboard"))
+        self.assertRedirects(response, reverse("glucoread-dashboard"))

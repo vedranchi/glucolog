@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Dump the Glucolog Postgres database to a compressed, timestamped file.
+# Dump the GlucoRead Postgres database to a compressed, timestamped file.
 #
 # Intended to run from cron on the VM. See deploy/README.md for the crontab
 # entry and the restore procedure.

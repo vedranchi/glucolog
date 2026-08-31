@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Restore a Glucolog database dump.
+# Restore a GlucoRead database dump.
 #
 #   ./deploy/restore.sh backups/glucolog-<stamp>.sql.gz --into drill_db
 #       Restore into a scratch database. Non-destructive: this is how you

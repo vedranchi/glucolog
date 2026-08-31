@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Pull Glucolog Postgres backups from the Oracle VM down to this machine.
+# Pull GlucoRead Postgres backups from the Oracle VM down to this machine.
 #
 # deploy/backup.sh already runs on the VM (cron, nightly) and verifies each
 # dump before keeping it. Backups still live only on that VM until this runs,

@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}GlucoLog{% endblock %}</title>
+    <title>{% block title %}GlucoRead{% endblock %}</title>
     <meta name="robots" content="noindex" />
 
     {% include "main/_theme_head.html" %}
@@ -17,9 +17,9 @@
     <div class="auth-shell">
       <header class="topbar">
         <div class="container topbar-inner">
-          <a class="brand" href="{% url 'glucolog-home' %}">
+          <a class="brand" href="{% url 'glucoread-home' %}">
             <span class="brand-mark" aria-hidden="true"></span>
-            <span class="brand-name">GlucoLog</span>
+            <span class="brand-name">GlucoRead</span>
           </a>
 
           {% include "main/_theme_switch.html" %}
@@ -44,7 +44,7 @@
 
       <footer class="auth-footer container">
         <p>
-          GlucoLog is a tracking tool, not medical advice. Always confirm treatment decisions
+          GlucoRead is a tracking tool, not medical advice. Always confirm treatment decisions
           with your care team.
         </p>
       </footer>

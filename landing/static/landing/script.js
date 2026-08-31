@@ -1,4 +1,4 @@
-/* GlucoLog landing page behaviour.
+/* GlucoRead landing page behaviour.
    Everything here is either feedback for a user action or a one-shot reveal.
    No scroll listeners: position is observed with IntersectionObserver. */
 

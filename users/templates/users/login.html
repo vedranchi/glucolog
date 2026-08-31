@@ -1,6 +1,6 @@
 {% extends "users/auth_base.html" %}
 
-{% block title %}Sign in | GlucoLog{% endblock %}
+{% block title %}Sign in | GlucoRead{% endblock %}
 
 {% block card %}
 <h1>Welcome back.</h1>
@@ -15,7 +15,7 @@
 </form>
 
 <div class="auth-links">
-  <p>New here? <a href="{% url 'glucolog-register' %}">Create an account</a></p>
+  <p>New here? <a href="{% url 'glucoread-register' %}">Create an account</a></p>
   <p>Forgot your password? <a href="{% url 'password_reset' %}">Reset it</a></p>
 </div>
 {% endblock %}
