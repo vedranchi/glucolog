@@ -82,7 +82,9 @@ this marks the point at which it was deemed complete enough to version.
 ### Infrastructure
 
 - **Deployed** on an Oracle Cloud Always Free VM behind Caddy with automatic
-  Let's Encrypt TLS.
+  Let's Encrypt TLS, on its own domain at **glucoread.com**. The previous
+  `glucolog.duckdns.org` address and `www` both redirect to it permanently, so
+  there is exactly one canonical origin for sessions, cookies and HSTS.
 - **Automatic deploys** — GitHub Actions runs the suite under `DEBUG=False`
   against a real Postgres service container, builds the image and pushes it to
   GHCR; a systemd timer on the VM pulls and restarts only when the image digest
@@ -96,6 +98,21 @@ this marks the point at which it was deemed complete enough to version.
   off-site to Backblaze B2, with a documented restore drill.
 - `web` gated on a database healthcheck, container logs capped, all dependencies
   pinned.
+- Proxy configuration is now actually applied by a deploy. `redeploy.sh`
+  recreated only the app container, so a Caddyfile change reached the VM and sat
+  inert until Caddy next restarted for an unrelated reason.
+
+### Changed
+
+- **Renamed GlucoLog to GlucoRead** for legal reasons, across everything
+  user-visible: brand text, URL route names, the theme preference key, the demo
+  account, and the repository itself. Names that also exist as live state on the
+  VM — the Postgres database and its volume, container names, `/opt/glucolog`,
+  the systemd units, the backup prefix and the `GLUCOLOG_*` variables — were
+  deliberately left alone so the rename could not break a running deploy.
+  The one exception is the cache table, renamed by `main/0002`, which is
+  reversible and covered by a test coupling both migrations to `settings.CACHES`.
+  Saved light/dark theme preferences reset once, since the storage key moved.
 
 ### Known limitations
 

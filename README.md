@@ -4,7 +4,7 @@ A web app for people managing diabetes day-to-day — glucose readings, insulin 
 rough meal/macro tracking in one place, with a dashboard that turns raw logs into a picture
 of the day.
 
-**Live:** [glucolog.duckdns.org](https://glucolog.duckdns.org)
+**Live:** [glucoread.com](https://glucoread.com)
 &nbsp;·&nbsp;
 [![CI](https://github.com/vedranchi/glucoread/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/vedranchi/glucoread/actions/workflows/ci.yml)
 

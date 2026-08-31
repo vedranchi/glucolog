@@ -15,7 +15,7 @@ cd /opt/glucolog
 
 COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.prod.yml)
 BRANCH="${GLUCOLOG_BRANCH:-dev}"
-IMAGE="ghcr.io/vedranchi/glucolog:${GLUCOLOG_TAG:-dev}"
+IMAGE="ghcr.io/vedranchi/glucoread:${GLUCOLOG_TAG:-dev}"
 CONTAINER="glucolog_web"
 
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
@@ -74,9 +74,16 @@ if [ "$changed" -eq 0 ]; then
 fi
 
 # The container runs migrate + collectstatic on boot, so `up -d` is the whole
-# deploy. Caddy retries a cold upstream, so it needs no restart.
-log "redeploying web"
-"${COMPOSE[@]}" up -d web
+# deploy.
+#
+# All services, not just `web`. The config step above fast-forwards the
+# Caddyfile and the compose files, but this used to recreate only `web` — so a
+# proxy change landed in the checkout and was never applied, then took effect at
+# whatever unrelated moment Caddy happened to restart next. Compose is
+# declarative and only recreates what actually differs, so naming no service is
+# both correct and a no-op for anything unchanged.
+log "redeploying"
+"${COMPOSE[@]}" up -d
 
 # Untagged parents of the image we just replaced. Disk is cheap here (39G free)
 # but an unbounded image history on a free-tier box is not.

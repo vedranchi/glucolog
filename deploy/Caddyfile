@@ -1,9 +1,15 @@
-# Caddy provisions and renews a Let's Encrypt certificate for $SITE_DOMAIN
-# automatically (needs ports 80 + 443 reachable). Static and media are served
-# straight from the shared volumes to offload gunicorn; everything else is
-# reverse-proxied to the Django app. Caddy sets X-Forwarded-Proto=https, which
-# Django trusts via SECURE_PROXY_SSL_HEADER.
+# Caddy provisions and renews a Let's Encrypt certificate for every hostname
+# named here automatically (needs ports 80 + 443 reachable). Static and media
+# are served straight from the shared volumes to offload gunicorn; everything
+# else is reverse-proxied to the Django app. Caddy sets X-Forwarded-Proto=https,
+# which Django trusts via SECURE_PROXY_SSL_HEADER.
+#
+# NOTE: deploy/redeploy.sh applies this file by recreating the caddy container.
+# Editing it on the VM by hand instead would diverge the checkout and stop all
+# future deploys — change it here and let the timer ship it.
 
+# The canonical hostname. This is the only one that serves the app, so sessions,
+# cookies and HSTS all have exactly one origin.
 {$SITE_DOMAIN} {
 	encode gzip zstd
 
@@ -18,4 +24,15 @@
 	}
 
 	reverse_proxy web:8000
+}
+
+# Everything the site used to answer on. Redirecting at the proxy means these
+# never reach Django, so they don't need to be in ALLOWED_HOSTS — which is why
+# glucolog.duckdns.org was returning a bare 400 after the domain move.
+#
+# Hostnames are literal rather than env-driven on purpose: an unset variable
+# here would expand to an empty site address, which is a hard Caddy config
+# error, and that would take the whole site down rather than just this block.
+www.glucoread.com, glucolog.duckdns.org {
+	redir https://{$SITE_DOMAIN}{uri} permanent
 }

@@ -76,18 +76,40 @@ and production converge), the GitHub repo slug, and `demo@glucoread.app`.
 re-execs itself, so a `cd /opt/glucoread` merged before the directory is moved breaks
 deploys silently. Note the HSTS open item below is unblocked once the domain moves.
 
-**Renaming the GitHub repo silently stops deploys.** CI derives the image name from
-`IMAGE_NAME: ${{ github.repository }}` (`.github/workflows/ci.yml`), but
-`docker-compose.prod.yml` and `deploy/redeploy.sh` both hard-code
-`ghcr.io/vedranchi/glucolog`. Rename the repo to `glucoread` and CI starts publishing
-to `ghcr.io/vedranchi/glucoread:dev` while the VM keeps pulling the old tag — which
-still exists, so the pull succeeds, `redeploy.sh` sees no image drift and exits 0.
-Production just quietly stops receiving updates. Change the repo name and those two
-hard-coded references in the same cutover.
+**The repo rename is done, and its trap is worth remembering.** CI derives the image
+name from `IMAGE_NAME: ${{ github.repository }}` (`.github/workflows/ci.yml`) while
+`docker-compose.prod.yml` and `deploy/redeploy.sh` hard-code the path. Renaming the repo
+without moving those two references would have left CI publishing to the new path while
+the VM kept pulling the old tag — which still exists, so the pull succeeds, `redeploy.sh`
+sees no drift, exits 0, and production silently stops receiving updates. All three now say
+`ghcr.io/vedranchi/glucoread`.
 
-**Live in production** at `https://glucolog.duckdns.org` — first deploy 2026-08-23 on the
-Oracle VM, running `dev`. Caddy holds a valid Let's Encrypt cert, all three containers are
-healthy, and the security headers verify on the wire.
+**A renamed repo also means a new GHCR package, and new packages are private.** The VM
+pulls anonymously, so the first publish under a new name needs the package flipped to
+Public or every pull 403s. `redeploy.sh` fails safe there — it logs and leaves the running
+app alone — so the symptom is "deploys stopped", not an outage.
+
+**Live in production** at `https://glucoread.com` — first deploy 2026-08-23 on the Oracle
+VM, running `dev`. Moved off `glucolog.duckdns.org` on 2026-08-31, onto a reserved Oracle
+public IP. Caddy holds valid Let's Encrypt certs, all three containers are healthy, and the
+security headers verify on the wire.
+
+**One canonical hostname.** `deploy/Caddyfile` serves the app on `{$SITE_DOMAIN}` only;
+`www.glucoread.com` and the old `glucolog.duckdns.org` are 301'd to it by a separate block.
+Redirecting at the proxy means those never reach Django, so they must *not* be in
+`ALLOWED_HOSTS` — and must not be in `SITE_DOMAIN` either. A hostname appearing in both the
+app block and the redirect block is a fatal Caddy config error that takes the whole site
+down, so change `.env` and the Caddyfile together.
+
+**Caddy is only restarted by a deploy.** `redeploy.sh` used to run `up -d web`, so a
+Caddyfile change fast-forwarded into the checkout and then did nothing until Caddy happened
+to restart for some unrelated reason. It now runs `up -d` for the whole stack; compose only
+recreates what actually differs.
+
+**Rolling the image back across `main/0002` breaks rate limiting.** That migration renames
+the cache table, and a rollback to a pre-rename image leaves `CACHES` pointing at a table
+that no longer exists, so every rate-limited auth view raises `ProgrammingError`. The
+migration is reversible — unapply it (`migrate main 0001`) as part of any such rollback.
 
 **The VM is `VM.Standard.E2.1.Micro` — x86_64, 2 cores, 956 MiB RAM.** *Not* the Ampere A1
 arm64 box this file and `deploy/README.md` both claimed until 2026-08-25. It now carries a
