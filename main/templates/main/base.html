@@ -55,58 +55,7 @@
     {% endif %}
 
     <main>
-      {% block content %}
-        {% if not user.is_authenticated %}
-          <div class="welcome-container">
-            <section class="landing-hero">
-              <div class="landing-copy">
-                <span class="landing-kicker">Diabetes Management Platform</span>
-                <h1>Manage glucose, insulin, and meals in one clear dashboard.</h1>
-                <p>GlucoRead helps you log faster, see patterns sooner, and make day-to-day decisions with confidence.</p>
-                <div class="landing-actions">
-                  <a href="{% url 'glucoread-login' %}" class="btn-primary">Get Started</a>
-                  <a href="{% url 'glucoread-register' %}" class="btn-secondary">Create Account</a>
-                </div>
-              </div>
-
-              <div class="landing-panel">
-                <h2>Today at a Glance</h2>
-                <div class="landing-metrics">
-                  <div class="metric-item">
-                    <span class="metric-title">Glucose Trends</span>
-                    <strong>Track changes over time</strong>
-                  </div>
-                  <div class="metric-item">
-                    <span class="metric-title">Insulin Doses</span>
-                    <strong>Stay consistent with timing</strong>
-                  </div>
-                  <div class="metric-item">
-                    <span class="metric-title">Meal Logs</span>
-                    <strong>Connect nutrition and readings</strong>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section class="landing-features">
-              <article class="feature-card">
-                <h3>Fast Logging</h3>
-                <p>Capture readings and doses in seconds with focused forms.</p>
-              </article>
-              <article class="feature-card">
-                <h3>Actionable Insights</h3>
-                <p>See activity trends and recent events in one structured view.</p>
-              </article>
-              <article class="feature-card">
-                <h3>Built for Daily Use</h3>
-                <p>Simple design that works well on desktop and mobile.</p>
-              </article>
-            </section>
-
-            <div class="footer-note">Track, manage, and improve your health with GlucoRead.</div>
-          </div>
-        {% endif %}
-      {% endblock %}
+      {% block content %}{% endblock %}
     </main>
 
     {% if user.is_authenticated %}

@@ -301,6 +301,10 @@ AUTH_USER_MODEL = "users.User"  # new
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
+# Where the Django admin lives. Overridable so production can move it off the
+# default path that every scanner probes; must end in "/".
+ADMIN_PATH = env("ADMIN_PATH", default="admin/")
+
 LOGIN_URL = "glucoread-login"
 # Where sign-in and sign-up land when there is no (valid) ?next= to honour.
 LOGIN_REDIRECT_URL = "glucoread-dashboard"
