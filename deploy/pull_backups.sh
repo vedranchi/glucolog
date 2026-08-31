@@ -9,12 +9,20 @@
 #
 # Run manually, or scheduled via
 # ~/Library/LaunchAgents/com.glucolog.pullbackups.plist (see deploy/README.md).
+#
+# Both the host and the key come from the environment. This repository is
+# public, so the production address does not belong in it -- an operator's
+# infrastructure is not part of the software. Set them in your shell profile or
+# the launch agent:
+#
+#   export GLUCOLOG_VM_HOST=ubuntu@<vm-ip>
+#   export GLUCOLOG_SSH_KEY=~/.ssh/<key>
 
 set -euo pipefail
 
-SSH_KEY="${GLUCOLOG_SSH_KEY:-$HOME/.ssh/ssh-key-2026-08-20.key}"
-VM_HOST="ubuntu@89.168.119.75"
-REMOTE_DIR="/opt/glucolog/backups/"
+SSH_KEY="${GLUCOLOG_SSH_KEY:?set GLUCOLOG_SSH_KEY to your VM private key path}"
+VM_HOST="${GLUCOLOG_VM_HOST:?set GLUCOLOG_VM_HOST, e.g. ubuntu@203.0.113.10}"
+REMOTE_DIR="${GLUCOLOG_REMOTE_DIR:-/opt/glucolog/backups/}"
 LOCAL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/backups/"
 
 mkdir -p "$LOCAL_DIR"

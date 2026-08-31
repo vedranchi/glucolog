@@ -1,4 +1,5 @@
-# Test every change, and on `dev` publish a ready-to-run image to GHCR.
+# Test every change; publish a ready-to-run image to GHCR from `dev` and from
+# release tags.
 #
 # The VM is a 1 GB Oracle free-tier box; building there takes ~8 minutes of
 # IO-starved grinding next to the live database. So the VM never builds — CI
@@ -8,6 +9,9 @@ name: CI/CD
 on:
   push:
     branches: [dev]
+    # Release tags build too, so `git push --tags` produces an actual artifact
+    # rather than a marker pointing at a commit nobody can run.
+    tags: ["v*"]
   pull_request:
     branches: [dev]
   workflow_dispatch:
@@ -69,11 +73,17 @@ jobs:
       - name: Django system checks
         run: python manage.py check
 
+      # A model change merged without its migration passes every other gate:
+      # the container's boot-time `migrate` is then a no-op and the production
+      # schema silently drifts from the code. Worth failing loudly over.
+      - name: Check for missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
       - name: Collect static files
         # Under DEBUG=False the staticfiles storage is WhiteNoise's manifest
         # backend, which raises "Missing staticfiles manifest entry" for every
         # {% static %} tag until collectstatic has run. The container does this
-        # at boot; CI has to do it too, or 27 of the 44 tests error out.
+        # at boot; CI has to do it too, or most of the suite errors out.
         run: python manage.py collectstatic --noinput
 
       - name: Run test suite
@@ -97,7 +107,7 @@ jobs:
       - uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -109,15 +119,26 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # `latest=auto` is the action's default, spelled out because it is the
+          # one tag produced here that does not appear in the list below: it
+          # follows semver tags only, never `dev`.
+          flavor: latest=auto
           tags: |
-            type=raw,value=dev
+            # `dev` is the repository's default branch, so this publishes on
+            # merge and — deliberately — does NOT move for a tag build. Cutting
+            # a release must not reach in and change what production is running.
+            type=raw,value=dev,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
             type=sha,format=long
 
-      - name: Build, and push only from dev
+      - name: Build, and push only from dev or a release tag
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: ${{ github.ref == 'refs/heads/dev' }}
+          push: >-
+            ${{ github.ref == 'refs/heads/dev'
+                || startsWith(github.ref, 'refs/tags/v') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Persist the pip layer between runs so an unchanged requirements.txt
