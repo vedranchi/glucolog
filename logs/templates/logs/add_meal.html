@@ -30,59 +30,60 @@
             type="text" 
             name="note" 
             id="note" 
-            placeholder="e.g., Chicken wrap, Oatmeal, Grilled salmon" 
+            placeholder="e.g., Chicken wrap, Oatmeal, Grilled salmon"
             required
-            value="{{ meal.note|default:'' }}"
+            maxlength="255"
+            value="{{ form.note|default_if_none:'' }}"
         >
         <small>Brief description of what you ate</small>
-        
+
         <label for="carbs">Carbohydrates (g)</label>
-        <input 
-            type="number" 
-            step="0.1" 
-            name="carbs" 
-            id="carbs" 
-            value="{{ meal.carbs|default:'0' }}" 
+        <input
+            type="number"
+            step="0.1"
+            name="carbs"
+            id="carbs"
+            value="{{ form.carbs|default_if_none:'' }}"
             min="0"
         >
-        
+
         <label for="protein">Protein (g)</label>
-        <input 
-            type="number" 
-            step="0.1" 
-            name="protein" 
-            id="protein" 
-            value="{{ meal.protein|default:'0' }}" 
+        <input
+            type="number"
+            step="0.1"
+            name="protein"
+            id="protein"
+            value="{{ form.protein|default_if_none:'' }}"
             min="0"
         >
-        
+
         <label for="fats">Fats (g)</label>
-        <input 
-            type="number" 
-            step="0.1" 
-            name="fats" 
-            id="fats" 
-            value="{{ meal.fats|default:'0' }}" 
+        <input
+            type="number"
+            step="0.1"
+            name="fats"
+            id="fats"
+            value="{{ form.fats|default_if_none:'' }}"
             min="0"
         >
-        
+
         <label for="calories">Calories (kcal)</label>
-        <input 
-            type="number" 
-            name="calories" 
-            id="calories" 
-            value="{{ meal.calories|default:'0' }}" 
+        <input
+            type="number"
+            name="calories"
+            id="calories"
+            value="{{ form.calories|default_if_none:'' }}"
             readonly
         >
         <small>Automatically calculated from macros</small>
-        
+
         <label for="context">Meal Type</label>
         <select name="context" id="context">
             <option value="">Select meal type</option>
-            <option value="breakfast" {% if meal.context == 'breakfast' %}selected{% endif %}>Breakfast</option>
-            <option value="lunch" {% if meal.context == 'lunch' %}selected{% endif %}>Lunch</option>
-            <option value="dinner" {% if meal.context == 'dinner' %}selected{% endif %}>Dinner</option>
-            <option value="snack" {% if meal.context == 'snack' %}selected{% endif %}>Snack</option>
+            <option value="breakfast" {% if form.context == 'breakfast' %}selected{% endif %}>Breakfast</option>
+            <option value="lunch" {% if form.context == 'lunch' %}selected{% endif %}>Lunch</option>
+            <option value="dinner" {% if form.context == 'dinner' %}selected{% endif %}>Dinner</option>
+            <option value="snack" {% if form.context == 'snack' %}selected{% endif %}>Snack</option>
         </select>
         
         <div class="button-group">

@@ -73,10 +73,10 @@
         {% for day in weekly_insulin %}
         <tr>
             <td data-label="Date">{{ day.date|date:"M d, Y" }}</td>
-            <td data-label="Basal Units">{{ day.basal_units|default:"0" }}</td>
-            <td data-label="Bolus Units">{{ day.bolus_units|default:"0" }}</td>
+            <td data-label="Basal Units">{{ day.basal_units|default_if_none:"0" }}</td>
+            <td data-label="Bolus Units">{{ day.bolus_units|default_if_none:"0" }}</td>
             <td data-label="Total">
-                {{ day.basal_units|add:day.bolus_units|default:"0" }}
+                {{ day.total_units|default_if_none:"0" }}
             </td>
         </tr>
         {% endfor %}

@@ -312,14 +312,24 @@ class LogViewValidationTest(TestCase):
         from django.urls import reverse
 
         log = InsulinLog.objects.create(
-            user=self.user, units=10, insulin_type="bolus"
+            user=self.user, units=10, insulin_type="bolus", brand="Lantus"
         )
         response = self.client.post(
             reverse("edit-insulin", kwargs={"pk": log.pk}),
-            {"units": "not-a-number", "insulin_type": "bolus"},
+            {"units": "not-a-number", "insulin_type": "bolus", "brand": "NovoLog"},
         )
-        # must bounce back to the edit form, not silently switch to add mode
-        self.assertRedirects(response, reverse("edit-insulin", kwargs={"pk": log.pk}))
+        # Re-render the edit form rather than redirecting to it: a redirect
+        # rebuilds the fields from the database and throws away everything the
+        # user typed. Still edit mode, and the stored record is untouched.
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_edit_mode"])
+        self.assertEqual(response.context["insulin"].pk, log.pk)
+        # the rejected submission is echoed back, not the stored values
+        self.assertEqual(response.context["form"]["units"], "not-a-number")
+        self.assertEqual(response.context["form"]["brand"], "NovoLog")
+        log.refresh_from_db()
+        self.assertEqual(log.units, 10)
+        self.assertEqual(log.brand, "Lantus")
 
     def test_add_insulin_rejects_unknown_type(self):
         from logs.models import InsulinLog
@@ -398,6 +408,219 @@ class LogViewValidationTest(TestCase):
         self.assertTrue(total.is_finite())
 
 
+class WeeklyInsulinTotalTest(TestCase):
+    """The weekly Total column used to be computed in the template with `add`.
+
+    That filter coerces through int(), so it truncated half units, and it
+    returned "" when either side was a NULL Sum — which `|default:"0"` then
+    rendered as a total of 0. Both are wrong in an insulin log, so the total is
+    now summed in the database.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
+
+    def _weekly(self):
+        response = self.client.get(reverse("log-insulin"))
+        self.assertEqual(response.status_code, 200)
+        return response.context["weekly_insulin"]
+
+    def test_half_units_are_not_truncated(self):
+        InsulinLog.objects.create(user=self.user, units=Decimal("5.5"), insulin_type="basal")
+        InsulinLog.objects.create(user=self.user, units=Decimal("3.5"), insulin_type="bolus")
+
+        rows = self._weekly()
+        self.assertEqual(len(rows), 1)
+        # the old template arithmetic rendered this as 8
+        self.assertEqual(rows[0]["total_units"], Decimal("9.0"))
+
+    def test_bolus_only_day_reports_its_real_total(self):
+        """A day with no basal dose has a NULL basal Sum — it must not read 0."""
+        InsulinLog.objects.create(user=self.user, units=Decimal("22"), insulin_type="bolus")
+
+        rows = self._weekly()
+        self.assertIsNone(rows[0]["basal_units"])
+        self.assertEqual(rows[0]["total_units"], Decimal("22.0"))
+
+    def test_todays_totals_use_database_aggregation(self):
+        InsulinLog.objects.create(user=self.user, units=Decimal("5.5"), insulin_type="basal")
+        InsulinLog.objects.create(user=self.user, units=Decimal("3.5"), insulin_type="bolus")
+
+        response = self.client.get(reverse("log-insulin"))
+        self.assertEqual(response.context["total_units_today"], Decimal("9.0"))
+        self.assertEqual(response.context["basal_today"], Decimal("5.5"))
+        self.assertEqual(response.context["bolus_today"], Decimal("3.5"))
+
+
+class FreeTextLengthTest(TestCase):
+    """max_length is a form-layer constraint; Model.save() does not truncate.
+
+    These views hand-parse request.POST with no ModelForm, so an over-long
+    string used to reach Postgres and raise DataError — an unhandled 500 on the
+    most ordinary thing a user can do: paste a long description.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
+
+    def test_over_long_insulin_brand_is_rejected_not_a_500(self):
+        response = self.client.post(
+            reverse("add-insulin"),
+            {"units": "5", "insulin_type": "bolus", "brand": "x" * 60},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(InsulinLog.objects.filter(user=self.user).exists())
+
+    def test_over_long_meal_description_is_rejected_not_a_500(self):
+        response = self.client.post(
+            reverse("add-meal"), {"note": "x" * 300, "context": "lunch"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(MealLog.objects.filter(user=self.user).exists())
+
+    def test_over_long_glucose_note_is_rejected_not_a_500(self):
+        response = self.client.post(
+            reverse("add-glucose"),
+            {"value": "6.0", "context": "fasting", "note": "x" * 300},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(GlucoseLog.objects.filter(user=self.user).exists())
+
+    def test_a_value_at_the_limit_is_accepted(self):
+        response = self.client.post(
+            reverse("add-insulin"),
+            {"units": "5", "insulin_type": "bolus", "brand": "x" * 50},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(InsulinLog.objects.get(user=self.user).brand, "x" * 50)
+
+
+class MealMacroNullPreservationTest(TestCase):
+    """The macro fields are nullable on purpose: "not recorded" is not "zero".
+
+    The edit form used |default:'0', which fires on None, so reopening a meal
+    logged without macros pre-filled 0 in every box and saving wrote those
+    zeroes over the NULLs.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
+
+    def test_edit_form_does_not_prefill_null_macros_as_zero(self):
+        meal = MealLog.objects.create(
+            user=self.user, note="Toast", context="breakfast", calories=Decimal("500")
+        )
+        response = self.client.get(reverse("edit-meal", kwargs={"pk": meal.pk}))
+        self.assertEqual(response.context["form"]["carbs"], "")
+        self.assertEqual(response.context["form"]["protein"], "")
+        self.assertEqual(response.context["form"]["fats"], "")
+
+    def test_resaving_an_unchanged_meal_preserves_nulls_and_calories(self):
+        meal = MealLog.objects.create(
+            user=self.user, note="Toast", context="breakfast", calories=Decimal("500")
+        )
+        # exactly what the browser posts back from the untouched edit form
+        self.client.post(
+            reverse("edit-meal", kwargs={"pk": meal.pk}),
+            {
+                "note": "Toast",
+                "carbs": "",
+                "protein": "",
+                "fats": "",
+                "calories": "500",
+                "context": "breakfast",
+            },
+        )
+        meal.refresh_from_db()
+        self.assertIsNone(meal.carbs)
+        self.assertIsNone(meal.protein)
+        self.assertIsNone(meal.fats)
+        self.assertEqual(meal.calories, Decimal("500"))
+
+
+class GlucoseUnitStoragePathTest(TestCase):
+    """Display and storage must branch on the same test.
+
+    They used to differ: display asked "is it mg/dL?" while storage asked "is it
+    mmol?" and fell through to mg/dL. An unexpected preference value would then
+    render as mmol/L but be divided by 18 on the way in.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
+
+    def test_unknown_unit_stores_the_value_unchanged(self):
+        prefs, _ = UserPreferences.objects.get_or_create(user=self.user)
+        # bypass choices validation the way a bad migration or fixture would
+        UserPreferences.objects.filter(pk=prefs.pk).update(glucose_unit="mmol/L")
+
+        response = self.client.post(
+            reverse("add-glucose"), {"value": "6.0", "context": "fasting"}
+        )
+        self.assertEqual(response.status_code, 302)
+        # 6.0 stored as-is, not 6.0/18 == 0.333
+        self.assertEqual(GlucoseLog.objects.get(user=self.user).value, Decimal("6.000"))
+
+    def test_mgdl_preference_still_converts(self):
+        UserPreferences.objects.update_or_create(
+            user=self.user,
+            defaults={"glucose_unit": UserPreferences.GLUCOSE_UNIT_MGDL},
+        )
+        self.client.post(reverse("add-glucose"), {"value": "108", "context": "fasting"})
+        self.assertEqual(
+            GlucoseLog.objects.get(user=self.user).value, mgdl_to_mmol(Decimal("108"))
+        )
+
+
+class RejectedSubmissionKeepsInputTest(TestCase):
+    """A validation error must not throw away what the user typed."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
+
+    def test_glucose_out_of_range_echoes_the_submission(self):
+        response = self.client.post(
+            reverse("add-glucose"),
+            {"value": "400", "context": "bedtime", "note": "after pizza"},
+        )
+        self.assertEqual(response.status_code, 200)
+        form = response.context["form"]
+        self.assertEqual(form["value"], "400")
+        self.assertEqual(form["context"], "bedtime")
+        self.assertEqual(form["note"], "after pizza")
+
+    def test_first_error_is_the_one_reported(self):
+        """A later check used to overwrite an earlier error and mask it."""
+        response = self.client.post(
+            reverse("add-glucose"), {"value": "not-a-number", "context": "banana"}
+        )
+        self.assertEqual(response.context["error"], "Invalid reading context.")
+
+    def test_meal_rejection_echoes_the_submission(self):
+        response = self.client.post(
+            reverse("add-meal"),
+            {"note": "Pasta", "carbs": "-5", "context": "dinner"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"]["note"], "Pasta")
+        self.assertEqual(response.context["form"]["carbs"], "-5")
+
+
 class DashboardChartOrderingTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -416,3 +639,52 @@ class DashboardChartOrderingTest(TestCase):
         )
         response = self.client.get(reverse("glucolog-dashboard"))
         self.assertEqual(response.context["glucose_values"], [5.0, 7.0])
+
+
+class DisplayRoundingTest(TestCase):
+    """mmol/L is stored at three decimals so the mg/dL round-trip is lossless.
+
+    That precision is an implementation detail. Rounding used to be applied only
+    on the mg/dL branch, so mmol/L readings rendered raw — "5.573 mmol/L" — and
+    a mg/dL user who switched units saw the artefacts of their own quantisation.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@example.com", password="test123"
+        )
+        self.client.login(email="test@example.com", password="test123")
+        # a value with more precision than anyone reads, as the seeder produces
+        GlucoseLog.objects.create(user=self.user, value=Decimal("5.573"))
+
+    def _set_unit(self, unit):
+        UserPreferences.objects.update_or_create(
+            user=self.user, defaults={"glucose_unit": unit}
+        )
+
+    def test_mmol_readings_render_at_one_decimal(self):
+        self._set_unit(UserPreferences.GLUCOSE_UNIT_MMOL)
+        response = self.client.get(reverse("log-glucose"))
+        self.assertEqual(response.context["current_glucose_value"], 5.6)
+        self.assertEqual(response.context["recent_activity"][0]["value"], 5.6)
+
+    def test_dashboard_label_is_not_three_decimals(self):
+        self._set_unit(UserPreferences.GLUCOSE_UNIT_MMOL)
+        response = self.client.get(reverse("glucolog-dashboard"))
+        self.assertEqual(
+            response.context["recent_activity"][0]["label"],
+            "Glucose reading (5.6 mmol/L)",
+        )
+
+    def test_mgdl_conversion_is_unaffected(self):
+        self._set_unit(UserPreferences.GLUCOSE_UNIT_MGDL)
+        response = self.client.get(reverse("log-glucose"))
+        # 5.573 * 18 == 100.314 -> 100.3
+        self.assertEqual(response.context["current_glucose_value"], 100.3)
+
+    def test_none_stays_none(self):
+        GlucoseLog.objects.all().delete()
+        self._set_unit(UserPreferences.GLUCOSE_UNIT_MMOL)
+        response = self.client.get(reverse("log-glucose"))
+        self.assertIsNone(response.context["current_glucose_value"])
+        self.assertIsNone(response.context["avg_glucose"])

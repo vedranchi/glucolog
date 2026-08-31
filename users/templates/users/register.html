@@ -8,6 +8,8 @@
 
 <form method="POST" class="auth-form">
   {% csrf_token %}
+  {# carry ?next= through the POST so @login_required lands the user where they were headed #}
+  {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
   {% include "users/_form_fields.html" %}
   <button type="submit" class="btn btn-primary btn-full">Create account</button>
 </form>

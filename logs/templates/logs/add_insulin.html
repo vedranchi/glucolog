@@ -33,14 +33,14 @@
             id="units" 
             min="0" 
             required
-            value="{{ insulin.units|default_if_none:'' }}"
+            value="{{ form.units|default_if_none:'' }}"
         >
-        
+
         <label for="insulin_type">Type</label>
         <select name="insulin_type" id="insulin_type" required>
             <option value="">Select type</option>
-            <option value="basal" {% if insulin.insulin_type == 'basal' %}selected{% endif %}>Basal (long-acting)</option>
-            <option value="bolus" {% if insulin.insulin_type == 'bolus' %}selected{% endif %}>Bolus (rapid-acting)</option>
+            <option value="basal" {% if form.insulin_type == 'basal' %}selected{% endif %}>Basal (long-acting)</option>
+            <option value="bolus" {% if form.insulin_type == 'bolus' %}selected{% endif %}>Bolus (rapid-acting)</option>
         </select>
         
         <label for="brand">Brand</label>
@@ -49,7 +49,8 @@
             name="brand" 
             id="brand" 
             placeholder="e.g., NovoLog, Lantus"
-            value="{{ insulin.brand|default_if_none:'' }}"
+            maxlength="50"
+            value="{{ form.brand|default_if_none:'' }}"
         >
         <small>Optional: Enter the brand name of your insulin</small>
         
@@ -59,7 +60,8 @@
             name="note" 
             id="note" 
             placeholder="e.g., correction, with meal"
-            value="{{ insulin.note|default_if_none:'' }}"
+            maxlength="255"
+            value="{{ form.note|default_if_none:'' }}"
         >
         <small>Optional: Add context like "correction" or "with breakfast"</small>
         

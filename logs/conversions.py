@@ -29,3 +29,19 @@ MMOL_QUANTUM = Decimal("0.001")
 def mgdl_to_mmol(value):
     """Convert a mg/dL reading to the mmol/L value to store."""
     return (value / Decimal(MMOL_TO_MGDL)).quantize(MMOL_QUANTUM)
+
+
+def to_display(value, is_mgdl):
+    """Convert a stored mmol/L reading to the unit the user reads.
+
+    Both units render at one decimal place. mmol/L is *stored* at three so the
+    mg/dL round-trip stays lossless (see MMOL_QUANTUM), but that precision is an
+    implementation detail — nobody reads a glucose reading as "5.573 mmol/L".
+    Rounding used to be applied only on the mg/dL branch, so mmol/L users saw
+    the raw stored value, and a mg/dL user who switched units saw the artefacts
+    of their own quantisation (100 mg/dL -> "5.556 mmol/L").
+    """
+    if value is None:
+        return None
+    value = float(value)
+    return round(value * MMOL_TO_MGDL if is_mgdl else value, 1)

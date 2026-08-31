@@ -302,3 +302,5 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 LOGIN_URL = "glucolog-login"
+# Where sign-in and sign-up land when there is no (valid) ?next= to honour.
+LOGIN_REDIRECT_URL = "glucolog-dashboard"
